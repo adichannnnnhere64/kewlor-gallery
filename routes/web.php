@@ -28,4 +28,5 @@ Route::middleware('auth')->group(function (): void {
 
     Route::post('upload/{model}', [UploadController::class, 'store'])->name('upload');
     Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create');
+    Route::get('live-event', [LiveEventGalleryController::class, 'index'])->name('live-event.index');
 });
