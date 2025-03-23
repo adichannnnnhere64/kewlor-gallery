@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Volt\Volt;
 
-test('can view login page', function () {
+test('can view login page', function (): void {
     $this->get('/auth/login')
         ->assertSuccessful();
 });
 
-test('is redirected if already logged in', function () {
+test('is redirected if already logged in', function (): void {
     $user = User::factory()->create();
 
     $this->be($user);
@@ -19,7 +19,7 @@ test('is redirected if already logged in', function () {
         ->assertRedirect('/home');
 });
 
-test('a user can login', function () {
+test('a user can login', function (): void {
     $user = User::factory()->create(['password' => Hash::make('password')]);
 
     Volt::test('auth.login')
@@ -30,7 +30,7 @@ test('a user can login', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('is redirected to home after login', function () {
+test('is redirected to home after login', function (): void {
     $user = User::factory()->create(['password' => Hash::make('password')]);
 
     Volt::test('auth.login')
@@ -40,7 +40,7 @@ test('is redirected to home after login', function () {
         ->assertRedirect('/');
 });
 
-test('email is required', function () {
+test('email is required', function (): void {
     $user = User::factory()->create(['password' => Hash::make('password')]);
 
     Volt::test('auth.login')
@@ -49,7 +49,7 @@ test('email is required', function () {
         ->assertHasErrors(['email' => 'required']);
 });
 
-test('email must be valid email', function () {
+test('email must be valid email', function (): void {
     $user = User::factory()->create(['password' => Hash::make('password')]);
 
     Volt::test('auth.login')
@@ -59,7 +59,7 @@ test('email must be valid email', function () {
         ->assertHasErrors(['email' => 'email']);
 });
 
-test('password is required', function () {
+test('password is required', function (): void {
     $user = User::factory()->create(['password' => Hash::make('password')]);
 
     Volt::test('auth.login')
@@ -68,7 +68,7 @@ test('password is required', function () {
         ->assertHasErrors(['password' => 'required']);
 });
 
-test('bad login attempt shows message', function () {
+test('bad login attempt shows message', function (): void {
     $user = User::factory()->create();
 
     Volt::test('auth.login')

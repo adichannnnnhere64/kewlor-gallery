@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Actions\UploadImage;
+use App\Http\Requests\LiveEventGalleryRequest;
 
 class UploadController extends Controller
 {
-    public function store(Request $request, UploadImage $uploadImage)
+    public function store(LiveEventGalleryRequest $request, UploadImage $action)
     {
-        $uploadImage->handle();
+        $action->handle($request->file);
     }
 }

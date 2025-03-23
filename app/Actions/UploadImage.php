@@ -2,10 +2,12 @@
 
 namespace App\Actions;
 
+use Illuminate\Http\UploadedFile;
+
 final class UploadImage
 {
-    public function handle(): void
+    public function handle(UploadedFile $file): void
     {
-        dd('uploading');
+        /* $file */
     }
 }

@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Livewire\Volt\Volt;
 
-test('registration page returns ok', function () {
+test('registration page returns ok', function (): void {
     $this->get('auth/register')
         ->assertSuccessful();
 });
 
-test('is redirected if already logged in', function () {
+test('is redirected if already logged in', function (): void {
     $user = User::factory()->create();
 
     $this->be($user);
@@ -20,7 +20,7 @@ test('is redirected if already logged in', function () {
         ->assertRedirect(route('home'));
 });
 
-test('a user can register', function () {
+test('a user can register', function (): void {
     Event::fake();
 
     Volt::test('auth.register')
@@ -37,28 +37,28 @@ test('a user can register', function () {
     Event::assertDispatched(Registered::class);
 });
 
-test('name is required', function () {
+test('name is required', function (): void {
     Volt::test('auth.register')
         ->set('name', '')
         ->call('register')
         ->assertHasErrors(['name' => 'required']);
 });
 
-test('email is required', function () {
+test('email is required', function (): void {
     Volt::test('auth.register')
         ->set('email', '')
         ->call('register')
         ->assertHasErrors(['email' => 'required']);
 });
 
-test('email is valid email', function () {
+test('email is valid email', function (): void {
     Volt::test('auth.register')
         ->set('email', 'tallstack')
         ->call('register')
         ->assertHasErrors(['email' => 'email']);
 });
 
-test('email hasnt been taken already', function () {
+test('email hasnt been taken already', function (): void {
     User::factory()->create(['email' => 'tallstack@example.com']);
 
     Volt::test('auth.register')
@@ -67,7 +67,7 @@ test('email hasnt been taken already', function () {
         ->assertHasErrors(['email' => 'unique']);
 });
 
-test('see email hasnt already been taken validation message as user types', function () {
+test('see email hasnt already been taken validation message as user types', function (): void {
     User::factory()->create(['email' => 'genesis@example.com']);
 
     Volt::test('auth.register')
@@ -78,7 +78,7 @@ test('see email hasnt already been taken validation message as user types', func
         ->assertHasErrors(['email' => 'unique']);
 });
 
-test('password is required', function () {
+test('password is required', function (): void {
     Volt::test('auth.register')
         ->set('password', '')
         ->set('passwordConfirmation', 'password')
@@ -86,7 +86,7 @@ test('password is required', function () {
         ->assertHasErrors(['password' => 'required']);
 });
 
-test('password is minimum of eight characters', function () {
+test('password is minimum of eight characters', function (): void {
     Volt::test('auth.register')
         ->set('password', 'secret')
         ->set('passwordConfirmation', 'secret')
@@ -94,7 +94,7 @@ test('password is minimum of eight characters', function () {
         ->assertHasErrors(['password' => 'min']);
 });
 
-test('password matches password confirmation', function () {
+test('password matches password confirmation', function (): void {
     Volt::test('auth.register')
         ->set('email', 'tallstack@example.com')
         ->set('password', 'password')

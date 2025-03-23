@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Livewire\Volt\Volt;
 
-test('can view password reset page', function () {
+test('can view password reset page', function (): void {
     $user = User::factory()->create();
 
     $token = Str::random(16);
@@ -24,7 +24,7 @@ test('can view password reset page', function () {
         ->assertSee($user->email);
 });
 
-test('can reset password', function () {
+test('can reset password', function (): void {
     $user = User::factory()->create();
 
     $token = Str::random(16);
@@ -49,7 +49,7 @@ test('can reset password', function () {
     ]))->toBeTrue();
 });
 
-test('token is required', function () {
+test('token is required', function (): void {
     Volt::test('auth.password.token', [
         'token' => null,
     ])
@@ -57,7 +57,7 @@ test('token is required', function () {
         ->assertHasErrors(['token' => 'required']);
 });
 
-test('email is required', function () {
+test('email is required', function (): void {
     Volt::test('auth.password.token', [
         'token' => Str::random(16),
     ])
@@ -66,7 +66,7 @@ test('email is required', function () {
         ->assertHasErrors(['email' => 'required']);
 });
 
-test('email is valid email', function () {
+test('email is valid email', function (): void {
     Volt::test('auth.password.token', [
         'token' => Str::random(16),
     ])
@@ -75,7 +75,7 @@ test('email is valid email', function () {
         ->assertHasErrors(['email' => 'email']);
 });
 
-test('password is required', function () {
+test('password is required', function (): void {
     Volt::test('auth.password.token', [
         'token' => Str::random(16),
     ])
@@ -84,7 +84,7 @@ test('password is required', function () {
         ->assertHasErrors(['password' => 'required']);
 });
 
-test('password is minimum of eight characters', function () {
+test('password is minimum of eight characters', function (): void {
     Volt::test('auth.password.token', [
         'token' => Str::random(16),
     ])
@@ -93,7 +93,7 @@ test('password is minimum of eight characters', function () {
         ->assertHasErrors(['password' => 'min']);
 });
 
-test('password matches password confirmation', function () {
+test('password matches password confirmation', function (): void {
     Volt::test('auth.password.token', [
         'token' => Str::random(16),
     ])

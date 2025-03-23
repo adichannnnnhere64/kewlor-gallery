@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\LiveEventGalleryController;
 use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('home', '/')->name('home');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function (): void {
     Route::get('email/verify/{id}/{hash}', EmailVerificationController::class)
         ->middleware('signed')
         ->name('verification.verify');
@@ -26,4 +27,5 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
     Route::post('upload', [UploadController::class, 'store'])->name('upload');
+    Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create');
 });

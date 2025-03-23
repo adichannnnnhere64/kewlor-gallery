@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
 use Livewire\Volt\Volt;
 
-test('can view verification page', function () {
+test('can view verification page', function (): void {
     $user = User::factory()->create([
         'email_verified_at' => null,
     ]);
@@ -19,7 +19,7 @@ test('can view verification page', function () {
         ->assertSuccessful();
 });
 
-test('can resend verification email', function () {
+test('can resend verification email', function (): void {
     $user = User::factory()->create();
 
     Livewire::actingAs($user);
@@ -29,7 +29,7 @@ test('can resend verification email', function () {
         ->assertDispatched('resent');
 });
 
-test('can verify', function () {
+test('can verify', function (): void {
     $user = User::factory()->create([
         'email_verified_at' => null,
     ]);
