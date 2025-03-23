@@ -26,6 +26,6 @@ Route::middleware('auth')->group(function (): void {
     Route::post('logout', LogoutController::class)
         ->name('logout');
 
-    Route::post('upload', [UploadController::class, 'store'])->name('upload');
+    Route::post('upload/{model}', [UploadController::class, 'store'])->name('upload');
     Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create');
 });

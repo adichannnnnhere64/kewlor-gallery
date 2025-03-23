@@ -2,12 +2,18 @@
 
 namespace App\Actions;
 
+use App\Models\LiveEventGallery;
 use Illuminate\Http\UploadedFile;
+use Plank\Mediable\Facades\MediaUploader;
 
 final class UploadImage
 {
-    public function handle(UploadedFile $file): void
+    public function handle(LiveEventGallery $model, UploadedFile $file): void
     {
-        /* $file */
+        $media = MediaUploader::fromSource($file)
+        ->toDestination('public', 'gallery')
+        ->upload();
+
+        $model->attachMedia($media, ['default']);
     }
 }

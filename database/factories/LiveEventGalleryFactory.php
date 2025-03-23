@@ -17,7 +17,8 @@ class LiveEventGalleryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->name(),
+            'date' => fake()->date(),
         ];
     }
 }

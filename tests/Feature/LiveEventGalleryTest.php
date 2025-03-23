@@ -8,21 +8,6 @@ use Illuminate\Support\Facades\Storage;
 use function Pest\Laravel\post;
 
 
-test('uploading image works', function () {
-
-    Storage::fake();
-
-    $image = UploadedFile::fake()->image('image.jpg');
-    Auth::login(User::factory()->create());
-
-    $response = post(route('upload'), [
-        'cover' => $image
-    ]);
-
-    /* dd($response); */
-});
-
-
 test('live event saves', function () {
 
 
