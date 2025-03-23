@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,4 +24,6 @@ Route::middleware('auth')->group(function () {
         ->name('verification.verify');
     Route::post('logout', LogoutController::class)
         ->name('logout');
+
+    Route::post('upload', [UploadController::class, 'store'])->name('upload');
 });
