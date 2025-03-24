@@ -10,12 +10,22 @@ use Illuminate\Http\Request;
 class LiveEventGalleryController extends Controller
 {
 
-    public function index()
-    {
-        return view('pages.live-event.index', [
-            'data' => LiveEventGallery::query()->orderBy('date')->paginate(10)
-        ]);
+    public function index(Request $request)
+{
+
+    $data = LiveEventGallery::query()->orderBy('date')->paginate(10);
+
+    if ($request->search) {
+        $data = LiveEventGallery::query()->where('name', 'like', '%' . $request->search . '%')->orderBy('date')->paginate(10);
     }
+
+    if (request()->ajax()) {
+        return view('live-event-gallery._partial', ['data' => $data]);
+    }
+
+    return view('pages.live-event.index', ['data' => $data]);
+}
+
 
 
     public function store(LiveEventGalleryRequest $request, CreateLiveEvent $action)
@@ -32,5 +42,10 @@ class LiveEventGalleryController extends Controller
             'message' => 'success',
         ]);
 
+    }
+
+    public function edit(LiveEventGallery $model)
+    {
+        return view('pages.live-event.index', ['data' => $model]);
     }
 }

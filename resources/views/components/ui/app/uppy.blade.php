@@ -1,5 +1,5 @@
 @props([
-    'endpoint' => route('upload')
+    'endpoint' => route('upload', 0)
 ])
 
 @assets

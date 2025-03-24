@@ -3,22 +3,33 @@
 use Illuminate\Support\Facades\Http;
 
 use function Laravel\Folio\{middleware, name};
-use function Livewire\Volt\{state};
+use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
+use App\Models\LiveEventGallery;
+use Livewire\WithPagination;
 
 name('live-event');
 middleware(['auth', 'verified']);
 
-state(['data' => []]);
-
 new class extends Component {
-//    public $data = [];
+
+        use WithPagination;
+
+        public function with(): array
+    {
+        return [
+            'data' => LiveEventGallery::query()->orderBy('date')->paginate(10),
+        ];
+    }
 
     public function mount()
     {
  //       $this->data = $data;
     }
 };
+
+
+#with(fn () => ['posts' => 'adicchans']);
 
 ?>
 
@@ -36,9 +47,73 @@ new class extends Component {
         </h2>
     </x-slot>
 
+
     @volt('live-event')
     <div>
-        <livewire:live-event-gallery-table />
+        <div
+    x-data="{
+        // checks any search query string in browser URL
+        query: new URLSearchParams(location.search).get('s') || '',
+
+        // fetches data using fetch api
+        fetchData(page = null) {
+            let currentPageFromUrl = location.search.match(/page=(\d+)/)
+                            ? location.search.match(/page=(\d+)/)[1]
+                            : 1
+
+            if (this.query) {
+                currentPageFromUrl = 1;
+                history.pushState(null, null, '?page=1&search='+ this.query);
+            }
+
+            const endpointURL =  page !== null
+                        ? `${page}&search=${this.query}`
+                        : `/live-event?page=${currentPageFromUrl}&search=${this.query}`;
+
+            if (page) {
+
+                const urlObj = new URL(page);
+
+                const params = new URLSearchParams(urlObj.search);
+
+                history.pushState(null, null, '?page=' + params.get('page') );
+            }
+
+            fetch(endpointURL, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.querySelector('#js-contacts-body').innerHTML = html
+                })
+        }
+    }"
+    x-init="
+        $watch('query', (value) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', value);
+            history.pushState(null, document.title, url.toString());
+        })
+    "
+    @goto-page="fetchData($event.detail.page)"
+    @reload.window="fetchData()"
+    x-cloak>
+
+    <div class="my-4">
+                <input type="text"
+                    placeholder="Search"
+                    class="appearance-none flex w-full h-10 px-3 py-2 text-sm bg-white dark:text-gray-300 dark:bg-white/[4%] border rounded-md border-gray-300 dark:border-white/10 ring-offset-background placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-gray-300 dark:focus:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200/60 dark:focus:ring-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            x-model="query"
+            x-on:input.debounce.750="fetchData()"
+                />
+    </div>
+
+    <div id="js-contacts-body">
+        @include('live-event-gallery._partial')
+    </div>
+</div>
 
     </div>
 
