@@ -51,19 +51,126 @@ new class extends Component {
 </style>
 
 <x-layouts.marketing>
-
     @volt('live-event.show')
-    <div class="relative flex flex-col items-center justify-center w-full h-auto overflow-hidden" x-cloak>
+    <div class="relative flex flex-col items-center justify-center w-full h-auto overflow-hidden" x-cloak
+         x-data="{ isOpen: false, currentImage: '' }">
 
-        <div class="flex flex-wrap justify-start gap-4 w-full max-w-6xl px-8 pt-12 pb-20 mx-auto">
-        @foreach ($images as $image)
+        <style>
+            /* Thumbnail styles */
+            .thumbnail-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+                width: 100%;
+            }
 
-            <x-ui.card-image :image="$image->getUrl()" />
-        @endforeach
+            /* Lightbox styles */
+            .lightbox-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(8px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
 
+            .lightbox-overlay {
+                opacity: 1;
+            }
+
+            .lightbox-content {
+                position: relative;
+                max-width: 90vw;
+                max-height: 90vh;
+            }
+
+            .lightbox-image {
+                max-width: 100%;
+                max-height: 80vh;
+                border-radius: 8px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            }
+
+            .close-btn {
+                position: absolute;
+                top: -40px;
+                right: 0;
+                font-size: 2rem;
+                color: white;
+                background: none;
+                border: none;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .close-btn:hover {
+                transform: scale(1.2);
+            }
+
+            /* Make cards clickable */
+            .clickable-card {
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .clickable-card:hover {
+                transform: scale(1.02);
+            }
+
+               /* Add this to your existing styles */
+    .clickable-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.5rem; /* Match this with your card's border radius */
+    }
+
+    .clickable-card img {
+        transition: transform 0.3s ease;
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .clickable-card:hover img {
+        transform: scale(1.02);
+    }
+
+    /* This ensures the overlay is properly positioned */
+    .clickable-card > div:first-child {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none; /* Allows clicking through the overlay */
+    }
+
+    /* Make sure the eye button is above the overlay */
+    .clickable-card button {
+        z-index: 10;
+    }
+        </style>
+
+        <div class="grid w-full grid-cols-3 gap-8 mt-8 max-w-6xl">
+            @foreach ($images as $image)
+                    <x-ui.card-image :key="$image->id" :detailsUrl="route('public.image.show', ['id' => $image->id])" :image="$image->getUrl()" />
+            @endforeach
         </div>
+
+            <div x-show="isOpen" class="lightbox-overlay" >
+                <div class="lightbox-content" @click.outside="isOpen = false">
+                    <button class="close-btn" @click="isOpen = false">×</button>
+                    <img x-bind:src="currentImage" alt="Full size image" class="lightbox-image">
+                </div>
+            </div>
 
     </div>
     @endvolt
-
 </x-layouts.marketing>

@@ -102,6 +102,8 @@ new class extends Component {
     x-cloak>
 
     <div class="my-4">
+
+        <button type="button" class="my-2 px-4 py-2 bg-blue-600 text-white rounded" >Create</button>
                 <input type="text"
                     placeholder="Search"
                     class="appearance-none flex w-full h-10 px-3 py-2 text-sm bg-white dark:text-gray-300 dark:bg-white/[4%] border rounded-md border-gray-300 dark:border-white/10 ring-offset-background placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-gray-300 dark:focus:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200/60 dark:focus:ring-white/20 disabled:cursor-not-allowed disabled:opacity-50"
@@ -110,6 +112,10 @@ new class extends Component {
                 />
     </div>
 
+    <div>
+
+
+</div>
     <div id="js-contacts-body">
         @include('live-event-gallery._partial')
     </div>
