@@ -30,6 +30,6 @@ Route::middleware('auth')->group(function (): void {
 
     Route::post('upload/{model}', [UploadController::class, 'store'])->name('upload');
     /* Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create'); */
-    Route::get('live-event', [LiveEventGalleryController::class, 'index'])->name('live-event.index');
+    Route::get('live-event', [LiveEventGalleryController::class, 'index'])->name('live-event.index')->middleware(['can:access-admin-panel']);
     /* Route::get('live-event/{model}', [LiveEventGalleryController::class, 'edit'])->name('live-event.edit'); */
 });

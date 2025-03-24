@@ -9,7 +9,7 @@ use App\Models\LiveEventGallery;
 use Livewire\WithPagination;
 
 name('live-event');
-middleware(['auth', 'verified']);
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component {
 
@@ -21,6 +21,7 @@ new class extends Component {
             'data' => LiveEventGallery::query()->orderBy('date')->paginate(10),
         ];
     }
+
 
     public function mount(): void
     {

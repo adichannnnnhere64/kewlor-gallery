@@ -9,7 +9,7 @@ use App\Models\LiveEventGallery;
 use Livewire\WithPagination;
 
 name('live-event.edit');
-middleware(['auth', 'verified']);
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component {
 
