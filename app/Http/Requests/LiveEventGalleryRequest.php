@@ -23,7 +23,7 @@ class LiveEventGalleryRequest extends FormRequest
     {
         return [
             'name' => 'nullable',
-            'date' => 'required'
+            'date' => 'required',
         ];
     }
 }

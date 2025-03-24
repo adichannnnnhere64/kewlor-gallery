@@ -7,11 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\assertModelExists;
-use function Pest\Laravel\get;
 use function Pest\Laravel\post;
-use function PHPUnit\Framework\assertNotNull;
 
-test('can upload image', function () {
+test('can upload image', function (): void {
 
     Storage::fake();
 
@@ -20,16 +18,15 @@ test('can upload image', function () {
 
     $model = LiveEventGallery::factory()->create();
 
-    $response = post(route('upload', [ $model->id ]), [
-        'file' => $image
+    $response = post(route('upload', [$model->id]), [
+        'file' => $image,
     ]);
 
     $response->assertStatus(200);
     $response->assertExactJson([
-        'message' => 'success'
+        'message' => 'success',
     ]);
 
     $model->refresh();
     assertModelExists($model->getMedia('default')->first());
 });
-

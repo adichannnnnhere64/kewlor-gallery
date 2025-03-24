@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Actions\UploadImage;
 use App\Http\Requests\UploadRequest;
 use App\Models\LiveEventGallery;

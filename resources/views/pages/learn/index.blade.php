@@ -11,7 +11,7 @@ middleware(['auth', 'verified']);
 new class extends Component {
     public $readme = '';
 
-    public function mount()
+    public function mount(): void
     {
         $this->readme = Http::get('https://raw.githubusercontent.com/thedevdojo/genesis/main/README.md')->body();
     }

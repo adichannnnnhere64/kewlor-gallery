@@ -10,7 +10,7 @@ name('verification.notice');
 
 new class extends Component
 {
-    public function resend()
+    public function resend(): void
     {
         $user = auth()->user();
         if ($user->hasVerifiedEmail()) {

@@ -10,11 +10,11 @@ name('password.request');
 new class extends Component
 {
     #[Validate('required|email')]
-    public $email = null;
+    public $email;
 
     public $emailSentMessage = false;
 
-    public function sendResetPasswordLink()
+    public function sendResetPasswordLink(): void
     {
         $this->validate();
 

@@ -26,16 +26,16 @@ new class extends Component {
     public $new_password_confirmation = '';
     public $delete_confirm_password = '';
 
-    public function mount()
+    public function mount(): void
     {
         $this->user = auth()->user();
         $this->name = $this->user->name;
         $this->email = $this->user->email;
     }
 
-    public function updateProfile()
+    public function updateProfile(): void
     {
-        $validated = $this->validate([
+        $this->validate([
             'name' => 'required|string|min:3',
             'email' => 'required|min:3|email|max:255|unique:users,email,' . $this->user->id . ',id',
         ]);
@@ -51,9 +51,9 @@ new class extends Component {
         $this->dispatch('toast', message: 'Successfully updated profile.', data: ['position' => 'top-right', 'type' => 'success']);
     }
 
-    public function updatePassword()
+    public function updatePassword(): void
     {
-        $validated = $this->validate();
+        $this->validate();
 
         if (!Hash::check($this->current_password, $this->user->password)) {
             $this->dispatch('toast', message: 'Current Password Incorrect', data: ['position' => 'top-right', 'type' => 'danger']);
@@ -71,7 +71,7 @@ new class extends Component {
         if (!Hash::check($this->delete_confirm_password, $this->user->password)) {
             $this->dispatch('toast', message: 'The Password you entered is incorrect', data: ['position' => 'top-right', 'type' => 'danger']);
             $this->reset(['delete_confirm_password']);
-            return;
+            return null;
         }
 
         $user = auth()->user();

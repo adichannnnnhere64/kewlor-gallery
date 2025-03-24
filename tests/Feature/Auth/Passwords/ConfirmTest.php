@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 beforeEach(function (): void {
-    Route::get('/must-be-confirmed', function () {
-        return 'You must be confirmed to see this page.';
-    })->middleware(['web', 'password.confirm']);
+    Route::get('/must-be-confirmed', fn(): string => 'You must be confirmed to see this page.')->middleware(['web', 'password.confirm']);
 });
 
 test('a user must confirm their password before visiting a protected page', function (): void {

@@ -19,7 +19,7 @@ new class extends Component {
     public $date;
     public $images;
 
-        public function mount($id)
+        public function mount($id): void
     {
         $this->id = $id;
         $liveEvent = LiveEventGallery::find($this->id);
@@ -38,7 +38,7 @@ new class extends Component {
         ];
     }
 
-       public function submit()
+       public function submit(): void
         {
         // Validate the input
         $this->validate([

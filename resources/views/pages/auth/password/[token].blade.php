@@ -25,7 +25,7 @@ new class extends Component
     public $password;
     public $passwordConfirmation;
 
-    public function mount($token)
+    public function mount($token): void
     {
         $this->email = request()->query('email', '');
         $this->token = $token;
@@ -61,6 +61,7 @@ new class extends Component
         }
 
         $this->addError('email', trans($response));
+        return null;
     }
 };
 

@@ -18,7 +18,7 @@ new class extends Component {
     public $date;
     public $images;
 
-        public function mount($id)
+        public function mount($id): void
     {
         $this->id = $id;
         $liveEvent = LiveEventGallery::find($this->id);

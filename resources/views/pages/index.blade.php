@@ -11,7 +11,7 @@ new class extends Component
 {
     public $liveEvents;
 
-    public function mount()
+    public function mount(): void
     {
         $this->liveEvents = LiveEventGallery::query()->orderBy('date')->get();
     }

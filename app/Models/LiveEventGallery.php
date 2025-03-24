@@ -10,5 +10,6 @@ class LiveEventGallery extends Model
 {
     /** @use HasFactory<\Database\Factories\LiveEventGalleryFactory> */
     use HasFactory;
+
     use Mediable;
 }

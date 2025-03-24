@@ -26,7 +26,7 @@ new class extends Component
         if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             $this->addError('email', trans('auth.failed'));
 
-            return;
+            return null;
         }
 
         event(new Login(auth()->guard('web'), User::where('email', $this->email)->first(), $this->remember));

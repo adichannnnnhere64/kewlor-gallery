@@ -22,7 +22,7 @@ new class extends Component {
         ];
     }
 
-    public function mount()
+    public function mount(): void
     {
  //       $this->data = $data;
     }

@@ -9,30 +9,27 @@ use Illuminate\Http\Request;
 
 class LiveEventGalleryController extends Controller
 {
-
     public function index(Request $request)
-{
+    {
 
-    $data = LiveEventGallery::query()->orderBy('date')->paginate(10);
+        $data = LiveEventGallery::query()->orderBy('date')->paginate(10);
 
-    if ($request->search) {
-        $data = LiveEventGallery::query()->where('name', 'like', '%' . $request->search . '%')->orderBy('date')->paginate(10);
+        if ($request->search) {
+            $data = LiveEventGallery::query()->where('name', 'like', '%'.$request->search.'%')->orderBy('date')->paginate(10);
+        }
+
+        if (request()->ajax()) {
+            return view('live-event-gallery._partial', ['data' => $data]);
+        }
+
+        return view('pages.live-event.index', ['data' => $data]);
     }
-
-    if (request()->ajax()) {
-        return view('live-event-gallery._partial', ['data' => $data]);
-    }
-
-    return view('pages.live-event.index', ['data' => $data]);
-}
-
-
 
     public function store(LiveEventGalleryRequest $request, CreateLiveEvent $action)
     {
         $model = $action->handle($request->array(['name', 'date']));
 
-        if (!$model) {
+        if (! $model) {
             return response([
                 'message' => 'Something went wrong',
             ]);

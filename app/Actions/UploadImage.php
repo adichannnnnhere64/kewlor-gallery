@@ -11,8 +11,8 @@ final class UploadImage
     public function handle(LiveEventGallery $model, UploadedFile $file): void
     {
         $media = MediaUploader::fromSource($file)
-        ->toDestination('public', 'gallery')
-        ->upload();
+            ->toDestination('public', 'gallery')
+            ->upload();
 
         $model->attachMedia($media, ['default']);
     }
