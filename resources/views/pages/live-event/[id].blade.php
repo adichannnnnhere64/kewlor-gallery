@@ -53,7 +53,8 @@ new class extends Component {
                 'date' => $this->date,
             ]);
 
-            session()->flash('message', 'Event updated successfully.');
+            session()->flash('message', 'Event updated successfully!');
+            #$this->dispatch('eventUpdated');
         }
     }
 
@@ -83,18 +84,27 @@ new class extends Component {
 
     <div>
         <form wire:submit.prevent="submit">
+
+            @if (session()->has('message'))
+    <div class="p-4 mb-4 text-green-700 bg-green-100 rounded">
+        {{ session('message') }}
+    </div>
+@endif
+
         <x-ui.input wire:model="name" label="name" id="name" name="name" />
         <x-ui.input wire:model="date" label="Date" id="date" name="date" type="date" />
             <div class="my-4 ">
-        <button type="button" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded" >
+        <button  type="submit" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded" >
                 Update
         </button>
 </div>
 
             <h1>Add images</h1>
 
+               <div wire:ignore>
             <x-ui.app.uppy :endpoint="route('upload', $id)">
             </x-ui.app.uppy>
+                    </div>
 
             <div>
                 @include('live-event-gallery.images')

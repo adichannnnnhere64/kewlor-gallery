@@ -7,7 +7,7 @@ use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
 use App\Models\LiveEventGallery;
 use Livewire\WithPagination;
-use Plank\Mediable\Media;
+use App\Models\Media;
 
 name('public.image.show');
 
@@ -37,10 +37,18 @@ new class extends Component {
     @volt('public.image.show')
 
     <div class="max-w-6xl px-8 pt-12 pb-20 mx-auto">
-        <div class="flex justify-center card">
+    <div class="flex justify-center card">
 
     <img src="{{ $media->getUrl() }}" alt="Image">
-</div>
+
+
+    </div>
+
+
+
+        <livewire:comments :model="$media" />
+
+
 </div>
 
     @endvolt

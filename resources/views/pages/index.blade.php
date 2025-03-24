@@ -5,7 +5,6 @@ use Livewire\Volt\Component;
 use App\Models\LiveEventGallery;
 
 name('home');
-middleware(['redirect-to-dashboard']);
 
 new class extends Component
 {

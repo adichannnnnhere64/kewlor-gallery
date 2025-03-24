@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('home', '/')->name('home');
 
+Route::redirect('login', 'auth/login');
+
 Route::middleware('auth')->group(function (): void {
     Route::get('email/verify/{id}/{hash}', EmailVerificationController::class)
         ->middleware('signed')
@@ -27,7 +29,7 @@ Route::middleware('auth')->group(function (): void {
         ->name('logout');
 
     Route::post('upload/{model}', [UploadController::class, 'store'])->name('upload');
-    Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create');
+    /* Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create'); */
     Route::get('live-event', [LiveEventGalleryController::class, 'index'])->name('live-event.index');
     /* Route::get('live-event/{model}', [LiveEventGalleryController::class, 'edit'])->name('live-event.edit'); */
 });

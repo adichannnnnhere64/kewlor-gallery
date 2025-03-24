@@ -9,7 +9,7 @@ use App\Models\LiveEventGallery;
 use Livewire\WithPagination;
 
 name('live-event.create');
-middleware(['auth', 'verified']);
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component {
 
@@ -30,6 +30,9 @@ new class extends Component {
             'name' => $this->name,
             'date' => $this->date,
         ]);
+
+        $this->name = "";
+        $this->date = "";
 
         session()->flash('message', 'Event created successfully.');
     }
@@ -57,8 +60,16 @@ new class extends Component {
 
     @volt('live-event.create')
 
+
+
     <div>
         <form wire:submit.prevent="submit">
+   @if (session()->has('message'))
+    <div class="p-4 mb-4 text-green-700 bg-green-100 rounded">
+            {{ session('message') }}
+        </div>
+   @endif
+
         <x-ui.input wire:model="name" label="name" id="name" name="name" />
         <x-ui.input wire:model="date" label="Date" id="date" name="date" type="date" />
             <div class="my-4 ">
