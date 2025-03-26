@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@gallery.com',
             'password' => bcrypt('gallery$!@#4'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
     }
 }
