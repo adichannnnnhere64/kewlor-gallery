@@ -14,6 +14,7 @@
         "php": "^8.2",
         "codeat3/blade-phosphor-icons": "^2.3",
         "cviebrock/eloquent-sluggable": "^12.0",
+        "cybercog/laravel-love": "^10.1",
         "intervention/image": "^3.11",
         "laravel/folio": "*",
         "laravel/framework": "^12.0",
