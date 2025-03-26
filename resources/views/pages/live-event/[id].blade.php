@@ -6,6 +6,7 @@ use function Laravel\Folio\{middleware, name};
 use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
 use App\Models\LiveEventGallery;
+use App\Models\Media;
 use Livewire\WithPagination;
 
 name('live-event.edit');
@@ -39,6 +40,23 @@ new class extends Component {
             'live_event' => LiveEventGallery::query()->find($this->id),
         ];
     }
+
+    public function deleteImage(int $id): void
+    {
+        $image = Media::find($id);
+        $image->delete();
+
+        $liveEvent = LiveEventGallery::find($this->id);
+        $this->images = $liveEvent->getMedia('default');
+
+        session()->flash('message', 'Image deleted successfully!');
+    }
+
+    public function reload(): void
+    {
+        $liveEvent = LiveEventGallery::find($this->id);
+        $this->images = $liveEvent->getMedia('default');
+}
 
        public function submit(): void
         {
@@ -106,13 +124,40 @@ new class extends Component {
 
             <h1>Add images</h1>
 
+            <div  @upload-complete.window="$wire.reload()">
+
+
                <div wire:ignore>
             <x-ui.app.uppy :endpoint="route('upload', $id)">
             </x-ui.app.uppy>
                     </div>
 
             <div>
-                @include('live-event-gallery.images')
+@if (isset($images) && $images->isNotEmpty())
+
+
+<div class="flex my-4 flex-row flex-wrap gap-4" >
+    @foreach ($images as $image)
+
+
+            <div class="flex justify-center flex-col items-center">
+        <img
+            src="{{ $image->getUrl() }}"
+            alt="{{ $image->name }}"
+            class="w-34 h-34 rounded-lg object-cover"
+        />
+                    <button
+
+                wire:confirm="Are you sure you want to delete this image?"
+            wire:click="deleteImage({{ $image->id }})" class="cursor-pointer text-red-600 bg-red-200 p-1 rounded-lg mt-2 ">delete</button>
+                        </div>
+
+    @endforeach
+
+</div>
+
+@endif
+
             </div>
     </form>
     </div>

@@ -46,7 +46,8 @@
 
         uppy.on('complete', (result) => {
             $dispatch('reload');
-            setTimeout(() => uppy.reset(), 2500);
+
+            $dispatch('upload-complete', 'success');
         });
 
         uppy.on('file-added', (file) => {

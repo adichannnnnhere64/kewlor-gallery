@@ -34,14 +34,15 @@ new class extends Component {
 </style>
 
 <x-layouts.marketing>
-    @volt('public.image.show')
 
     <x-ui.marketing.breadcrumbs :crumbs="[['text' => 'Image']]" />
+    @volt('public.image.show')
+
 
     <div class="max-w-6xl px-8 pt-12 pb-20 mx-auto">
     <div class="flex justify-center card">
 
-    <div class="lg:ml-12"></div>
+    <div class="lg:ml-12 bg-primary-700 space-x-4 p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900 p-6 mb-1 text-base bg-white rounded-lg dark:bg-gray-900"></div>
 
     <img src="{{ $media->getUrl() }}" alt="Image">
 

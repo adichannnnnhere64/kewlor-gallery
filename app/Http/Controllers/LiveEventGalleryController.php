@@ -45,4 +45,12 @@ class LiveEventGalleryController extends Controller
     {
         return view('pages.live-event.index', ['data' => $model]);
     }
+
+    public function delete(LiveEventGallery $model): mixed
+    {
+        $model->delete();
+
+        return response()->json(['message' => 'success']);
+
+    }
 }

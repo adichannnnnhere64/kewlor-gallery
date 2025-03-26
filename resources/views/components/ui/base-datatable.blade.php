@@ -18,7 +18,7 @@
                             return fetch(`/{{ $model }}/${id}`, {
                                 method: 'POST',
                                 body: JSON.stringify({
-                                    '_method': 'DELETE'
+
                                 }),
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -131,7 +131,7 @@
                                     @if($actions->contains('delete'))
                                         <button
                                             x-ref="deleteButton"
-                                            x-on:click="$refs.deleteButton.classList.add('base-spinner', 'cursor-not-allowed'); deleteitem('{{ route($deleteRoute, $item[$deleteId] ?? '') }}').then(() => $dispatch('reload')); $dispatch('notice', { type: 'success', text: 'item Deleted'})"
+                                            x-on:click="$refs.deleteButton.classList.add('base-spinner', 'cursor-not-allowed'); deleteitem('{{ $item[$deleteId] ?? '' }}').then(() => $dispatch('reload')); $dispatch('notice', { type: 'success', text: 'item Deleted'})"
                                             type="button"
                                             class="px-2 py-1 rounded-lg bg-red-500 text-white shadow-sm">Delete</button>
                                     @endif
