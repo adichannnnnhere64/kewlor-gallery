@@ -3,10 +3,10 @@
 namespace App\Actions;
 
 use App\Models\LiveEventGallery;
-use Intervention\Image\ImageManager;
 use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 use Plank\Mediable\Facades\MediaUploader;
 
 final class UploadImage
@@ -23,27 +23,25 @@ final class UploadImage
 
         $manager = new ImageManager(
             Driver::class
-                   );
-
-
+        );
 
         /** @var ImageManager $gridImage */
         $gridImage = $manager->create(800, 800);
 
         /** @var Media $mediaItem */
         foreach ($mediaItems as $index => $mediaItem) {
-        $path = $mediaItem->getAbsolutePath(); // Get local path instead of URL
+            $path = $mediaItem->getAbsolutePath(); // Get local path instead of URL
 
-    if (file_exists($path)) {
-        $image = $manager->read($path);
-        $image->resize(400, 400);
+            if (file_exists($path)) {
+                $image = $manager->read($path);
+                $image->resize(400, 400);
 
-        $x = ($index % 2) * 400;
-        $y = floor($index / 2) * 400;
+                $x = ($index % 2) * 400;
+                $y = floor($index / 2) * 400;
 
-        $gridImage->insert($image, 'top-left', $x, $y);
-    }
-}
+                $gridImage->insert($image, 'top-left', $x, $y);
+            }
+        }
         dd($gridImage);
 
         $media = MediaUploader::fromSource($file)

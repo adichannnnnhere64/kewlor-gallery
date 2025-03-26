@@ -8,5 +8,4 @@ use Usamamuneerchaudhary\Commentify\Traits\Commentable;
 class Media extends BaseMedia
 {
     use Commentable;
-
 }
