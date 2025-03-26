@@ -2,13 +2,9 @@
 
 namespace App\Actions;
 
-use App\Models\LiveEventGallery;
 use App\Models\Media;
-use App\Models\User;
 use Cog\Laravel\Love\Reacter\Facades\Reacter;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Facades\MediaUploader;
 
 final class VoteToggle
 {
@@ -20,7 +16,7 @@ final class VoteToggle
             $isVoted = $reactantFacade->isReactedBy($user, 'Like');
             $reacterFacade = $user->viaLoveReacter();
 
-            if (!$isVoted) {
+            if (! $isVoted) {
                 $this->like($reacterFacade, $model);
 
             } else {
@@ -30,14 +26,14 @@ final class VoteToggle
 
     }
 
-    private function like(Reacter $user, Media $model ): void
+    private function like(Reacter $user, Media $model): void
     {
-            $user->reactTo($model, 'Like');
+        $user->reactTo($model, 'Like');
     }
 
     private function dislike(Reacter $user, Media $model): void
     {
-            $user->unreactTo($model, 'Like');
+        $user->unreactTo($model, 'Like');
 
     }
 }
