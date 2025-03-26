@@ -36,14 +36,17 @@ new class extends Component {
 <x-layouts.marketing>
     @volt('public.image.show')
 
+    <x-ui.marketing.breadcrumbs :crumbs="[['text' => $name]]" />
+
     <div class="max-w-6xl px-8 pt-12 pb-20 mx-auto">
     <div class="flex justify-center card">
+
+    <div class="lg:ml-12"></div>
 
     <img src="{{ $media->getUrl() }}" alt="Image">
 
 
     </div>
-
 
 
         <livewire:comments :model="$media" />

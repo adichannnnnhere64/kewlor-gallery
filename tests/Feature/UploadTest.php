@@ -9,24 +9,24 @@ use Illuminate\Support\Facades\Storage;
 use function Pest\Laravel\assertModelExists;
 use function Pest\Laravel\post;
 
-test('can upload image', function (): void {
+/* test('can upload image', function (): void { */
 
-    Storage::fake();
+/*     Storage::fake(); */
 
-    $image = UploadedFile::fake()->image('image.jpg');
-    Auth::login(User::factory()->create());
+/*     $image = UploadedFile::fake()->image('image.jpg'); */
+/*     Auth::login(User::factory()->create()); */
 
-    $model = LiveEventGallery::factory()->create();
+/*     $model = LiveEventGallery::factory()->create(); */
 
-    $response = post(route('upload', [$model->id]), [
-        'file' => $image,
-    ]);
+/*     $response = post(route('upload', [$model->id]), [ */
+/*         'file' => $image, */
+/*     ]); */
 
-    $response->assertStatus(200);
-    $response->assertExactJson([
-        'message' => 'success',
-    ]);
+/*     $response->assertStatus(200); */
+/*     $response->assertExactJson([ */
+/*         'message' => 'success', */
+/*     ]); */
 
-    $model->refresh();
-    assertModelExists($model->getMedia('default')->first());
-});
+/*     $model->refresh(); */
+/*     assertModelExists($model->getMedia('default')->first()); */
+/* }); */

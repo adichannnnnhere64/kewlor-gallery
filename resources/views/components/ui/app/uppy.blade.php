@@ -16,9 +16,9 @@
             allowMultipleUploads: true,
             debug: false,
             restrictions: {
-                maxFileSize: 1 * 1024 * 1024, // 1 MB
+                maxFileSize: 1 * 20024 * 20024, // 1 MB
                 minNumberOfFiles: 1,
-                maxNumberOfFiles: 3,
+                maxNumberOfFiles: 500,
                 allowedFileTypes: ['image/*', 'image/svg+xml'],
             },
         })
@@ -59,7 +59,7 @@
 >
     <div id="{{ $id ?? 'drag-drop-area' }}" x-ref="dropzone"></div>
 
-    <button type="button" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded" x-on:click="uppy.upload()">
+    <button type="button" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded" x-on:click="uppy.upload()">
         Upload Files
     </button>
 </div>

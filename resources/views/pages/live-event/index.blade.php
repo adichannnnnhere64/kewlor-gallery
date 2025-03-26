@@ -103,7 +103,7 @@ new class extends Component {
     x-cloak>
 
     <div class="my-4">
-        <a href="{{ route('live-event.create') }}" class="my-4 px-4 py-2 bg-blue-600 text-white rounded" >Create</a>
+        <a href="{{ route('live-event.create') }}" class="my-4 px-4 py-2 bg-primary-600 text-white rounded" >Create</a>
                 <input type="text"
                     placeholder="Search"
                     class="my-4 appearance-none flex w-full h-10 px-3 py-2 text-sm bg-white dark:text-gray-300 dark:bg-white/[4%] border rounded-md border-gray-300 dark:border-white/10 ring-offset-background placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-gray-300 dark:focus:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200/60 dark:focus:ring-white/20 disabled:cursor-not-allowed disabled:opacity-50"

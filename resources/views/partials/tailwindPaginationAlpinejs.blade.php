@@ -33,7 +33,7 @@
                     @if (is_array($element))
                         @foreach ($element as $page => $url)
                             @if ($page == $paginator->currentPage())
-                                <div class="border border-transparent text-white bg-indigo-500 inline px-3 py-2 rounded-lg leading-none  no-underline inline-flex items-center">{{ $page }}</div>
+                                <div class="border border-transparent text-white bg-gray-800 dark:bg-gray-100 inline px-3 py-2 rounded-lg leading-none  no-underline inline-flex items-center text-white dark:text-gray-700 hover:bg-gray-900 dark:focus:ring-offset-gray-900 dark:focus:ring-gray-100 dark:hover:bg-white dark:hover:text-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">{{ $page }}</div>
                             @else
                                 <button
                                     x-on:click="$dispatch('goto-page', {page: '{{ $paginator->url($page) }}'})"

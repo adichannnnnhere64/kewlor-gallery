@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('live_event_galleries', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('slug')->unique();
             $table->date('date');
             $table->timestamps();
         });

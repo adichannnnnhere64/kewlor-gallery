@@ -16,6 +16,7 @@ new class extends Component {
         use WithPagination;
        public $id;
     public $name;
+    public $slug;
     public $date;
     public $images;
 
@@ -28,6 +29,7 @@ new class extends Component {
         if ($liveEvent) {
             $this->name = $liveEvent->name;
             $this->date = $liveEvent->date;
+            $this->slug = $liveEvent->slug;
         }
     }
 
@@ -44,6 +46,7 @@ new class extends Component {
         $this->validate([
             'name' => 'required|string|max:255',
             'date' => 'required|date',
+            'slug' => 'nullable|min:1|max:100',
         ]);
 
         $liveEvent = LiveEventGallery::find($this->id);
@@ -51,6 +54,7 @@ new class extends Component {
             $liveEvent->update([
                 'name' => $this->name,
                 'date' => $this->date,
+                'slug' => $this->slug
             ]);
 
             session()->flash('message', 'Event updated successfully!');
@@ -93,8 +97,9 @@ new class extends Component {
 
         <x-ui.input wire:model="name" label="name" id="name" name="name" />
         <x-ui.input wire:model="date" label="Date" id="date" name="date" type="date" />
+        <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" type="slug" />
             <div class="my-4 ">
-        <button  type="submit" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded" >
+        <button  type="submit" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded" >
                 Update
         </button>
 </div>

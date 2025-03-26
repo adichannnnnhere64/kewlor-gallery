@@ -34,6 +34,7 @@ new class extends Component {
     {
         return [
             'live_event' => LiveEventGallery::query()->find($this->id),
+            'name' => $this->name
         ];
     }
 
@@ -51,9 +52,20 @@ new class extends Component {
 </style>
 
 <x-layouts.marketing>
+
     @volt('live-event.show')
-    <div class="relative flex flex-col items-center justify-center w-full h-auto overflow-hidden" x-cloak
+
+    <div>
+
+    <x-ui.marketing.breadcrumbs :crumbs="[['text' => $name]]" />
+    <div class="flex max-w-6xl mx-auto  justify-start px-8">
+        <h1 class="mt-8 font-bold text-primary-700 text-2xl">{{ $name }}</h1>
+    </div>
+
+    <div class="relative flex flex-col items-center  w-full h-auto overflow-hidden" x-cloak
          x-data="{ isOpen: false, currentImage: '' }">
+
+
 
         <style>
             /* Thumbnail styles */
@@ -158,11 +170,22 @@ new class extends Component {
     }
         </style>
 
-        <div class="grid w-full grid-cols-3 gap-8 mt-8 max-w-6xl">
+
+
+        <div class="grid w-full lg:grid-cols-4 sm:grid-cols-2 gap-2 mt-8 max-w-6xl px-8">
+            @if ($images->count() > 0)
             @foreach ($images as $image)
                     <x-ui.card-image :key="$image->id" :detailsUrl="route('public.image.show', ['id' => $image->id])" :image="$image->getUrl()" />
             @endforeach
+                @else
+
+                <p>No images found..</p>
+
+                @endif
+
         </div>
+
+
 
             <div x-show="isOpen" class="lightbox-overlay" >
                 <div class="lightbox-content" @click.outside="isOpen = false">
@@ -173,4 +196,5 @@ new class extends Component {
 
     </div>
     @endvolt
+</div>
 </x-layouts.marketing>
