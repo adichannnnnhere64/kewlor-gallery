@@ -36,7 +36,7 @@ new class extends Component {
 <x-layouts.marketing>
     @volt('public.image.show')
 
-    <x-ui.marketing.breadcrumbs :crumbs="[['text' => $name]]" />
+    <x-ui.marketing.breadcrumbs :crumbs="[['text' => 'Image']]" />
 
     <div class="max-w-6xl px-8 pt-12 pb-20 mx-auto">
     <div class="flex justify-center card">
