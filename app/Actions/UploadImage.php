@@ -19,35 +19,10 @@ final class UploadImage
 
         $model->attachMedia($media, ['default']);
 
-        $mediaItems = $model->media()->take(4)->get();
-
-        $manager = new ImageManager(
-            Driver::class
-        );
-
-        /** @var ImageManager $gridImage */
-        $gridImage = $manager->create(800, 800);
-
-        /** @var Media $mediaItem */
-        foreach ($mediaItems as $index => $mediaItem) {
-            $path = $mediaItem->getAbsolutePath(); // Get local path instead of URL
-
-            if (file_exists($path)) {
-                $image = $manager->read($path);
-                $image->resize(400, 400);
-
-                $x = ($index % 2) * 400;
-                $y = floor($index / 2) * 400;
-
-                $gridImage->insert($image, 'top-left', $x, $y);
-            }
-        }
-        dd($gridImage);
-
-        $media = MediaUploader::fromSource($file)
-            ->toDestination('public', 'gallery/thumbnail')
-            ->upload();
-        $model->attachMedia($media, ['thumbnail']);
+        /* $media = MediaUploader::fromSource($file) */
+        /*     ->toDestination('public', 'gallery/thumbnail') */
+        /*     ->upload(); */
+        /* $model->attachMedia($media, ['thumbnail']); */
 
     }
 }
