@@ -50,7 +50,7 @@
     <div class="grid w-full lg:grid-cols-4 sm:grid-cols-2  gap-2 mt-8 max-w-6xl">
     @foreach ($liveEvents as $liveEvent)
       <div>
-          <x-ui.card-image  :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+          <x-ui.card-image  :key="$liveEvent->id"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
 </div>
     @endforeach
 

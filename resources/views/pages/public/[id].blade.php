@@ -175,7 +175,7 @@ new class extends Component {
         <div class="grid w-full lg:grid-cols-4 sm:grid-cols-2 gap-2 mt-8 max-w-6xl px-8">
             @if ($images->count() > 0)
             @foreach ($images as $image)
-                    <x-ui.card-image :key="$image->id" :detailsUrl="route('public.image.show', ['id' => $image->id])" :image="$image->getUrl()" />
+                    <x-ui.card-image :key="$image->id" :id="$image->id" :detailsUrl="route('public.image.show', ['id' => $image->id])" :image="$image->getUrl()" />
             @endforeach
                 @else
 
