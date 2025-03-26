@@ -3,10 +3,7 @@
 namespace App\Actions;
 
 use App\Models\LiveEventGallery;
-use App\Models\Media;
 use Illuminate\Http\UploadedFile;
-use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\ImageManager;
 use Plank\Mediable\Facades\MediaUploader;
 
 final class UploadImage
