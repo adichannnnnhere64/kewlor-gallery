@@ -14,9 +14,11 @@ name('public.image.show');
 new class extends Component {
 
        public $media;
+    public $id;
 
         public function mount($id): void
         {
+        $this->id = $id;
             $this->media = Media::find($id);
 
         }
@@ -47,7 +49,14 @@ new class extends Component {
     <img src="{{ $media->getUrl() }}" alt="Image">
 
 
+
     </div>
+
+        <div class="flex justify-end mt-8">
+
+                    <x-ui.like-toggle :id="$id"/>
+
+        </div>
 
 
         <livewire:comments :model="$media" />

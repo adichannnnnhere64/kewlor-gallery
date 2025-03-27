@@ -62,7 +62,7 @@ new class extends Component {
         <h1 class="mt-8 font-bold text-primary-700 text-2xl">{{ $name }}</h1>
     </div>
 
-    <div class="relative flex flex-col items-center  w-full h-auto overflow-hidden" x-cloak
+    <div class="relative max-w-6xl mx-auto items-center  w-full h-auto overflow-hidden" x-cloak
          x-data="{ isOpen: false, currentImage: '' }">
 
 
