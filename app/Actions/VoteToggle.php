@@ -19,7 +19,6 @@ final class VoteToggle
                 $this->like($reacterFacade, $model);
             }
 
-
             if ($type == 'dislike') {
                 $this->dislike($reacterFacade, $model);
             }
@@ -30,11 +29,12 @@ final class VoteToggle
 
     private function like(Reacter $user, Media $model): void
     {
-       $reactantFacade = $model->viaLoveReactant();
-       $isLiked = $reactantFacade->isReactedBy(auth()->user(), 'Like');
+        $reactantFacade = $model->viaLoveReactant();
+        $isLiked = $reactantFacade->isReactedBy(auth()->user(), 'Like');
 
         if ($isLiked) {
             $user->unreactTo($model, 'Like');
+
             return;
         }
 
@@ -43,11 +43,12 @@ final class VoteToggle
 
     private function dislike(Reacter $user, Media $model): void
     {
-       $reactantFacade = $model->viaLoveReactant();
-       $isDisliked = $reactantFacade->isReactedBy(auth()->user(), 'Dislike');
+        $reactantFacade = $model->viaLoveReactant();
+        $isDisliked = $reactantFacade->isReactedBy(auth()->user(), 'Dislike');
 
         if ($isDisliked) {
             $user->unreactTo($model, 'Dislike');
+
             return;
         }
 
