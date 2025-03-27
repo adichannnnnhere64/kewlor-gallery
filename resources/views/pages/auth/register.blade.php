@@ -50,9 +50,11 @@ new class extends Component
     <div class="flex flex-col items-stretch justify-center w-screen min-h-screen py-10 sm:items-center">
 
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="flex justify-center">
             <x-ui.link href="{{ route('home') }}">
                 <x-ui.logo class="w-auto h-10 mx-auto text-gray-700 fill-current dark:text-gray-100" />
             </x-ui.link>
+</div>
             <h2 class="mt-5 text-2xl font-extrabold leading-9 text-center text-gray-800 dark:text-gray-200">Create a new
                 account</h2>
             <div class="text-sm leading-5 text-center text-gray-600 dark:text-gray-400 space-x-0.5">
