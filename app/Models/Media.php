@@ -15,5 +15,4 @@ class Media extends BaseMedia implements ReactableInterface
     {
         return $this->comments()->count();
     }
-
 }
