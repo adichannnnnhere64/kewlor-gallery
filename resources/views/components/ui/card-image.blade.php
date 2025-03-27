@@ -66,7 +66,9 @@ new class extends Component {
                 </div>
             </span>
 
+        <div class="flex justify-end">
         <x-ui.like-toggle :id="$id"/>
+</div>
 
         </div>
 
