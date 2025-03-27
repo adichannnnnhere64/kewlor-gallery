@@ -29,17 +29,13 @@ new class extends Component
     @volt('home')
 
 
-    <div class="relative flex flex-col items-center justify-center w-full h-auto overflow-hidden" x-cloak>
-    <div class="flex max-w-6xl mx-auto  justify-start px-8">
 
-
-
+    <div class="max-w-6xl mx-auto ">
     @include('live-event-gallery.public-gallery')
+</div>
 
-    </div>
     @endvolt
 
-</div>
 
 </x-layouts.marketing>
 

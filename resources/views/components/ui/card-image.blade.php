@@ -7,6 +7,7 @@ use function Livewire\Volt\{state};
 
 new class extends Component {
     public $count = 0;
+    public $showComment = false;
     public $image = '';
     public $id = null;
     public $title = '';
@@ -14,12 +15,15 @@ new class extends Component {
     public $detailsUrl = '';
     public $isVoted = false;
     public $voteCount = 0;
+    public $commentsCount = 0;
 
     public function mount(): void
     {
         if ($this->id) {
             $user = auth()->user();
             $model = Media::find($this->id);
+
+            $this->commentsCount = $model->comments_count;
 
             if ($model) {
                 $reactantFacade = $model->viaLoveReactant();
@@ -49,8 +53,10 @@ new class extends Component {
 
 @volt('card-image')
     <div>
-        <div class="p-3 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
-            <img src="{{ $image }}" class="object-cover w-full lg:h-[280px] rounded-md" />
+        <div class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
+            <a target="_blank" href="{{ $image }}">
+            <img src="{{ $image }}" class="object-cover w-full lg:h-[200px] rounded-md" />
+            </a>
             <span class="flex flex-col justify-start px-1 py-2">
                 <span class="line-clamp-1 pt-2.5 text-lg font-semibold flex items-center dark:text-white space-x-1.5">
                     <span>{{ $title }}</span>
@@ -66,9 +72,19 @@ new class extends Component {
                 </div>
             </span>
 
-        <div class="flex justify-end">
-        <x-ui.like-toggle :id="$id"/>
-</div>
+            @if ($showComment)
+            <div class="flex items-center justify-between text-lg lg:text-sm lg:flex-col lg:items-end px-2 text-gray-500">
+                <x-ui.like-toggle :id="$id"/>
+                <span>
+                {{ $commentsCount }} comments
+                </span>
+            </div>
+            @endif
+
+            <div class="flex justify-end mt-1 text-sm text-gray-500">
+            </div>
+
+
 
         </div>
 

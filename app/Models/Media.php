@@ -10,4 +10,10 @@ use Usamamuneerchaudhary\Commentify\Traits\Commentable;
 class Media extends BaseMedia implements ReactableInterface
 {
     use Commentable, Reactable;
+
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
+    }
+
 }
