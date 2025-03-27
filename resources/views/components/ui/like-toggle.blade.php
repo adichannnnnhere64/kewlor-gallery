@@ -4,7 +4,6 @@ use Livewire\Volt\Component;
 use Cog\Laravel\Love\ReactionType\Models\ReactionType;
 use App\Models\Media;
 use App\Actions\VoteToggle;
-use function Livewire\Volt\{state};
 
 new class extends Component {
     public $id = null;
@@ -45,6 +44,9 @@ new class extends Component {
     public function dislike(VoteToggle $action)
     {
         $user = auth()->user();
+
+        if (!$user) return redirect()->route('login');
+
         $model = Media::find($this->id);
 
         if (!$model) return;
@@ -60,6 +62,8 @@ new class extends Component {
     {
 
         $user = auth()->user();
+        if (!$user) return redirect()->route('login');
+
         $model = Media::find($this->id);
 
         if (!$model) return;
