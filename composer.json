@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "devdojo/genesis",
+    "name": "andrewperoramas/kewlor",
     "type": "project",
-    "description": "The Genesis Laravel Starter Kit",
+    "description": "Kewlor Gallery",
     "keywords": [
         "laravel",
         "framework",

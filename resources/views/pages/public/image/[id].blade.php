@@ -30,7 +30,7 @@ new class extends Component {
 ?>
 
 <style>
-    .dark img[alt="Genesis Logo"] {
+    .dark img[alt="Kewlor Logo"] {
         filter: invert(1);
     }
 </style>

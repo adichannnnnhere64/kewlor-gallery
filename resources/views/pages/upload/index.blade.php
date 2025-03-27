@@ -13,14 +13,14 @@ new class extends Component {
 
     public function mount(): void
     {
-        $this->readme = Http::get('https://raw.githubusercontent.com/thedevdojo/genesis/main/README.md')->body();
+        $this->readme = Http::get('https://raw.githubusercontent.com/thedevdojo/Kewlor/main/README.md')->body();
     }
 };
 
 ?>
 
 <style>
-    .dark img[alt="Genesis Logo"] {
+    .dark img[alt="Kewlor Logo"] {
         filter: invert(1);
     }
 </style>

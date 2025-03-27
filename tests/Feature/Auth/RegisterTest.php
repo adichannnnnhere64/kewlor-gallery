@@ -24,15 +24,15 @@ test('a user can register', function (): void {
     Event::fake();
 
     Volt::test('auth.register')
-        ->set('name', 'Genesis')
-        ->set('email', 'genesis@example.com')
+        ->set('name', 'Kewlor')
+        ->set('email', 'Kewlor@example.com')
         ->set('password', 'password')
         ->set('passwordConfirmation', 'password')
         ->call('register')
         ->assertRedirect('/');
 
-    expect(User::whereEmail('genesis@example.com')->exists())->toBeTrue();
-    expect(Auth::user()->email)->toEqual('genesis@example.com');
+    expect(User::whereEmail('Kewlor@example.com')->exists())->toBeTrue();
+    expect(Auth::user()->email)->toEqual('Kewlor@example.com');
 
     Event::assertDispatched(Registered::class);
 });
@@ -68,12 +68,12 @@ test('email hasnt been taken already', function (): void {
 });
 
 test('see email hasnt already been taken validation message as user types', function (): void {
-    User::factory()->create(['email' => 'genesis@example.com']);
+    User::factory()->create(['email' => 'Kewlor@example.com']);
 
     Volt::test('auth.register')
-        ->set('email', 'genesis@gmail.com')
+        ->set('email', 'Kewlor@gmail.com')
         ->assertHasNoErrors()
-        ->set('email', 'genesis@example.com')
+        ->set('email', 'Kewlor@example.com')
         ->call('register')
         ->assertHasErrors(['email' => 'unique']);
 });
