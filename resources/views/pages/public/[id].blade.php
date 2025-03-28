@@ -1,96 +1,118 @@
 <?php
 
 use Illuminate\Support\Facades\Http;
-
 use function Laravel\Folio\{middleware, name};
 use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
 use App\Models\LiveEventGallery;
+use App\Models\Media;
 use Livewire\WithPagination;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
+use Livewire\Attributes\Reactive;
 
 name('live-event.show');
 
 new class extends Component {
+    use WithPagination;
 
-        use WithPagination;
-       public $id;
+    public $id;
     public $name;
     public $date;
-    public $images;
+    #[Url]
+    public $sortBy = 'newest';
 
-        public function mount($id): void
+    #[Computed]
+    public function images()
     {
-        $this->id = $id;
-        $liveEvent = LiveEventGallery::find($this->id);
-        $this->images = $liveEvent->getMedia('default');
+        $liveEvent = LiveEventGallery::findOrFail($this->id);
 
-        if ($liveEvent) {
-            $this->name = $liveEvent->name;
-            $this->date = $liveEvent->date;
-        }
-    }
+        $bargo = $liveEvent->media()
+              ->with([
+                    'loveReactant.reactions.reacter.reacterable',
+                    'loveReactant.reactions.type',
+                    'loveReactant.reactionCounters',
+                    'loveReactant.reactionTotal',
+                ])
+            ->joinReactionCounterOfType('Like')
+            ->withPivot('tag')
+            ->withCount('comments')
+            ->where('tag', 'default')
+            ->when($this->sortBy === 'newest', function ($query) {
+                return $query->reorder()->orderBy('created_at', 'desc');
+            })
+            ->when($this->sortBy === 'oldest', function ($query) {
+                return $query->reorder()->orderBy('created_at', 'asc');
+            })
+            ->when($this->sortBy === 'comments', function ($query) {
+                return $query->reorder()->orderBy('comments_count', 'desc');
+            })
+            ->when($this->sortBy === 'likes', function ($query) {
+                $bar =  $query->reorder()
+                ->orderBy('reaction_like_count', 'desc');
+                return $bar;
+})
 
-        public function with(): array
-    {
-        return [
-            'live_event' => LiveEventGallery::query()->find($this->id),
-            'name' => $this->name
-        ];
+                          ->paginate(20);
+
+
+        return $bargo;
+
+         //   $this->dispatch('$refresh');
     }
 
 };
-
-
-#with(fn () => ['posts' => 'adicchans']);
-
 ?>
 
 <style>
     .dark img[alt="Kewlor Logo"] {
         filter: invert(1);
     }
+    .lightbox-overlay {
+        /* Your existing lightbox styles */
+    }
 </style>
 
 <x-layouts.marketing>
-
     @volt('live-event.show')
-
     <div>
+        <x-ui.marketing.breadcrumbs :crumbs="[['text' => $name]]" />
+        <div class="flex max-w-6xl mx-auto justify-between items-center px-8">
+            <h1 class="mt-8 font-bold text-primary-700 text-2xl">{{ $name }}</h1>
 
-    <x-ui.marketing.breadcrumbs :crumbs="[['text' => $name]]" />
-    <div class="flex max-w-6xl mx-auto  justify-start px-8">
-        <h1 class="mt-8 font-bold text-primary-700 text-2xl">{{ $name }}</h1>
-    </div>
-
-    <div class="relative max-w-6xl mx-auto items-center  w-full h-auto overflow-hidden" x-cloak
-         x-data="{ isOpen: false, currentImage: '' }">
-
-
-
-
-        <div class="grid w-full lg:grid-cols-6 sm:grid-cols-2 gap-2 mt-8 max-w-6xl px-8">
-            @if ($images->count() > 0)
-            @foreach ($images as $image)
-                    <x-ui.card-image :showComment="true" :key="$image->id" :id="$image->id" :detailsUrl="route('public.image.show', ['id' => $image->id])" :image="$image->getUrl()" />
-            @endforeach
-                @else
-
-                <p>No images found..</p>
-
-                @endif
-
+            <div class="mt-8">
+            <select wire:model.live="sortBy"
+                wire:change="resetPage"
+            class="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="likes">Most Likes</option>
+                    <option value="comments">Most Comments</option>
+                </select>
+            </div>
         </div>
 
+             <div class="mx-auto max-w-6xl">
+        <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  px-8">
+        @foreach ($this->images ?? [] as $key => $image)
+            <div>
 
-
-            <div x-show="isOpen" class="lightbox-overlay" >
-                <div class="lightbox-content" @click.outside="isOpen = false">
-                    <button class="close-btn" @click="isOpen = false">×</button>
-                    <img x-bind:src="currentImage" alt="Full size image" class="lightbox-image">
-                </div>
+            <x-ui.card :sortBy="$sortBy"
+              wire:key="img-{{ $image->id }}-{{ $sortBy }}-{{ now()->timestamp }}"
+            :id="$image->id" :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl()" :showComment="true" :title="$name" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])"  />
             </div>
+    @endforeach
+</div>
+
+    @if($this?->images?->hasPages())
+    <div class="mt-4 px-8">
+        {{ $this->images->links() }}
+    </div>
+    @endif
+
+
+    </div>
 
     </div>
     @endvolt
-</div>
 </x-layouts.marketing>

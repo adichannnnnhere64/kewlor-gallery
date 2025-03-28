@@ -76,8 +76,9 @@ new class extends Component {
 }
 ?>
 
+<div>
 @volt('like-toggle')
-<div class="flex  ">
+<div class="flex" wire:key="li-{{ $id }}">
         @if ($id)
             <div class="flex space-x-1" x-data="{ isLiked: @entangle('isLiked'), likeCount: @entangle('likeCount') }">
                 <div x-text="likeCount"></div>
@@ -118,4 +119,4 @@ new class extends Component {
         @endif
 </div>
 @endvolt
-
+</div>

@@ -16,16 +16,33 @@
             </div>
             <div :class="{ 'flex' : mobileMenuOpen, 'hidden md:flex' :  !mobileMenuOpen }" class="fixed top-0 left-0 z-40 flex-col items-start justify-start hidden w-full h-full min-h-screen pt-20 space-y-5 text-sm font-medium duration-150 ease-out transform md:pt-0 text-neutral-500 md:h-auto md:min-h-0 md:left-auto md:items-center md:relative">
 
-                <nav class="flex flex-col w-full p-6 space-y-2 bg-white md:p-0 md:flex-row md:space-x-2 md:space-y-0 md:w-auto md:bg-transparent md:flex">
+                <nav class="flex flex-col w-full p-6 space-y-2 bg-gray-100 md:p-0 md:flex-row md:space-x-2 md:space-y-0 md:w-auto md:bg-transparent md:flex">
                     <x-ui.nav-link href="/">Home</x-ui.nav-link>
                     <x-ui.nav-link href="/Kewlor/about">About</x-ui.nav-link>
+                    @auth
+                <span class="sm:hidden">
+                    <x-ui.nav-link href="{{ route('dashboard') }}">Dashboard</x-ui.nav-link>
+                <span>
+
+                @else
+
+                <span class="sm:hidden">
+                    <x-ui.nav-link  href="{{ route('login') }}">Login</x-ui.nav-link>
+                </span>
+
+                <span class="sm:hidden">
+                    <x-ui.nav-link href="{{ route('register') }}">Sign Up</x-ui.nav-link>
+                </span>
+
+                @endauth
                     @if(view()->exists('pages.blog.index'))
                         <x-ui.nav-link href="/blog">Blog</x-ui.nav-link>
                     @endif
                 </nav>
             </div>
         </div>
-        <div class="relative z-50 flex items-stretch space-x-3 text-neutral-800">
+
+        <div class="relative z-50 sm:flex hidden items-stretch space-x-3 text-neutral-800 ">
             <div x-data class="flex-shrink-0 hidden w-[38px] overflow-hidden rounded-full h-[38px] sm:block" x-cloak>
                 <x-ui.light-dark-switch></x-ui.light-dark-switch>
             </div>

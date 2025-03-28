@@ -25,8 +25,6 @@ new class extends Component {
 };
 
 
-#with(fn () => ['posts' => 'adicchans']);
-
 ?>
 
 <style>
@@ -44,7 +42,7 @@ new class extends Component {
     <div class="max-w-6xl px-8 pt-12 pb-20 mx-auto">
     <div class="flex justify-center card">
 
-    <div class="lg:ml-12 bg-primary-700 space-x-4 p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900 p-6 mb-1 text-base bg-white rounded-lg dark:bg-gray-900"></div>
+    <div class=" bg-primary-700 space-x-4  border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900  mb-1 text-base bg-white rounded-lg dark:bg-gray-900"></div>
 
     <img src="{{ $media->getUrl() }}" alt="Image">
 

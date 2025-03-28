@@ -8,6 +8,7 @@ use Cog\Laravel\Love\Reacterable\Models\Traits\Reacterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\UserEloquentBuilder;
 
 class User extends Authenticatable implements ReacterableInterface
 {
@@ -46,5 +47,10 @@ class User extends Authenticatable implements ReacterableInterface
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function newEloquentBuilder($query): UserEloquentBuilder
+    {
+        return new UserEloquentBuilder($query);
     }
 }

@@ -18,7 +18,7 @@ class LiveEventGalleryFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'date' => fake()->date(),
+            'date' => fake()->dateTimeThisYear()->format('Y-m-d'),
         ];
     }
 }
