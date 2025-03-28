@@ -28,7 +28,7 @@ new class extends Component {
 <div wire:key="img-{{ $image }}">
     <div>
         <div class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
-            <a target="_blank" href="{{ $image }}">
+            <a href="{{ $detailsUrl }}">
             <img src="{{ $image }}" class="object-cover w-full lg:h-[200px] rounded-md" />
             </a>
             <span class="flex flex-col justify-start px-1 py-2">
@@ -49,7 +49,7 @@ new class extends Component {
 
             @if ($showComment)
             <div class="flex items-center justify-between text-lg lg:text-sm lg:flex-col lg:items-end px-2 text-gray-500">
-                <livewire:tubol :sortBy="$sortBy" wire:key="img-{{ $id }}-{{ $sortBy }}" :id="$id" />
+                <livewire:vote :sortBy="$sortBy" wire:key="img-{{ $id }}-{{ $sortBy }}" :id="$id" />
                 <span>
                 {{ $commentsCount }} comments
                 </span>

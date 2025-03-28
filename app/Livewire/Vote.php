@@ -7,7 +7,7 @@ use App\Models\Media;
 use Cog\Laravel\Love\ReactionType\Models\ReactionType;
 use Livewire\Component;
 
-class Tubol extends Component
+class Vote extends Component
 {
     public $id = null;
 
