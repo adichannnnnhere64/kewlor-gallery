@@ -83,7 +83,7 @@ new class extends Component {
             <div class="mt-8">
             <select wire:model.live="sortBy"
                 wire:change="resetPage"
-            class="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="likes">Most Likes</option>

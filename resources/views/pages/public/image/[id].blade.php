@@ -50,9 +50,9 @@ new class extends Component {
 
     </div>
 
-        <div class="flex justify-end mt-8">
+        <div class="flex justify-end my-8">
 
-                    <x-ui.like-toggle :id="$id"/>
+                    <livewire:vote :id="$id"/>
 
         </div>
 
