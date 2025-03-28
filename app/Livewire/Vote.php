@@ -55,14 +55,14 @@ class Vote extends Component
 
             if ($model) {
                 $reactantFacade = $model->viaLoveReactant();
-                $likeTypeId = ReactionType::where('name', 'Like')->first()->id;
+                /* $likeTypeId = ReactionType::where('name', 'Like')->first()->id; */
 
                 $this->isLiked = $reactantFacade->isReactedBy($user, 'Like');
-                $this->likeCount = $reactantFacade->getReactions()->where('reaction_type_id', $likeTypeId)->count();
-                $dislikeTypeId = ReactionType::where('name', 'Dislike')->first()->id;
+                $this->likeCount = $reactantFacade->getReactions()->where('reaction_type_id', 1)->count();
+                /* $dislikeTypeId = ReactionType::where('name', 'Dislike')->first()->id; */
 
                 $this->isDisliked = $reactantFacade->isReactedBy($user, 'Dislike');
-                $this->dislikeCount = $reactantFacade->getReactions()->where('reaction_type_id', $dislikeTypeId)->count();
+                $this->dislikeCount = $reactantFacade->getReactions()->where('reaction_type_id', 2)->count();
 
             }
         }

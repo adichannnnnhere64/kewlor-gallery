@@ -14,7 +14,7 @@ class Media extends BaseMedia implements ReactableInterface
 {
     use Commentable, Reactable;
 
-    public function getCommentsCountAttribute()
+    public function getCustomCommentsCountAttribute()
     {
         return $this->comments()->count();
     }
