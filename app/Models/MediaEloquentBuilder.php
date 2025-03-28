@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 class MediaEloquentBuilder extends \Illuminate\Database\Eloquent\Builder

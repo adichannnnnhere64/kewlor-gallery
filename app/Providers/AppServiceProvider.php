@@ -32,38 +32,37 @@ class AppServiceProvider extends ServiceProvider
             return $user->role === 'admin';
         });
 
-/*                 ImageManipulator::defineVariant('default', */
-/*                 ImageManipulation::make(function($image) { */
-/*                     $image->sharpen(5); */
-/*                 })->setOutputQuality(75)->outputWebpFormat() */
-/*             ); */
+        /*                 ImageManipulator::defineVariant('default', */
+        /*                 ImageManipulation::make(function($image) { */
+        /*                     $image->sharpen(5); */
+        /*                 })->setOutputQuality(75)->outputWebpFormat() */
+        /*             ); */
 
         ImageManipulator::defineVariant(
-    'thumbnail',
-    ImageManipulation::make(function (Image $image, Media $originalMedia) {
-        $originalWidth = $image->width();
-        $originalHeight = $image->height();
+            'thumbnail',
+            ImageManipulation::make(function (Image $image, Media $originalMedia) {
+                $originalWidth = $image->width();
+                $originalHeight = $image->height();
 
-        $largeImageThreshold = 600;
-        $maxThumbnailSize = 400;
+                $largeImageThreshold = 600;
+                $maxThumbnailSize = 400;
 
-        if ($originalWidth > $largeImageThreshold || $originalHeight > $largeImageThreshold) {
-            $ratio = min(
-                $maxThumbnailSize / $originalWidth,
-                $maxThumbnailSize / $originalHeight
-            );
-            $image->resize(
-                (int)($originalWidth * $ratio),
-                (int)($originalHeight * $ratio),
-                function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
+                if ($originalWidth > $largeImageThreshold || $originalHeight > $largeImageThreshold) {
+                    $ratio = min(
+                        $maxThumbnailSize / $originalWidth,
+                        $maxThumbnailSize / $originalHeight
+                    );
+                    $image->resize(
+                        (int) ($originalWidth * $ratio),
+                        (int) ($originalHeight * $ratio),
+                        function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        }
+                    );
+                    $image->sharpen(5);
                 }
-            );
-            $image->sharpen(5);
-        }
-    })->setOutputQuality(80)->outputWebpFormat());
-
+            })->setOutputQuality(80)->outputWebpFormat());
 
     }
 }

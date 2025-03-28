@@ -26,22 +26,22 @@ final class UploadImage
                 $maxImageSize = 1200;
 
                 if ($originalWidth > $largeImageThreshold || $originalHeight > $largeImageThreshold) {
-                $ratio = min(
-                    $maxImageSize / $originalWidth,
-                    $maxImageSize / $originalHeight
-                );
-                $image->resize(
-                    (int)($originalWidth * $ratio),
-                    (int)($originalHeight * $ratio),
-                    function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    }
-                );
-                $image->sharpen(5);
-            }
+                    $ratio = min(
+                        $maxImageSize / $originalWidth,
+                        $maxImageSize / $originalHeight
+                    );
+                    $image->resize(
+                        (int) ($originalWidth * $ratio),
+                        (int) ($originalHeight * $ratio),
+                        function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        }
+                    );
+                    $image->sharpen(5);
+                }
 
-        })->setOutputQuality(75)->outputWebpFormat();
+            })->setOutputQuality(75)->outputWebpFormat();
 
             $media = MediaUploader::fromSource($file)
                 ->useHashForFilename('sha1')
@@ -49,8 +49,8 @@ final class UploadImage
                 ->toDestination('public', 'gallery')
                 ->upload();
 
-           $model->attachMedia($media, ['default']);
-            ImageManipulator::createImageVariant($media, 'thumbnail' );
+            $model->attachMedia($media, ['default']);
+            ImageManipulator::createImageVariant($media, 'thumbnail');
             $model->attachMedia($media, ['thumbnail']);
 
         });

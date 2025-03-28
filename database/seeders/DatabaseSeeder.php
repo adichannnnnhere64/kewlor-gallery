@@ -5,13 +5,11 @@ namespace Database\Seeders;
 use App\Actions\UploadImage;
 use App\Models\LiveEventGallery;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class DatabaseSeeder extends Seeder
 {
@@ -41,16 +39,16 @@ class DatabaseSeeder extends Seeder
 
         $files = File::files($path);
 
-        for($index = 0; $index < 2; $index++) {
+        for ($index = 0; $index < 2; $index++) {
             $event = LiveEventGallery::factory()->create();
             for ($index = 0; $index < 40; $index++) {
                 $fileInfo = collect($files)->random();
                 $uploadedFile = new UploadedFile(
-                $fileInfo->getPathname(),
-                $fileInfo->getFilename(),
-                $fileInfo->getType(),
-                null,
-                true
+                    $fileInfo->getPathname(),
+                    $fileInfo->getFilename(),
+                    $fileInfo->getType(),
+                    null,
+                    true
                 );
 
                 app(UploadImage::class)->handle($event, $uploadedFile);

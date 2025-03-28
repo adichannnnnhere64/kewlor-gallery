@@ -2,24 +2,23 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\Reactive;
-use Cog\Laravel\Love\ReactionType\Models\ReactionType;
-use Livewire\Attributes\Computed;
-use App\Models\Media;
 use App\Actions\VoteToggle;
-
+use App\Models\Media;
+use Cog\Laravel\Love\ReactionType\Models\ReactionType;
+use Livewire\Component;
 
 class Tubol extends Component
 {
     public $id = null;
+
     public $isLiked = false;
-    public $sortBy = "";
+
+    public $sortBy = '';
 
     public $likeCount = 0;
 
-
     public $isDisliked = false;
+
     public $dislikeCount = 0;
 
     public function mount(): void
@@ -31,20 +30,24 @@ class Tubol extends Component
     {
         $user = auth()->user();
 
-        if (!$user) return redirect()->route('login');
+        if (! $user) {
+            return redirect()->route('login');
+        }
 
         $model = Media::find($this->id);
 
-        if (!$model) return;
+        if (! $model) {
+            return;
+        }
 
         $action->handle($model, 'dislike');
-
 
         $this->fetchVotes();
         $this->dispatch('$refresh');
     }
 
-    private function fetchVotes() {
+    private function fetchVotes()
+    {
 
         if ($this->id) {
             $user = auth()->user();
@@ -66,25 +69,25 @@ class Tubol extends Component
 
     }
 
-
     public function like(VoteToggle $action)
     {
 
         $user = auth()->user();
-        if (!$user) return redirect()->route('login');
+        if (! $user) {
+            return redirect()->route('login');
+        }
 
         $model = Media::find($this->id);
 
-        if (!$model) return;
-
-
+        if (! $model) {
+            return;
+        }
 
         $action->handle($model, 'like');
 
         $this->fetchVotes();
         $this->dispatch('$refresh');
     }
-
 
     public function render()
     {
