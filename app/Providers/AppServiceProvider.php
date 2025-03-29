@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
 
-       /* LogViewer::auth(function ($request) {        return $request->user()            && in_array($request->user()->email, [                'mobistyle35@gmail.com',            ]);    }); */
+       LogViewer::auth(function ($request) {        return $request->user()            && in_array($request->user()->email, [                'mobistyle35@gmail.com',            ]);    });
 
         Gate::define('access-admin-panel', function (User $user) {
             return $user->role === 'admin';
