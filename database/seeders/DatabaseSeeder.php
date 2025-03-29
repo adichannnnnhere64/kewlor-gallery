@@ -39,9 +39,9 @@ class DatabaseSeeder extends Seeder
 
         $files = File::files($path);
 
-        for ($index = 0; $index < 2; $index++) {
+        for ($index = 0; $index < 40; $index++) {
             $event = LiveEventGallery::factory()->create();
-            for ($index = 0; $index < 40; $index++) {
+            for ($index = 0; $index < 1; $index++) {
                 $fileInfo = collect($files)->random();
                 $uploadedFile = new UploadedFile(
                     $fileInfo->getPathname(),
@@ -54,5 +54,8 @@ class DatabaseSeeder extends Seeder
                 app(UploadImage::class)->handle($event, $uploadedFile);
             }
         }
+
+        Artisan::call('love:recount');
+
     }
 }
