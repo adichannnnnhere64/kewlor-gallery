@@ -28,6 +28,7 @@ new class extends Component {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
 
         $bargo = $liveEvent->media()
+            ->withLikeCounts()
             ->withPivot('tag')
             ->withCount('comments')
             ->where('tag', 'default')
@@ -46,6 +47,12 @@ new class extends Component {
         return $bargo;
 
          //   $this->dispatch('$refresh');
+    }
+
+
+    public function refresh()
+    {
+        dd('ad');
     }
 
 };
@@ -83,9 +90,12 @@ new class extends Component {
         <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  px-8">
         @foreach ($this->images ?? [] as $key => $image)
             <div>
-
-            <x-ui.card :sortBy="$sortBy"
-              wire:key="img-{{ $image->id }}-{{ $sortBy }}-{{ now()->timestamp }}"
+            <x-ui.card
+            :sortBy="$sortBy"
+            :likesCount="$image->likes_count"
+            :currentVote="$image->current_vote"
+            :dislikesCount="$image->dislikes_count"
+            wire:key="img-{{ $image->id }}-{{ $sortBy }}-{{ now()->timestamp }}"
             :id="$image->id" :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl()" :showComment="true" :title="$name" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])"  />
             </div>
     @endforeach

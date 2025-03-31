@@ -15,24 +15,24 @@ class Vote extends Component
 
     public $sortBy = '';
 
-    public $likeCount = 0;
+    public $likesCount = 0;
 
     public $isDisliked = false;
 
-    public $dislikeCount = 0;
+    public $dislikesCount = 0;
+
+    public $currentVote = null;
 
     public function mount(): void
     {
+
+        $this->isLiked = $this->currentVote === 'liked';
+        $this->isDisliked = $this->currentVote === 'disliked';
         /* $this->fetchVotes(); */
     }
 
     public function dislike(VoteToggle $action)
     {
-        $user = auth()->user();
-
-        if (! $user) {
-            return redirect()->route('login');
-        }
 
         $model = Media::find($this->id);
 
@@ -42,8 +42,17 @@ class Vote extends Component
 
         $action->handle($model, 'dislike');
 
+        if ($this->currentVote === 'disliked') {
+            $this->currentVote = null;
+        }
+
+        $this->isLiked = false;
+
+        $this->likesCount = $model->likes_count;
+        $this->dislikesCount = $model->dislikes_count;
+
         /* $this->fetchVotes(); */
-        $this->dispatch('$refresh');
+        /* $this->dispatch('refresh'); */
     }
 
     /* private function fetchVotes() */
@@ -58,11 +67,11 @@ class Vote extends Component
     /*             /1* $likeTypeId = ReactionType::where('name', 'Like')->first()->id; *1/ */
 
     /*             $this->isLiked = $reactantFacade->isReactedBy($user, 'Like'); */
-    /*             $this->likeCount = $reactantFacade->getReactions()->where('reaction_type_id', 1)->count(); */
+    /*             $this->likesCount = $reactantFacade->getReactions()->where('reaction_type_id', 1)->count(); */
     /*             /1* $dislikeTypeId = ReactionType::where('name', 'Dislike')->first()->id; *1/ */
 
     /*             $this->isDisliked = $reactantFacade->isReactedBy($user, 'Dislike'); */
-    /*             $this->dislikeCount = $reactantFacade->getReactions()->where('reaction_type_id', 2)->count(); */
+    /*             $this->dislikesCount = $reactantFacade->getReactions()->where('reaction_type_id', 2)->count(); */
 
     /*         } */
     /*     } */
@@ -72,10 +81,10 @@ class Vote extends Component
     public function like(VoteToggle $action)
     {
 
-        $user = auth()->user();
-        if (! $user) {
-            return redirect()->route('login');
-        }
+        /* $user = auth()->user(); */
+        /* if (! $user) { */
+        /*     return redirect()->route('login'); */
+        /* } */
 
         $model = Media::find($this->id);
 
@@ -83,10 +92,21 @@ class Vote extends Component
             return;
         }
 
+
         $action->handle($model, 'like');
 
+        if ($this->currentVote === 'liked') {
+            $this->currentVote = null;
+        }
+
+
+        $this->isDisliked = false;
+
+        $this->likesCount = $model->likes_count;
+        $this->dislikesCount = $model->dislikes_count;
+
         /* $this->fetchVotes(); */
-        $this->dispatch('$refresh');
+        /* $this->dispatch('refresh'); */
     }
 
     public function render()
@@ -94,8 +114,8 @@ class Vote extends Component
         return <<<'HTML'
             <div wire:key="vax-{{ $id }}-{{ $sortBy }}" class="flex">
                     @if ($id)
-                        <div class="flex space-x-1" x-data="{ isLiked: @entangle('isLiked'), likeCount: @entangle('likeCount') }">
-                            <div x-text="likeCount" class="dark:text-white"></div>
+                        <div class="flex space-x-1" x-data="{ isLiked: @entangle('isLiked'), likesCount: @entangle('likesCount') }">
+                            <div x-text="likesCount" class="dark:text-white"></div>
                             <button wire:click="like" x-on:click="isLiked = !isLiked">
                                 <span x-show="!isLiked">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-4 lg:w-4"  viewBox="0 0 24 24" fill="none" stroke="#656172" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-thumb-up">
@@ -116,8 +136,8 @@ class Vote extends Component
                 <div class="px-1">|</div>
 
 
-                        <div class="flex space-x-1" x-data="{ isDisliked: @entangle('isDisliked'), dislikeCount: @entangle('dislikeCount') }">
-                            <div x-text="dislikeCount" class="dark:text-white"></div>
+                        <div class="flex space-x-1" x-data="{ isDisliked: @entangle('isDisliked'), dislikesCount: @entangle('dislikesCount') }">
+                            <div x-text="dislikesCount" class="dark:text-white"></div>
                             <button wire:click="dislike" x-on:click="isDisliked = !isDisliked">
                                 <span x-show="!isDisliked">
                             <svg  xmlns="http://www.w3.org/2000/svg"  class="h-6 w-6 lg:h-4 lg:w-4"  viewBox="0 0 24 24"  fill="none"  stroke="#656172"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-thumb-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3" /></svg>

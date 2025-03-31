@@ -14,14 +14,20 @@ name('public.image.show');
 new class extends Component {
 
        public $media;
-    public $id;
+       public $id;
+       public $likesCount = 0;
+       public $dislikesCount = 0;
+       public $currentVote = null;
 
-        public function mount($id): void
-        {
-        $this->id = $id;
-            $this->media = Media::find($id);
+       public function mount($id): void
+       {
+          $this->id = $id;
+          $this->media = Media::find($id);
+            $this->likesCount = $this->media->likes_count;
+            $this->dislikesCount = $this->media->dislikes_count;
+            $this->currentVote = $this->media->current_vote;
 
-        }
+       }
 };
 
 
@@ -52,7 +58,9 @@ new class extends Component {
 
         <div class="flex justify-end my-8">
 
-                    <livewire:vote :id="$id"/>
+            <livewire:vote
+                :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount"
+                :id="$id"/>
 
         </div>
 

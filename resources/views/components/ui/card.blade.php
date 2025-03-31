@@ -16,9 +16,12 @@ new class extends Component {
     public $sortBy = '';
     public $description = '';
     public $detailsUrl = '';
-    public $isVoted = false;
+    public $currentVote = false;
     public $voteCount = 0;
+    public $likesCount = 0;
+    public $dislikesCount = 0;
     public $commentsCount = 0;
+
 
 }
 
@@ -49,7 +52,7 @@ new class extends Component {
 
             @if ($showComment)
             <div class="flex items-center justify-between text-lg lg:text-sm lg:flex-col lg:items-end px-2 text-gray-500">
-                <livewire:vote :sortBy="$sortBy" wire:key="img-{{ $id }}-{{ $sortBy }}" :id="$id" />
+                <livewire:vote @refresh="refresh"  :id="$id" :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount" :sortBy="$sortBy" wire:key="img-{{ $id }}-{{ $sortBy }}" />
                 <span>
                 {{ $commentsCount }} comments
                 </span>

@@ -12,47 +12,44 @@ final class VoteToggle
     {
         DB::transaction(function () use ($model, $type) {
 
-            $user = auth()->user();
-            $reacterFacade = $user->viaLoveReacter();
-
             if ($type == 'like') {
-                $this->like($reacterFacade, $model);
+                $model->like();
             }
 
             if ($type == 'dislike') {
-                $this->dislike($reacterFacade, $model);
+                $model->dislike();
             }
 
         });
 
     }
 
-    private function like(Reacter $user, Media $model): void
+    private function like(Media $model): void
     {
-        $reactantFacade = $model->viaLoveReactant();
-        $isLiked = $reactantFacade->isReactedBy(auth()->user(), 'Like');
+        /* $reactantFacade = $model->viaLoveReactant(); */
+        /* $isLiked = $reactantFacade->isReactedBy(auth()->user(), 'Like'); */
 
-        if ($isLiked) {
-            $user->unreactTo($model, 'Like');
+        /* if ($isLiked) { */
+        /*     $user->unreactTo($model, 'Like'); */
 
-            return;
-        }
+        /*     return; */
+        /* } */
 
-        $user->reactTo($model, 'Like');
+        /* $user->reactTo($model, 'Like'); */
     }
 
-    private function dislike(Reacter $user, Media $model): void
-    {
-        $reactantFacade = $model->viaLoveReactant();
-        $isDisliked = $reactantFacade->isReactedBy(auth()->user(), 'Dislike');
+/*     private function dislike(Reacter $user, Media $model): void */
+/*     { */
+/*         $reactantFacade = $model->viaLoveReactant(); */
+/*         $isDisliked = $reactantFacade->isReactedBy(auth()->user(), 'Dislike'); */
 
-        if ($isDisliked) {
-            $user->unreactTo($model, 'Dislike');
+/*         if ($isDisliked) { */
+/*             $user->unreactTo($model, 'Dislike'); */
 
-            return;
-        }
+/*             return; */
+/*         } */
 
-        $user->reactTo($model, 'Dislike');
+/*         $user->reactTo($model, 'Dislike'); */
 
-    }
+/*     } */
 }
