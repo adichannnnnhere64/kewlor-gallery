@@ -28,13 +28,6 @@ new class extends Component {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
 
         $bargo = $liveEvent->media()
-              ->with([
-                    'loveReactant.reactions.reacter.reacterable',
-                    'loveReactant.reactions.type',
-                    'loveReactant.reactionCounters',
-                    'loveReactant.reactionTotal',
-                ])
-            ->joinReactionCounterOfType('Like')
             ->withPivot('tag')
             ->withCount('comments')
             ->where('tag', 'default')
@@ -47,13 +40,7 @@ new class extends Component {
             ->when($this->sortBy === 'comments', function ($query) {
                 return $query->reorder()->orderBy('comments_count', 'desc');
             })
-            ->when($this->sortBy === 'likes', function ($query) {
-                $bar =  $query->reorder()
-                ->orderBy('reaction_like_count', 'desc');
-                return $bar;
-})
-
-                          ->paginate(20);
+          ->paginate(20);
 
 
         return $bargo;

@@ -23,7 +23,7 @@ class Vote extends Component
 
     public function mount(): void
     {
-        $this->fetchVotes();
+        /* $this->fetchVotes(); */
     }
 
     public function dislike(VoteToggle $action)
@@ -42,32 +42,32 @@ class Vote extends Component
 
         $action->handle($model, 'dislike');
 
-        $this->fetchVotes();
+        /* $this->fetchVotes(); */
         $this->dispatch('$refresh');
     }
 
-    private function fetchVotes()
-    {
+    /* private function fetchVotes() */
+    /* { */
 
-        if ($this->id) {
-            $user = auth()->user();
-            $model = Media::find($this->id);
+    /*     if ($this->id) { */
+    /*         $user = auth()->user(); */
+    /*         $model = Media::find($this->id); */
 
-            if ($model) {
-                $reactantFacade = $model->viaLoveReactant();
-                /* $likeTypeId = ReactionType::where('name', 'Like')->first()->id; */
+    /*         if ($model) { */
+    /*             $reactantFacade = $model->viaLoveReactant(); */
+    /*             /1* $likeTypeId = ReactionType::where('name', 'Like')->first()->id; *1/ */
 
-                $this->isLiked = $reactantFacade->isReactedBy($user, 'Like');
-                $this->likeCount = $reactantFacade->getReactions()->where('reaction_type_id', 1)->count();
-                /* $dislikeTypeId = ReactionType::where('name', 'Dislike')->first()->id; */
+    /*             $this->isLiked = $reactantFacade->isReactedBy($user, 'Like'); */
+    /*             $this->likeCount = $reactantFacade->getReactions()->where('reaction_type_id', 1)->count(); */
+    /*             /1* $dislikeTypeId = ReactionType::where('name', 'Dislike')->first()->id; *1/ */
 
-                $this->isDisliked = $reactantFacade->isReactedBy($user, 'Dislike');
-                $this->dislikeCount = $reactantFacade->getReactions()->where('reaction_type_id', 2)->count();
+    /*             $this->isDisliked = $reactantFacade->isReactedBy($user, 'Dislike'); */
+    /*             $this->dislikeCount = $reactantFacade->getReactions()->where('reaction_type_id', 2)->count(); */
 
-            }
-        }
+    /*         } */
+    /*     } */
 
-    }
+    /* } */
 
     public function like(VoteToggle $action)
     {
@@ -85,7 +85,7 @@ class Vote extends Component
 
         $action->handle($model, 'like');
 
-        $this->fetchVotes();
+        /* $this->fetchVotes(); */
         $this->dispatch('$refresh');
     }
 

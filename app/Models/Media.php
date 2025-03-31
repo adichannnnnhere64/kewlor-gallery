@@ -10,17 +10,12 @@ use Usamamuneerchaudhary\Commentify\Traits\Commentable;
 /**
  * @method static UserEloquentBuilder query()
  */
-class Media extends BaseMedia implements ReactableInterface
+class Media extends BaseMedia
 {
-    use Commentable, Reactable;
+    use Commentable;
 
     public function getCustomCommentsCountAttribute()
     {
         return $this->comments()->count();
-    }
-
-    public function newEloquentBuilder($query): MediaEloquentBuilder
-    {
-        return new MediaEloquentBuilder($query);
     }
 }
