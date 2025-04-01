@@ -66,6 +66,7 @@ new class extends Component
                 <div>
             <x-ui.card
                   :sortBy="$sortBy"
+               :liveEventId="$liveEvent->id"
                  wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{$key}}"
                 :showComment="false" :key="$liveEvent->id"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
 </div>

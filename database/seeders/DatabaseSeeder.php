@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        Artisan::call('love:reaction-type-add --default');
+        /* Artisan::call('love:reaction-type-add --default'); */
 
         $path = public_path('test-images');
 
