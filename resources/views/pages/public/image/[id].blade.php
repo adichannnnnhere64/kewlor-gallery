@@ -65,7 +65,17 @@ new class extends Component {
 
     <div class=" bg-primary-700 space-x-4  border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900  mb-1 text-base bg-white rounded-lg dark:bg-gray-900"></div>
 
+
+    @if(Str::startsWith($media->mime_type, 'image/'))
     <img src="{{ $media->getUrl() }}" alt="Image">
+@elseif(Str::startsWith($media->mime_type, 'video/'))
+    <video controls class="max-w-full">
+        <source src="{{ $media->getUrl() }}" type="{{ $media->mime_type }}">
+        Your browser does not support the video tag.
+    </video>
+@else
+    <p>Unsupported media type</p>
+@endif
 
 
 

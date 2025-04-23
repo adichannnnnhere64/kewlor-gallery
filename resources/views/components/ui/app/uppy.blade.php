@@ -19,7 +19,16 @@
                 maxFileSize: 1 * 20024 * 20024, // 1 MB
                 minNumberOfFiles: 1,
                 maxNumberOfFiles: 500,
-                allowedFileTypes: ['image/*', 'image/svg+xml'],
+    allowedFileTypes: [
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'image/webp',
+        'image/svg+xml',
+        'video/mp4',
+        'video/webm',
+        'video/quicktime'
+    ],
             },
         })
         .use(Uppy.ImageEditor)
@@ -50,12 +59,25 @@
             $dispatch('upload-complete', 'success');
         });
 
-        uppy.on('file-added', (file) => {
-            if (!['image/jpeg', 'image/png', 'image/jpg', 'image/svg+xml'].includes(file.type)) {
-                $dispatch('notice', { type: 'error', text: 'Image format invalid: jpg/png only' });
-                uppy.removeFile(file.id);
-            }
-        });
+            uppy.on('file-added', (file) => {
+    const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'image/webp',
+        'image/svg+xml',
+        'video/mp4',
+        'video/webm',
+        'video/quicktime' // for .mov files
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+        $dispatch('notice', { type: 'error', text: 'Invalid file format: images (jpg/png/webp) and videos (mp4/webm/mov) only' });
+        uppy.removeFile(file.id);
+    }
+});
+
+
     "
 >
     <div id="{{ $id ?? 'drag-drop-area' }}" x-ref="dropzone"></div>
