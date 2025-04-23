@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use Opcodes\LogViewer\Facades\LogViewer;
 use App\Models\Media;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\Image;
+use Opcodes\LogViewer\Facades\LogViewer;
 use Plank\Mediable\Facades\ImageManipulator;
 use Plank\Mediable\ImageManipulation;
 
@@ -29,7 +29,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
 
-       LogViewer::auth(function ($request) {        return $request->user()            && in_array($request->user()->email, [                'mobistyle35@gmail.com',            ]);    });
+        LogViewer::auth(function ($request) {
+            return $request->user() && in_array($request->user()->email, ['mobistyle35@gmail.com']);
+        });
 
         Gate::define('access-admin-panel', function (User $user) {
             return $user->role === 'admin';

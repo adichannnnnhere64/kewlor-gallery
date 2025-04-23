@@ -92,13 +92,11 @@ class Vote extends Component
             return;
         }
 
-
         $action->handle($model, 'like');
 
         if ($this->currentVote === 'liked') {
             $this->currentVote = null;
         }
-
 
         $this->isDisliked = false;
 

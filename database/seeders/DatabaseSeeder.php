@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'User',
             'email' => 'mobistyle35@gmail.com',
             'password' => bcrypt('Asakaboi35!'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         User::factory()->create([
@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
 
         for ($a = 0; $a < 5; $a++) {
             $event = LiveEventGallery::factory()->create();
-            for ($index = 0; $index < rand(1, 5) ; $index++) {
+            for ($index = 0; $index < rand(1, 5); $index++) {
                 $fileInfo = collect($files)->random();
                 $uploadedFile = new UploadedFile(
                     $fileInfo->getPathname(),

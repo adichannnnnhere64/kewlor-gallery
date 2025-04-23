@@ -38,18 +38,18 @@ final class VoteToggle
         /* $user->reactTo($model, 'Like'); */
     }
 
-/*     private function dislike(Reacter $user, Media $model): void */
-/*     { */
-/*         $reactantFacade = $model->viaLoveReactant(); */
-/*         $isDisliked = $reactantFacade->isReactedBy(auth()->user(), 'Dislike'); */
+    /*     private function dislike(Reacter $user, Media $model): void */
+    /*     { */
+    /*         $reactantFacade = $model->viaLoveReactant(); */
+    /*         $isDisliked = $reactantFacade->isReactedBy(auth()->user(), 'Dislike'); */
 
-/*         if ($isDisliked) { */
-/*             $user->unreactTo($model, 'Dislike'); */
+    /*         if ($isDisliked) { */
+    /*             $user->unreactTo($model, 'Dislike'); */
 
-/*             return; */
-/*         } */
+    /*             return; */
+    /*         } */
 
-/*         $user->reactTo($model, 'Dislike'); */
+    /*         $user->reactTo($model, 'Dislike'); */
 
-/*     } */
+    /*     } */
 }

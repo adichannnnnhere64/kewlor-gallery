@@ -56,7 +56,7 @@ trait HasLikes
         $existingVote = $this->likes()->where('ip_address', $ip)->first();
 
         if ($existingVote) {
-            if (!$existingVote->is_like) {
+            if (! $existingVote->is_like) {
                 // Already disliked - remove the dislike
                 return $existingVote->delete();
             } else {
@@ -93,7 +93,7 @@ trait HasLikes
      */
     public function getHasLikedAttribute()
     {
-        if (!request()->ip()) {
+        if (! request()->ip()) {
             return false;
         }
 
@@ -108,7 +108,7 @@ trait HasLikes
      */
     public function getHasDislikedAttribute()
     {
-        if (!request()->ip()) {
+        if (! request()->ip()) {
             return false;
         }
 
@@ -124,7 +124,7 @@ trait HasLikes
      */
     public function getCurrentVoteAttribute()
     {
-        if (!request()->ip()) {
+        if (! request()->ip()) {
             return null;
         }
 
@@ -132,7 +132,7 @@ trait HasLikes
             ->where('ip_address', request()->ip())
             ->first();
 
-        if (!$vote) {
+        if (! $vote) {
             return null;
         }
 
@@ -142,14 +142,14 @@ trait HasLikes
     public function scopeWithLikeCounts($query, array $conditions = [])
     {
         return $query->withCount([
-            'likes as likes_count' => function($q) use ($conditions) {
+            'likes as likes_count' => function ($q) use ($conditions) {
                 $q->where('is_like', true);
                 $this->applyConditions($q, $conditions);
             },
-            'likes as dislikes_count' => function($q) use ($conditions) {
+            'likes as dislikes_count' => function ($q) use ($conditions) {
                 $q->where('is_like', false);
                 $this->applyConditions($q, $conditions);
-            }
+            },
         ]);
     }
 
@@ -173,14 +173,14 @@ trait HasLikes
     public function scopeWithLikeCountsBetweenDates($query, $startDate, $endDate)
     {
         return $query->withCount([
-            'likes as likes_count' => function($q) use ($startDate, $endDate) {
+            'likes as likes_count' => function ($q) use ($startDate, $endDate) {
                 $q->where('is_like', true)
-                  ->whereBetween('created_at', [$startDate, $endDate]);
+                    ->whereBetween('created_at', [$startDate, $endDate]);
             },
-            'likes as dislikes_count' => function($q) use ($startDate, $endDate) {
+            'likes as dislikes_count' => function ($q) use ($startDate, $endDate) {
                 $q->where('is_like', false)
-                  ->whereBetween('created_at', [$startDate, $endDate]);
-            }
+                    ->whereBetween('created_at', [$startDate, $endDate]);
+            },
         ]);
     }
 
@@ -190,14 +190,14 @@ trait HasLikes
     public function scopeWithLikeCountsFromIps($query, array $ips)
     {
         return $query->withCount([
-            'likes as likes_count' => function($q) use ($ips) {
+            'likes as likes_count' => function ($q) use ($ips) {
                 $q->where('is_like', true)
-                  ->whereIn('ip_address', $ips);
+                    ->whereIn('ip_address', $ips);
             },
-            'likes as dislikes_count' => function($q) use ($ips) {
+            'likes as dislikes_count' => function ($q) use ($ips) {
                 $q->where('is_like', false)
-                  ->whereIn('ip_address', $ips);
-            }
+                    ->whereIn('ip_address', $ips);
+            },
         ]);
     }
 }

@@ -5,7 +5,6 @@ namespace App\Actions;
 use App\Models\LiveEventGallery;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Plank\Mediable\Facades\MediaUploader;
 
 final class UploadVideo
@@ -14,11 +13,11 @@ final class UploadVideo
     {
         DB::transaction(function () use ($model, $file) {
             // Save original uploaded video temporarily
-            $tempPath = storage_path('app/tmp/' . uniqid('video_') . '.' . $file->getClientOriginalExtension());
+            $tempPath = storage_path('app/tmp/'.uniqid('video_').'.'.$file->getClientOriginalExtension());
             $file->move(dirname($tempPath), basename($tempPath));
 
             // Prepare watermarked video output path
-            $watermarkedPath = storage_path('app/tmp/' . uniqid('watermarked_') . '.mp4');
+            $watermarkedPath = storage_path('app/tmp/'.uniqid('watermarked_').'.mp4');
 
             $text = addslashes(setting('watermark') ?? config('app.name'));
             $xaxis = setting('xaxis') ?? 0.02;
@@ -44,7 +43,7 @@ final class UploadVideo
                 ->upload();
 
             // Create thumbnail
-            $thumbnailPath = storage_path('app/tmp/' . uniqid('thumb_') . '.jpg');
+            $thumbnailPath = storage_path('app/tmp/'.uniqid('thumb_').'.jpg');
             $ffmpegThumbnailCommand = sprintf(
                 'ffmpeg -i %s -ss 00:00:01.000 -vframes 1 -vf "scale=500:500:force_original_aspect_ratio=increase,crop=500:500" -q:v 5 %s',
                 escapeshellarg($watermarkedPath),
@@ -54,7 +53,7 @@ final class UploadVideo
 
             if (file_exists($thumbnailPath)) {
                 $thumbnailMedia = MediaUploader::fromSource($thumbnailPath)
-                    ->useFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '_thumb')
+                    ->useFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'_thumb')
                     ->useHashForFilename('sha1')
                     ->toDestination('public', 'videos/thumbs')
                     ->upload();
@@ -72,4 +71,3 @@ final class UploadVideo
         });
     }
 }
-

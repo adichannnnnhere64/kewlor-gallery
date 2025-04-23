@@ -6,7 +6,6 @@ use App\Actions\UploadImage;
 use App\Actions\UploadVideo;
 use App\Http\Requests\UploadRequest;
 use App\Models\LiveEventGallery;
-use Illuminate\Http\Request;
 
 class UploadController extends Controller
 {
@@ -33,4 +32,3 @@ class UploadController extends Controller
         ]);
     }
 }
-

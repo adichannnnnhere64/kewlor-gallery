@@ -25,5 +25,4 @@ class UploadRequest extends FormRequest
             'file' => 'required|file|mimetypes:image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime',
         ];
     }
-
 }
