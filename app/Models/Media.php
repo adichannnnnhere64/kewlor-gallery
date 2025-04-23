@@ -20,4 +20,9 @@ class Media extends BaseMedia
     {
         return $this->comments()->count();
     }
+
+    public function getVideoThumbnailAttribute()
+    {
+        return $this->video_thumbnail_id ? Media::find($this->video_thumbnail_id)?->getUrl() : null;
+    }
 }

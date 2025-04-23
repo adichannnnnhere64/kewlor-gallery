@@ -142,7 +142,7 @@ new class extends Component {
 
             <div class="flex justify-center flex-col items-center">
         <img
-            src="{{ $image->getUrl() }}"
+            src="{{ $image?->video_thumbnail ??  $image->getUrl()  }}"
             alt="{{ $image->name }}"
             class="w-34 h-34 rounded-lg object-cover"
         />
