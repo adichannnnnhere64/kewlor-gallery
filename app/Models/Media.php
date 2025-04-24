@@ -25,4 +25,9 @@ class Media extends BaseMedia
     {
         return $this->video_thumbnail_id ? Media::find($this->video_thumbnail_id)?->getUrl() : null;
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
 }

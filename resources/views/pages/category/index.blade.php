@@ -1,0 +1,127 @@
+<?php
+
+use Illuminate\Support\Facades\Http;
+
+use function Laravel\Folio\{middleware, name};
+use function Livewire\Volt\{state, with};
+use Livewire\Volt\Component;
+use App\Models\Category;
+use Livewire\WithPagination;
+
+name('category');
+middleware(['auth', 'verified', 'can:access-admin-panel']);
+
+new class extends Component {
+
+        use WithPagination;
+
+        public function with(): array
+    {
+        return [
+            'data' => Category::query()->orderByDesc('date')->paginate(10),
+        ];
+    }
+
+
+    public function mount(): void
+    {
+ //       $this->data = $data;
+    }
+};
+
+
+#with(fn () => ['posts' => 'adicchans']);
+
+?>
+
+<style>
+    .dark img[alt="Kewlor Logo"] {
+        filter: invert(1);
+    }
+</style>
+
+<x-layouts.app>
+
+    <x-slot name="header">
+        <h2 class="text-lg font-semibold leading-tight text-gray-800 dark:text-gray-200">
+            {{ __('Category') }}
+        </h2>
+    </x-slot>
+
+
+    @volt('category')
+    <div>
+        <div
+    x-data="{
+        query: new URLSearchParams(location.search).get('s') || '',
+
+        fetchData(page = null) {
+
+            console.log(page)
+            let currentPageFromUrl = location.search.match(/page=(\d+)/)
+                            ? location.search.match(/page=(\d+)/)[1]
+                            : 1
+
+            if (this.query) {
+                currentPageFromUrl = 1;
+                history.pushState(null, null, '?page=1&search='+ this.query);
+            }
+
+            const endpointURL =  page !== null
+                        ? `${page}&search=${this.query}`
+                        : `/category?page=${currentPageFromUrl}&search=${this.query}`;
+
+            if (page) {
+
+                const urlObj = new URL(page);
+
+                const params = new URLSearchParams(urlObj.search);
+
+                history.pushState(null, null, '?page=' + params.get('page') );
+            }
+
+            fetch(endpointURL, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.querySelector('#category-table').innerHTML = html
+                })
+        }
+    }"
+    x-init="
+        $watch('query', (value) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', value);
+            history.pushState(null, document.title, url.toString());
+        })
+    "
+    @goto-page="fetchData($event.detail.page)"
+    @reload.window="fetchData()"
+    x-cloak>
+
+    <div class="my-4">
+        <a href="{{ route('category.create') }}" class="my-4 px-4 py-2 bg-primary-600 text-white rounded" >Create</a>
+                <input type="text"
+                    placeholder="Search"
+                    class="my-4 appearance-none flex w-full h-10 px-3 py-2 text-sm bg-white dark:text-gray-300 dark:bg-white/[4%] border rounded-md border-gray-300 dark:border-white/10 ring-offset-background placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-gray-300 dark:focus:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200/60 dark:focus:ring-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            x-model="query"
+            x-on:input.debounce.750="fetchData()"
+                />
+    </div>
+
+    <div>
+
+
+</div>
+    <div id="category-table">
+        @include('tables.category')
+    </div>
+</div>
+
+    </div>
+
+    @endvolt
+</x-layouts.app>

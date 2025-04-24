@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LiveEventGalleryController;
 use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
@@ -88,5 +89,12 @@ Route::middleware('auth')->group(function (): void {
     /* Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create'); */
     Route::get('live-event', [LiveEventGalleryController::class, 'index'])->name('live-event.index')->middleware(['can:access-admin-panel']);
     Route::post('/live-event/{model}', [LiveEventGalleryController::class, 'delete'])->name('live-event.delete')->middleware(['can:access-admin-panel']);
+
+
+
     /* Route::get('live-event/{model}', [LiveEventGalleryController::class, 'edit'])->name('live-event.edit'); */
+
+
+    Route::get('category', [CategoryController::class, 'index'])->name('category.index')->middleware(['can:access-admin-panel']);
+    Route::post('/category/{model}', [CategoryController::class, 'delete'])->name('category.delete')->middleware(['can:access-admin-panel']);
 });

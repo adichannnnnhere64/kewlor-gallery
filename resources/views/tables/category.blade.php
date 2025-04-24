@@ -11,9 +11,10 @@
                 'type' => 'data'
             ],
             [
-                'key' => 'created_at',
+                'key' => 'slug',
                 'type' => 'data'
             ],
+
             [
                 'key' => 'manage',
                 'type' => 'edit'
@@ -24,14 +25,14 @@
             ],
         ]"
         :data="$data"
-        edit-route="live-event.edit"
-        delete-route="live-event.delete"
+        edit-route="category.edit"
+        delete-route="category.delete"
         edit-id="id"
         delete-id="id"
-        model="live-event"
+        model="category"
         table-striped
     >
     </x-ui.base-datatable>
 @else
-    No items found.
+    No categories found.
 @endif
