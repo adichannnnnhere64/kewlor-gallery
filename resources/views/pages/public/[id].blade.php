@@ -127,7 +127,7 @@ new class extends Component {
             :currentVote="$image->current_vote"
             :dislikesCount="$image->dislikes_count"
             wire:key="img-{{ $image->id }}-{{ $sortBy }}-{{ now()->timestamp }}"
-            :id="$image->id" :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image->video_thumbnail" :showComment="true" :title="$name" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])"  />
+            :id="$image->id" :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image->video_thumbnail" :showComment="true"  :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])"  />
             </div>
 
     @endforeach

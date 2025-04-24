@@ -39,7 +39,7 @@ new class extends Component {
             </a>
             <span class="flex flex-col justify-start px-1 py-2">
                 <span class="line-clamp-1 pt-2.5 text-lg font-semibold flex items-center dark:text-white space-x-1.5">
-                    <span>{{ $title }}</span>
+                    <span>{{ $title ?? '' }}</span>
                 </span>
                 <p class="block pt-1.5 pb-3 text-sm text-left line-clamp-2 text-slate-800/60 dark:text-white/50">
                     {{ $description }}
