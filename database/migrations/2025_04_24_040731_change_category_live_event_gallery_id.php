@@ -11,14 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('likes', function (Blueprint $table) {
-            $table->id();
-            $table->string('ip_address');
-            $table->boolean('is_like');
-            $table->morphs('likeable');
-            $table->timestamps();
-
-            /* $table->unique(['ip_address', 'likeable_id', 'likeable_type']); */
+        Schema::table('category_live_event_gallery', function (Blueprint $table) {
+            $table->renameColumn('live_event_gallery', 'live_event_gallery_id');
         });
     }
 
@@ -27,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('likes');
+        //
     }
 };

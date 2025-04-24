@@ -4,11 +4,12 @@ namespace App\Actions;
 
 use App\Models\Media;
 use Cog\Laravel\Love\Reacter\Facades\Reacter;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 final class VoteToggle
 {
-    public function handle(Media $model, string $type): void
+    public function handle(Model $model, string $type): void
     {
         DB::transaction(function () use ($model, $type) {
 

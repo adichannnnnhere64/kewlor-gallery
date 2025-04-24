@@ -6,6 +6,7 @@ use function Laravel\Folio\{middleware, name};
 use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
 use App\Models\LiveEventGallery;
+use App\Models\Category;
 use App\Models\Media;
 use Livewire\WithPagination;
 
@@ -18,18 +19,23 @@ new class extends Component {
        public $id;
     public $name;
     public $slug;
+    public $categories;
+    public $description;
+    public $categoryForm;
     public $date;
     public $images;
 
         public function mount($id): void
     {
         $this->id = $id;
-        $liveEvent = LiveEventGallery::find($this->id);
-        $this->images = $liveEvent->getMedia('default');
+        $this->categoryForm = Category::get()->pluck('name', 'id')->toArray();
+        $liveEvent = LiveEventGallery::with('categories')->find($this->id);
+        $this->images = $liveEvent?->getMedia('default');
 
         if ($liveEvent) {
             $this->name = $liveEvent->name;
             $this->date = $liveEvent->date;
+            $this->categories = $liveEvent->categories->pluck('id')->toArray();
             $this->slug = $liveEvent->slug;
         }
     }
@@ -59,7 +65,7 @@ new class extends Component {
 }
 
        public function submit(): void
-        {
+    {
         // Validate the input
         $this->validate([
             'name' => 'required|string|max:255',
@@ -72,8 +78,11 @@ new class extends Component {
             $liveEvent->update([
                 'name' => $this->name,
                 'date' => $this->date,
+                'description' => $this->description,
                 'slug' => $this->slug
             ]);
+
+            $liveEvent->categories()->sync($this->categories);
 
             session()->flash('message', 'Event updated successfully!');
             #$this->dispatch('eventUpdated');
@@ -115,6 +124,15 @@ new class extends Component {
 
         <x-ui.input wire:model="name" label="name" id="name" name="name" />
         <x-ui.input wire:model="date" label="Date" id="date" name="date" type="date" />
+            <x-ui.textarea
+    label="Description"
+    id="description"
+    name="description"
+    wire:model="description"
+    rows="5"
+    placeholder="Enter your description here..."
+/>
+            <x-ui.tagsinput  :options="$categoryForm" :selected="$categories" wireModel="categories" label="Categories" id="tags" name="tags"/>
         <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" type="slug" />
             <div class="my-4 ">
         <button  type="submit" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded" >

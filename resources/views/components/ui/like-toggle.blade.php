@@ -43,6 +43,7 @@ new class extends Component {
 
     public function dislike(VoteToggle $action)
     {
+        dd('adi');
         $user = auth()->user();
 
         if (!$user) return redirect()->route('login');

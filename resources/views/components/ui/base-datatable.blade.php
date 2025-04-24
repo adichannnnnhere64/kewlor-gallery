@@ -37,6 +37,11 @@
 
                             @php $valueItem = explode('.', $value['key']); @endphp
 
+                            @if($value['type'] === 'image')
+                    <img src="{{ $item->{$valueItem[0]} }}" alt="{{ $item->{$valueItem[0]} }}" class=" rounded-full w-16 h-16 my-2 object-cover object-center" />
+
+                    @endif
+
                             @if($value['type'] === 'data')
                                 <span class="text-gray-700 px-6 py-3 block items-center truncate {{ $value['width'] ?? '' }}">
                                     @if(count($valueItem) == 1)

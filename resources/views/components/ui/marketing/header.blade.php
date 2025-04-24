@@ -18,6 +18,7 @@
 
                 <nav class="flex flex-col w-full p-6 space-y-2 bg-gray-100 md:p-0 md:flex-row md:space-x-2 md:space-y-0 md:w-auto md:bg-transparent md:flex">
                     <x-ui.nav-link href="/">Home</x-ui.nav-link>
+                    <x-ui.nav-link href="/gallery-index">Gallery</x-ui.nav-link>
                     <x-ui.nav-link href="/Kewlor/about">About</x-ui.nav-link>
                     @auth
                 <span class="sm:hidden">

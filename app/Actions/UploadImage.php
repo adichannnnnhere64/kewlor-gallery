@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Models\LiveEventGallery;
 use App\Models\Media;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Image;
@@ -15,7 +16,7 @@ use Plank\Mediable\ImageManipulation;
 
 final class UploadImage
 {
-    public function handle(LiveEventGallery $model, UploadedFile $file): void
+    public function handle(Model $model, UploadedFile $file): void
     {
         DB::transaction(function () use ($model, $file) {
 

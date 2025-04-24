@@ -19,13 +19,18 @@ new class extends Component {
     public $id;
     public $name;
     public $date;
+    public $description;
+
+    public $liveEvent;
     #[Url]
     public $sortBy = 'newest';
 
     public function mount()
     {
-        $liveEvent = LiveEventGallery::findOrFail($this->id);
-        $this->name = $liveEvent->name;
+        $this->liveEvent = LiveEventGallery::findOrFail($this->id);
+
+        $this->name = $this->liveEvent->name;
+        $this->description = $this->liveEvent->description;
     }
 
     #[Computed]
@@ -40,6 +45,9 @@ new class extends Component {
             ->where('tag', 'default')
             ->when($this->sortBy === 'newest', function ($query) {
                 return $query->reorder()->orderBy('created_at', 'desc');
+            })
+            ->when($this->sortBy === 'likes', function ($query) {
+                return $query->reorder()->orderByDesc('likes_count');
             })
             ->when($this->sortBy === 'oldest', function ($query) {
                 return $query->reorder()->orderBy('created_at', 'asc');
@@ -103,12 +111,16 @@ new class extends Component {
 
              <div class="mx-auto max-w-6xl">
 
-            <h1 class=" px-8 font-bold text-primary-700 text-2xl">{{ $name }}</h1>
+    <div class="px-8 ">
+            <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
+    <p class="text-gray-400">{{ $description }}</p>
+    </div>
         <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  px-8">
 
         @foreach ($this->images ?? [] as $key => $image)
             <div>
             <x-ui.card
+            :model="$image"
             :liveEventId="$id"
             :sortBy="$sortBy"
             :likesCount="$image->likes_count"
@@ -128,6 +140,7 @@ new class extends Component {
     @endif
 
 
+        <livewire:comments :model="$this->liveEvent" />
     </div>
 
     </div>

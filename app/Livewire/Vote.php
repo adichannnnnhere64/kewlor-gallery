@@ -23,9 +23,10 @@ class Vote extends Component
 
     public $currentVote = null;
 
+    public $model = null;
+
     public function mount(): void
     {
-
         $this->isLiked = $this->currentVote === 'liked';
         $this->isDisliked = $this->currentVote === 'disliked';
         /* $this->fetchVotes(); */
@@ -34,7 +35,7 @@ class Vote extends Component
     public function dislike(VoteToggle $action)
     {
 
-        $model = Media::find($this->id);
+        $model = $this->model;
 
         if (! $model) {
             return;
@@ -42,11 +43,7 @@ class Vote extends Component
 
         $action->handle($model, 'dislike');
 
-        if ($this->currentVote === 'disliked') {
-            $this->currentVote = null;
-        }
 
-        $this->isLiked = false;
 
         $this->likesCount = $model->likes_count;
         $this->dislikesCount = $model->dislikes_count;
@@ -86,7 +83,7 @@ class Vote extends Component
         /*     return redirect()->route('login'); */
         /* } */
 
-        $model = Media::find($this->id);
+        $model = $this->model;
 
         if (! $model) {
             return;
@@ -95,12 +92,13 @@ class Vote extends Component
 
         $action->handle($model, 'like');
 
-        if ($this->currentVote === 'liked') {
-            $this->currentVote = null;
-        }
+/*         if ($this->currentVote === 'liked') { */
+/*             $this->currentVote = null; */
+/*         } */
 
 
-        $this->isDisliked = false;
+/*         $this->isLiked = true; */
+/*         $this->isDisliked = false; */
 
         $this->likesCount = $model->likes_count;
         $this->dislikesCount = $model->dislikes_count;

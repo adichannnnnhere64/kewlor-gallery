@@ -28,17 +28,6 @@ trait HasLikes
     public function like()
     {
         $ip = request()->ip();
-        $existingVote = $this->likes()->where('ip_address', $ip)->first();
-
-        if ($existingVote) {
-            if ($existingVote->is_like) {
-                // Already liked - remove the like
-                return $existingVote->delete();
-            } else {
-                // Currently disliked - change to like
-                return $existingVote->update(['is_like' => true]);
-            }
-        }
 
         // No existing vote - create new like
         return $this->likes()->create([
@@ -53,17 +42,17 @@ trait HasLikes
     public function dislike()
     {
         $ip = request()->ip();
-        $existingVote = $this->likes()->where('ip_address', $ip)->first();
+        /* $existingVote = $this->likes()->where('ip_address', $ip)->first(); */
 
-        if ($existingVote) {
-            if (!$existingVote->is_like) {
-                // Already disliked - remove the dislike
-                return $existingVote->delete();
-            } else {
-                // Currently liked - change to dislike
-                return $existingVote->update(['is_like' => false]);
-            }
-        }
+        /* if ($existingVote) { */
+        /*     if (!$existingVote->is_like) { */
+        /*         // Already disliked - remove the dislike */
+        /*         /1* return $existingVote->delete(); *1/ */
+        /*     } else { */
+        /*         // Currently liked - change to dislike */
+        /*         /1* return $existingVote->update(['is_like' => false]); *1/ */
+        /*     } */
+        /* } */
 
         // No existing vote - create new dislike
         return $this->likes()->create([

@@ -1,10 +1,14 @@
 @if (isset($data) && $data->isNotEmpty())
     <x-ui.base-datatable
-        :headings="['#', 'Name', 'Date', 'Edit', 'Delete']"
+        :headings="['#', 'Image', 'Name', 'Date', 'Edit', 'Delete']"
         :values="[
             [
                 'key' => 'id',
                 'type' => 'data'
+            ],
+            [
+                'key' => 'image',
+                'type' => 'image'
             ],
             [
                 'key' => 'name',

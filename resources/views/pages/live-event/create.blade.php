@@ -16,6 +16,7 @@ new class extends Component {
         use WithPagination;
     public $name;
     public $date;
+    public $description;
 
 
        public function submit(): void
@@ -29,6 +30,7 @@ new class extends Component {
 
         LiveEventGallery::create([
             'name' => $this->name,
+            'description' => $this->description,
             'date' => $this->date,
             #  'slug' => $this->slug
         ]);

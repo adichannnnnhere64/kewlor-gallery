@@ -7,6 +7,8 @@ use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
 use App\Models\Category;
 use Livewire\WithPagination;
+use App\Actions\UploadImage;
+use Livewire\WithFileUploads;
 
 name('category.create');
 middleware(['auth', 'verified', 'can:access-admin-panel']);
@@ -14,7 +16,9 @@ middleware(['auth', 'verified', 'can:access-admin-panel']);
 new class extends Component {
 
         use WithPagination;
+    use WithFileUploads;
     public $name;
+    public $image;
     public $slug;
 
 
@@ -24,13 +28,21 @@ new class extends Component {
         $this->validate([
             'name' => 'required|string|min:3|max:100|unique:categories,name',
             'slug' => 'nullable|min:1|max:100|unique:categories,slug',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10048',
         ]);
 
-        Category::create([
+        $category = Category::create([
             'name' => $this->name,
             'slug' => $this->slug,
         ]);
 
+
+try {
+
+        $uploadImageAction = app()->make(UploadImage::class)->handle($category, $this->image);
+} catch (\Exception $e) {
+
+}
         $this->name = "";
         $this->slug = "";
 
@@ -63,7 +75,7 @@ new class extends Component {
 
 
     <div>
-        <form wire:submit.prevent="submit">
+        <form wire:submit.prevent="submit" class="w-full" enctype="multipart/form-data">
    @if (session()->has('message'))
     <div class="p-4 mb-4 text-green-700 bg-green-100 rounded">
             {{ session('message') }}
@@ -72,6 +84,7 @@ new class extends Component {
 
         <x-ui.input wire:model="name" label="name" id="name" name="name" />
         <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" />
+        <x-ui.input wire:model="image" label="image" id="image" name="image" type="file" />
             <div class="my-4 ">
         <button type="submit" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded" >
                     Create
