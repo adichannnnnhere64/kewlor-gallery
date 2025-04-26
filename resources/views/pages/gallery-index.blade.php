@@ -87,7 +87,7 @@ public function mount()
                     @if (isset($this->categoryFilters) && count($this->categoryFilters))
 
                         @foreach ($this->categoryFilters as $key => $category)
-                            <button class=" {{ in_array($key, $this->currentFilters) ? 'bg-primary-700' : 'bg-gray-400'  }} rounded-full text-white px-3 py-2 "  wire:click="addFilter({{ $key }})"> {{ $category }}</button>
+                            <button :key="{{ $key }}" wire:key="{{ $key }}" class=" {{ in_array($key, $this->currentFilters) ? 'bg-primary-700' : 'bg-gray-400'  }} rounded-full text-white px-3 py-2 "  wire:click="addFilter({{ $key }})"> {{ $category }}</button>
                         @endforeach
 
                     @endif
