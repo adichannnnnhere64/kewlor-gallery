@@ -91,7 +91,7 @@ public function mount()
 
                         @foreach ($this->categoryFilters as $key => $category)
                     <div class="inline">
-                            <a wire:key="filter-{{ $key }}" class=" {{ in_array($key, $this->currentFilters) ? 'bg-primary-700' : 'bg-gray-400'  }} rounded-full text-white px-3 py-2 cursor-pointer"  wire:click="addFilter({{ $key }})"> {{ $category }}</a>
+                            <a wire:key="filter-{{ $key }}" class="bg-gray-400"  wire:click="addFilter({{ $key }})"> {{ $category }}</a>
 </div>
                         @endforeach
 
