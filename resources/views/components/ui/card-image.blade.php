@@ -35,7 +35,7 @@ new class extends Component {
     <div>
         <div class="p-2 transition-transform duration-300  cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
             <a href="{{ $detailsUrl }}?event={{ $liveEventId }}">
-            <img src="{{ $image }}" class="object-cover w-full bg-white lg:h-[200px] border p-4 rounded-md" />
+            <img src="{{ $image }}" class="object-cover w-full bg-white lg:h-[200px] border p-2 rounded-md" />
             </a>
 
             @if ($showComment)
