@@ -16,17 +16,19 @@ new class extends Component {
         public $xaxis = '';
         public $yaxis = '';
         public $watermark = '';
+        public $bgcolor = '';
 
         public function mount(): void
         {
             $this->xaxis = setting('xaxis');
             $this->yaxis = setting('yaxis');
             $this->watermark = setting('watermark');
+            $this->bgcolor = setting('bgcolor') ?? '#fff';
         }
 
         public function submit(): void
         {
-            setting(['xaxis' => $this->xaxis, 'yaxis' => $this->yaxis, 'watermark' => $this->watermark])->save();
+            setting(['xaxis' => $this->xaxis, 'yaxis' => $this->yaxis, 'watermark' => $this->watermark, 'bgcolor' => $this->bgcolor])->save();
         }
 };
 
@@ -47,6 +49,8 @@ new class extends Component {
         <x-ui.input wire:model="yaxis" label="Y Axis" id="yaxis" name="yaxis" />
         <x-ui.input wire:model="xaxis" label="X Axis" id="xaxis" name="xaxis" />
         <x-ui.input wire:model="watermark" label="Watermark" id="watermark" name="watermark" />
+        <x-ui.input wire:model="bgcolor" label="Background Color" id="bgcolor" name="bgcolor" />
+
             <div class="w-20">
                 <x-ui.button  type="primary" submit="true">{{ __('Update') }}</x-ui.button>
             </div>

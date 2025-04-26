@@ -119,7 +119,7 @@ new class extends Component {
 
         @foreach ($this->images ?? [] as $key => $image)
             <div>
-            <x-ui.card
+            <x-ui.card-image
             :model="$image"
             :liveEventId="$id"
             :sortBy="$sortBy"
@@ -138,6 +138,8 @@ new class extends Component {
         {{ $this->images->links() }}
     </div>
     @endif
+
+            <div class="my-4"></div>
 
 
         <livewire:comments :model="$this->liveEvent" />
