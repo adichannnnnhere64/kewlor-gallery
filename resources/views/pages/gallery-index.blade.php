@@ -18,13 +18,11 @@ new class extends Component
     #[Url]
     public $sortBy = 'newest';
 
-    public $categoryFilters;
 
     public $currentFilters = [];
 
 public function mount()
     {
-        $this->categoryFilters = Category::query()->get()->pluck('name', 'id')->toArray();
     }
 
     public function addFilter($id)
@@ -36,6 +34,12 @@ public function mount()
             $this->currentFilters[] = $id;
         }
 
+    }
+
+   #[Computed]
+    public function categoryFilters()
+    {
+        return Category::query()->get()->pluck('name', 'id')->toArray();
     }
 
    #[Computed]
@@ -86,7 +90,9 @@ public function mount()
                     @if (isset($this->categoryFilters) && count($this->categoryFilters))
 
                         @foreach ($this->categoryFilters as $key => $category)
+                    <div class="inline">
                             <a wire:key="filter-{{ $key }}" class=" {{ in_array($key, $this->currentFilters) ? 'bg-primary-700' : 'bg-gray-400'  }} rounded-full text-white px-3 py-2 cursor-pointer"  wire:click="addFilter({{ $key }})"> {{ $category }}</a>
+</div>
                         @endforeach
 
                     @endif
@@ -118,7 +124,7 @@ public function mount()
                             :id="$liveEvent->id"
                :liveEventId="$liveEvent->id"
                  wire:key="imgx-{{ $liveEvent->id }}-{{ $sortBy }}-{{$key}}"
-                :showComment="true" :key="$liveEvent->id"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                :showComment="true" :key="$liveEvent->id"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->media()->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
 </div>
     @endforeach
 
