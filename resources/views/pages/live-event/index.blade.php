@@ -44,7 +44,7 @@ new class extends Component {
 
     <x-slot name="header">
         <h2 class="text-lg font-semibold leading-tight text-gray-800 dark:text-gray-200">
-            {{ __('Live Events') }}
+            {{ __('Dashboard') }}
         </h2>
     </x-slot>
 

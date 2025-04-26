@@ -1,6 +1,6 @@
 <header x-data="{ open: false }" class="border-b border-gray-200/80 dark:bg-gray-900/40 dark:border-gray-200/[15%]">
     <!-- Primary Navigation Menu -->
-    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div class="px-8 mx-auto max-w-6xl ">
         <div class="flex justify-between h-16">
             <!-- Logo -->
             <a href="{{ route('dashboard') }}" class="flex items-center shrink-0">
@@ -10,7 +10,7 @@
             <!-- Navigation -->
             <div :class="{ 'absolute left-0' : open, 'relative' : !open }" class="flex flex-col justify-start w-full sm:relative sm:flex-row sm:justify-between" x-cloak>
                 @php
-                    $navLinks = [ 'Home' => '/', 'Dashboard' => '/dashboard', 'Live Events' => '/live-event',  'Categories' => '/category', 'Settings' => '/live-event/settings'];
+                    $navLinks = [ 'Home' => '/', 'Gallery' => '/gallery-index',  'Dashboard' => '/live-event', 'Categories' => '/category', 'Settings' => '/live-event/settings'];
                 @endphp
                 <!-- Navigation Links -->
                 <nav :class="{'flex flex-col bg-white dark:bg-gray-900 relative z-50 w-full h-auto px-4 py-5 left-0 mt-16': open, 'hidden': ! open}" class="items-center space-y-3 sm:space-x-3 sm:space-y-0 sm:mt-0 sm:bg-transparent sm:p-0 sm:relative sm:flex sm:-my-px sm:ml-8" x-cloak>

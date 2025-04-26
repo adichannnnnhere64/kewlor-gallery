@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
 name('home');
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component
 {
@@ -29,21 +30,20 @@ new class extends Component
 
 ?>
 
-<x-layouts.marketing>
+<x-layouts.app>
 
 
-    <x-ui.marketing.breadcrumbs :crumbs="[]" />
 
     @volt('home')
 
     <div>
-    <div class="flex justify-between items-center max-w-6xl mx-auto px-8">
+    <div class="flex justify-between items-center max-w-6xl mx-auto ">
         <h1 class="  mt-8 font-bold text-primary-700 text-2xl">Categories</h1>
     </div>
 
     <div class="max-w-6xl mx-auto mb-10">
 @if (isset($this->categories) && $this->categories->isNotEmpty())
-    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl px-8">
+    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
     @foreach ($this->categories as $key => $liveEvent)
                 <div>
             <x-ui.card
@@ -70,7 +70,7 @@ new class extends Component
     @endvolt
 
 
-</x-layouts.marketing>
+</x-layouts.app>
 
 
 

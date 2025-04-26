@@ -12,6 +12,7 @@ use Livewire\Attributes\Url;
 use Livewire\Attributes\Reactive;
 
 name('live-event.show');
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component {
     use WithPagination;
@@ -81,11 +82,10 @@ new class extends Component {
     }
 </style>
 
-<x-layouts.marketing>
+<x-layouts.app>
     @volt('live-event.show')
     <div>
-        <x-ui.marketing.breadcrumbs :crumbs="[['text' => $name]]" />
-        <div class="flex max-w-6xl mx-auto justify-between items-center px-8 py-4">
+        <div class="flex max-w-6xl mx-auto justify-between items-center  py-4">
             <div class="w-20">
     <x-ui.button tag="a" type="secondary"  href="{{ route('home') }}" class="mb-8 inline">
     <div class="flex items-center space-x-1 ">
@@ -111,11 +111,11 @@ new class extends Component {
 
              <div class="mx-auto max-w-6xl">
 
-    <div class="px-8 ">
+    <div class="">
             <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
     <p class="text-gray-400">{{ $description }}</p>
     </div>
-        <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  px-8">
+        <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
         @foreach ($this->images ?? [] as $key => $image)
             <div>
@@ -134,7 +134,7 @@ new class extends Component {
 </div>
 
     @if($this?->images?->hasPages())
-    <div class="mt-4 px-8">
+    <div class="mt-4 ">
         {{ $this->images->links() }}
     </div>
     @endif
@@ -149,4 +149,4 @@ new class extends Component {
 
     </div>
     @endvolt
-</x-layouts.marketing>
+</x-layouts.app>

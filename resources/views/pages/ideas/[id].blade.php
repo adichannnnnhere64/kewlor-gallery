@@ -9,6 +9,8 @@ use Livewire\Attributes\Url;
 use App\Models\Category;
 
 name('ideas.show');
+middleware(['auth', 'verified', 'can:access-admin-panel']);
+
 
 new class extends Component
 {
@@ -54,16 +56,14 @@ new class extends Component
 
 ?>
 
-<x-layouts.marketing>
+<x-layouts.app>
 
-
-    <x-ui.marketing.breadcrumbs :crumbs="[]" />
 
 
     @volt('ideas.show')
 
     <div>
-    <div class="flex justify-between items-center max-w-6xl mx-auto px-8">
+    <div class="flex justify-between items-center max-w-6xl mx-auto ">
         <h1 class="  mt-8 font-bold text-primary-700 text-2xl">Gallery</h1>
 
             <select wire:model.live="sortBy"
@@ -76,14 +76,14 @@ new class extends Component
 
 
     <div class="max-w-6xl mx-auto mb-10">
-            <div class="px-8">
+            <div class="">
             <h2>{{ $category->name }}</h2>
 </div>
 
 
 
 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
-    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl px-8">
+    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
 
     @foreach ($this->liveEvents as $key => $liveEvent)
                 <div>
@@ -99,7 +99,7 @@ new class extends Component
 
 </div>
    @if($this?->liveEvents?->hasPages())
-    <div class="mt-4 px-8">
+    <div class="mt-4 ">
         {{ $this->liveEvents->links() }}
     </div>
     @endif
@@ -117,7 +117,7 @@ new class extends Component
     @endvolt
 
 
-</x-layouts.marketing>
+</x-layouts.app>
 
 
 

@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
 name('gallery-index');
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component
 {
@@ -71,16 +72,14 @@ public function mount()
 
 ?>
 
-<x-layouts.marketing>
+<x-layouts.app>
 
-
-    <x-ui.marketing.breadcrumbs :crumbs="[]" />
 
 
     @volt('gallery-index')
 
     <div>
-    <div class="flex justify-between items-center max-w-6xl mx-auto px-8">
+    <div class="flex justify-between items-center max-w-6xl mx-auto ">
             <div>
         <h1 class="  mt-8 pb-4 font-bold text-primary-700 text-2xl">Gallery</h1>
                 <div>
@@ -104,7 +103,7 @@ public function mount()
 
     <div class="max-w-6xl mx-auto mb-10">
 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
-    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl px-8">
+    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
     @foreach ($this->liveEvents as $key => $liveEvent)
                 <div>
             <x-ui.card
@@ -135,7 +134,7 @@ public function mount()
 @endif
 
    @if($this?->liveEvents?->hasPages())
-    <div class="mt-4 px-8">
+    <div class="mt-4 ">
         {{ $this->liveEvents->links() }}
     </div>
 
@@ -149,7 +148,7 @@ public function mount()
     @endvolt
 
 
-</x-layouts.marketing>
+</x-layouts.app>
 
 
 

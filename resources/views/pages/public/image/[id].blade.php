@@ -10,6 +10,7 @@ use Livewire\WithPagination;
 use App\Models\Media;
 
 name('public.image.show');
+middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component {
 
@@ -42,13 +43,12 @@ new class extends Component {
     }
 </style>
 
-<x-layouts.marketing>
+<x-layouts.app>
 
-    <x-ui.marketing.breadcrumbs :crumbs="[['text' => 'Image']]" />
     @volt('public.image.show')
 
 
-    <div class="max-w-6xl px-8 pt-4 pb-20 mx-auto">
+    <div class="max-w-6xl  pt-4 pb-20 mx-auto">
         <div class="w-20 mb-4">
     <x-ui.button tag="a" type="secondary"  href="{{ route('live-event.show', ['id' => $this?->liveEventId ] ) }}" class="mb-8 inline">
     <div class="flex items-center space-x-1 justify-center">
@@ -67,16 +67,15 @@ new class extends Component {
 
 
     @if(Str::startsWith($media->mime_type, 'image/'))
-    <img src="{{ $media->getUrl() }}" alt="Image">
+    <img src="{{ $media->getUrl() }}" alt="Image" class="max-w-full max-h-screen object-contain">
 @elseif(Str::startsWith($media->mime_type, 'video/'))
-    <video controls class="max-w-full">
+    <video controls class="w-full max-h-[60vh] object-contain">
         <source src="{{ $media->getUrl() }}" type="{{ $media->mime_type }}">
         Your browser does not support the video tag.
     </video>
 @else
     <p>Unsupported media type</p>
 @endif
-
 
 
     </div>
@@ -100,4 +99,4 @@ new class extends Component {
 </div>
 
     @endvolt
-</x-layouts.marketing>
+</x-layouts.app>

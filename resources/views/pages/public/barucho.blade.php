@@ -5,7 +5,7 @@ use function Livewire\Volt\{with, usesPagination};
     with(fn () => ['posts' => App\Models\Media::paginate(2)]);
 ?>
 
-<x-layouts.marketing>
+<x-layouts.app>
     @volt('posts')
      <div>
     @foreach ($posts as $post)
@@ -19,4 +19,4 @@ use function Livewire\Volt\{with, usesPagination};
     {{ $posts->links() }}
     </div>
     @endvolt
-</x-layouts.marketing>
+</x-layouts.app>
