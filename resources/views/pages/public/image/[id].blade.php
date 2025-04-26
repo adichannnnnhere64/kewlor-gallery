@@ -92,7 +92,9 @@ new class extends Component {
         </div>
 
 
+        <div class="comments">
         <livewire:comments :model="$media" />
+</div>
 
 
 </div>

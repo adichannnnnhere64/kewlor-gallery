@@ -142,7 +142,9 @@ new class extends Component {
             <div class="my-4"></div>
 
 
+        <div class="comments">
         <livewire:comments :model="$this->liveEvent" />
+</div>
     </div>
 
     </div>

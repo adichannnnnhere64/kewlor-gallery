@@ -107,7 +107,10 @@ new class extends Component
 @endif
 
 
+        <div class="comments">
         <livewire:comments :model="$this->category" />
+
+</div>
 </div>
 </div>
 
