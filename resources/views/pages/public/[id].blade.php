@@ -87,7 +87,7 @@ new class extends Component {
     <div>
         <div class="flex max-w-6xl mx-auto justify-between items-center  py-4">
             <div class="w-20">
-    <x-ui.button tag="a" type="secondary"  href="{{ route('home') }}" class="mb-8 inline">
+    <x-ui.button tag="a" type="secondary"  href="{{ route('gallery-index') }}" class="mb-8 inline">
     <div class="flex items-center space-x-1 ">
     <svg  xmlns="http://www.w3.org/2000/svg" class="h-4"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M5 12l6 6" /><path d="M5 12l6 -6" /></svg>
 
