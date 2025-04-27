@@ -132,7 +132,7 @@ new class extends Component {
     rows="5"
     placeholder="Enter your description here..."
 />
-            <x-ui.tagsinput  :options="$categoryForm" :selected="$categories" wireModel="categories" label="Categories" id="tags" name="tags"/>
+            <x-ui.select  :options="$categoryForm" :selected="$categories" wireModel="categories" label="Categories" id="tags" name="tags"/>
         <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" type="slug" />
             <div class="my-4 ">
         <button  type="submit" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded" >

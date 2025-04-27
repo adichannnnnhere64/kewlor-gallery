@@ -34,6 +34,9 @@ public function mount()
             $this->currentFilters[] = $id;
         }
 
+
+        $this->resetPage();
+
     }
 
    #[Computed]
@@ -59,10 +62,10 @@ public function mount()
 
             })
             ->when($this->sortBy === 'newest', function ($query) {
-                return $query->reorder()->orderBy('date', 'desc');
+                return $query->reorder()->orderBy('created_at', 'desc');
             })
             ->when($this->sortBy === 'oldest', function ($query) {
-                return $query->reorder()->orderBy('date', 'asc');
+                return $query->reorder()->orderBy('created_at', 'asc');
             })
                           ->paginate(20);
 
@@ -87,16 +90,16 @@ public function mount()
             <div>
         <h1 class="  mt-8 pb-4 font-bold text-primary-700 text-2xl">Gallery</h1>
                 <div>
+                <div>
                     @if (isset($this->categoryFilters) && count($this->categoryFilters))
 
                         @foreach ($this->categoryFilters as $key => $category)
-                    <div class="inline">
-                            <a wire:key="filter-{{ $key }}" class="bg-gray-400"  wire:click="addFilter({{ $key }})"> {{ $category }}</a>
-</div>
+                            <a :key="filter-{{ $category }}" class=" {{ in_array($key, $this->currentFilters) ? 'bg-primary-700' : 'bg-gray-400'  }} rounded-full text-white px-3 py-2 cursor-pointer"  wire:click="addFilter({{ $key }})"> {{ $category }}</a>
                         @endforeach
 
                     @endif
                 </div>
+</div>
 </div>
             <select wire:model.live="sortBy"
 
@@ -111,7 +114,6 @@ public function mount()
 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
     <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
     @foreach ($this->liveEvents as $key => $liveEvent)
-                <div>
             <x-ui.card
                   :sortBy="$sortBy"
                  :model="$liveEvent"
@@ -123,9 +125,8 @@ public function mount()
 
                             :id="$liveEvent->id"
                :liveEventId="$liveEvent->id"
-                 wire:key="imgx-{{ $liveEvent->id }}-{{ $sortBy }}-{{$key}}"
-                :showComment="true" :key="$liveEvent->id"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->media()->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
-</div>
+                 wire:key="imgx-{{ $liveEvent->id }}"
+                :showComment="true"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->media()->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
     @endforeach
 
 
@@ -139,14 +140,11 @@ public function mount()
 
 @endif
 
-   @if($this?->liveEvents?->hasPages())
-    <div class="mt-4 ">
-        {{ $this->liveEvents->links() }}
-    </div>
-
-
-    @endif
-
+                                @if($this?->liveEvents?->hasPages())
+<div class="mt-4" wire:key="pagination-{{ $this->sortBy }}-{{ implode('-', $this->currentFilters) }}">
+    {{ $this->liveEvents->links() }}
+</div>
+@endif
 
 </div>
 </div>

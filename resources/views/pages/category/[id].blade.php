@@ -19,6 +19,7 @@ new class extends Component {
     public $id;
     public $name;
     public $image;
+    public $description;
     public $slug;
     public $existingImage = null;
     public $imageUploaded = false;
@@ -30,6 +31,7 @@ new class extends Component {
         if ($category) {
             $this->name = $category->name;
             $this->slug = $category->slug;
+            $this->description = $category->description;
 
             // Get existing image
             if ($category->hasMedia('default')) {
@@ -70,6 +72,7 @@ new class extends Component {
         // Validate the input
         $data = $this->validate([
             'name' => 'required|string|max:255',
+            'description' => 'nullable',
             'slug' => 'nullable|min:1|max:100',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10048',
         ]);
@@ -103,6 +106,7 @@ new class extends Component {
         // Update category details
         $category->update([
             'name' => $this->name,
+            'description' => $this->description,
             'slug' => $this->slug ?: \Illuminate\Support\Str::slug($this->name),
         ]);
 
@@ -143,6 +147,7 @@ new class extends Component {
             <x-ui.input required wire:model="name" label="Name" id="name" name="name" />
 
             <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" />
+            <x-ui.textarea wire:model="description" label="Description" id="description" description="description" />
 
             <div>
                 <x-ui.input wire:model="image" label="Image" id="image" name="image" type="file" />

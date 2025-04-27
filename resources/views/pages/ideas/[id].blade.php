@@ -39,10 +39,10 @@ new class extends Component
             $query->where('id', $this->id);
         })->with('media')
             ->when($this->sortBy === 'newest', function ($query) {
-                return $query->reorder()->orderBy('date', 'desc');
+                return $query->reorder()->orderBy('created_at', 'desc');
             })
             ->when($this->sortBy === 'oldest', function ($query) {
-                return $query->reorder()->orderBy('date', 'asc');
+                return $query->reorder()->orderBy('created_at', 'asc');
             })
                           ->paginate(20);
 
@@ -74,11 +74,22 @@ new class extends Component
                 </select>
             </div>
 
+    @livewire('wire-elements-modal')
 
-    <div class="max-w-6xl mx-auto mb-10">
+
+        <div class="flex justify-between items-center ">
             <div class="">
             <h2>{{ $category->name }}</h2>
+                <p>{{ $category->description }}</p>
 </div>
+    <button wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
+    + Add concept
+</button>
+</div>
+
+
+    <div class="max-w-6xl mx-auto mb-10">
+
 
 
 

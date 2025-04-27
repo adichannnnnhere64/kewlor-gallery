@@ -22,7 +22,8 @@
         "livewire/volt": "^1.7",
         "opcodesio/log-viewer": "^3.15",
         "plank/laravel-mediable": "^6.3",
-        "usamamuneerchaudhary/commentify": "^1.5"
+        "usamamuneerchaudhary/commentify": "^1.5",
+        "wire-elements/modal": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "*",

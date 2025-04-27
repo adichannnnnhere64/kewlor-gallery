@@ -18,6 +18,7 @@ new class extends Component {
     public $name = '';
     public $image = null;
     public $slug = '';
+    public $description = '';
     public $imageUploaded = false;
 
     // Add real-time validation
@@ -45,12 +46,14 @@ new class extends Component {
     {
         $this->validate([
             'name' => 'required|string|min:3|max:100|unique:categories,name',
+            'description' => 'nullable',
             'slug' => 'nullable|min:1|max:100|unique:categories,slug',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10048',
         ]);
 
         $category = Category::create([
             'name' => $this->name,
+            'description' => $this->description,
             'slug' => $this->slug ?: \Illuminate\Support\Str::slug($this->name),
         ]);
 
@@ -98,8 +101,9 @@ new class extends Component {
             @endif
 
             <x-ui.input wire:model="name" label="Name" id="name" name="name" />
-
             <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" />
+            <x-ui.textarea wire:model="description" label="Description" id="description" description="description" />
+
 
             <div>
                 <x-ui.input wire:model="image" label="Image" id="image" name="image" type="file" />

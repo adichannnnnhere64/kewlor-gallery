@@ -2,10 +2,6 @@
     'endpoint' => route('upload', 0)
 ])
 
-@assets
-    <link href="https://releases.transloadit.com/uppy/v4.13.3/uppy.min.css" rel="stylesheet" />
-    <script src="https://releases.transloadit.com/uppy/v4.13.3/uppy.min.js"></script>
-@endassets
 
 <div
     x-cloak
