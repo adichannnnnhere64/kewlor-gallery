@@ -35,6 +35,7 @@ new class extends Component {
         if ($liveEvent) {
             $this->name = $liveEvent->name;
             $this->date = $liveEvent->date;
+            $this->description = $liveEvent->description;
             $this->categories = $liveEvent->categories->pluck('id')->toArray();
             $this->slug = $liveEvent->slug;
         }
