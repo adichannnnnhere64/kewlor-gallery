@@ -14,6 +14,7 @@ new class extends Component {
     public $id = null;
     public $title = '';
     public $sortBy = '';
+    public $categoryFilter = [];
     public $categories = [];
     public $model = null;
     public $description = '';
@@ -31,7 +32,7 @@ new class extends Component {
 ?>
 
 
-<div wire:key="img-{{ $image }}">
+<div wire:key="img-{{ json_encode($categoryFilter) }}">
     <div>
         <div class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
             <a href="{{ $detailsUrl }}?event={{ $liveEventId }}">
@@ -73,9 +74,12 @@ new class extends Component {
                 <span>{{ $commentsCount }}</span> <svg  xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-4 lg:w-4"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-message"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9h8" /><path d="M8 13h6" /><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" /></svg>
 
                 </span>
+
 <livewire:vote
 :model="$model"
-@refresh="refresh"  :id="$id" :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount" :sortBy="$sortBy" wire:key="img-{{ $id }}-{{ $sortBy }}" />
+                    wire:key="card-{{ $id }}-{{ now()->timestamp }}"
+                    :categoryFilter="$categoryFilter"
+@refresh="refresh"  :id="$id" :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount" :sortBy="$sortBy" />
             </div>
             @endif
 

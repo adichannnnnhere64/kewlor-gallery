@@ -19,13 +19,17 @@ new class extends Component
     public $sortBy = 'newest';
 
 
+    #[Url]
+    public $categoryFilter = null;
+
+
     public $currentFilters = [];
 
 public function mount()
     {
     }
 
-    public function addFilter($id)
+    public function filt($id)
     {
 
         if (in_array($id, $this->currentFilters)) {
@@ -35,7 +39,7 @@ public function mount()
         }
 
 
-        $this->resetPage();
+//        $this->resetPage();
 
     }
 
@@ -54,12 +58,10 @@ public function mount()
         $bargo = LiveEventGallery::with('media')
             ->withLikeCounts()
             ->withCount('comments')
-            ->when($this->currentFilters, function ($query) {
-
-                $query->whereHas('categories', function ($query) {
-                    $query->whereIn('id', $this->currentFilters);
+            ->when($this->categoryFilter, function ($query) {
+                return $query->whereHas('categories', function ($query) {
+                    $query->where('id', $this->categoryFilter);
                 });
-
             })
             ->when($this->sortBy === 'newest', function ($query) {
                 return $query->reorder()->orderBy('created_at', 'desc');
@@ -91,16 +93,23 @@ public function mount()
         <h1 class="  mt-8 pb-4 font-bold text-primary-700 text-2xl">Gallery</h1>
                 <div>
                 <div>
-                    @if (isset($this->categoryFilters) && count($this->categoryFilters))
 
-                        @foreach ($this->categoryFilters as $key => $category)
-                            <a :key="filter-{{ $category }}" class=" {{ in_array($key, $this->currentFilters) ? 'bg-primary-700' : 'bg-gray-400'  }} rounded-full text-white px-3 py-2 cursor-pointer"  wire:click="addFilter({{ $key }})"> {{ $category }}</a>
-                        @endforeach
+            Category:
+            <select wire:model.live="categoryFilter"
+                wire:change="resetPage"
+            class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
 
-                    @endif
+                <option value="">All</option>
+                @foreach($this->categoryFilters as $key => $category)
+                    <option value="{{ $key }}">{{ $category }}</option>
+                @endforeach
+            </select>
                 </div>
 </div>
 </div>
+
+
+
             <select wire:model.live="sortBy"
 
                 wire:change="resetPage"
@@ -114,8 +123,10 @@ public function mount()
 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
     <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
     @foreach ($this->liveEvents as $key => $liveEvent)
+                            <div>
             <x-ui.card
                   :sortBy="$sortBy"
+                :categoryFilter="$categoryFilter"
                  :model="$liveEvent"
                 :categories="$liveEvent->categories->pluck('name', 'id')"
                 :currentVote="$liveEvent->current_vote"
@@ -125,8 +136,9 @@ public function mount()
 
                             :id="$liveEvent->id"
                :liveEventId="$liveEvent->id"
-                 wire:key="imgx-{{ $liveEvent->id }}"
+                 wire:key="img-{{ $liveEvent->id }}-{{ now()->timestamp }}"
                 :showComment="true"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->media()->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+</div>
     @endforeach
 
 

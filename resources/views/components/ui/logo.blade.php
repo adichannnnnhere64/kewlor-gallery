@@ -1,3 +1,4 @@
+
     <title>{{ config('app.name') }}</title>
-    <img src="/logo.png"  />
+    <img class="h-14 w-auto" src="/logo.avif"  />
 
