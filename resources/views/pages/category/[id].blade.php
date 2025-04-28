@@ -150,7 +150,7 @@ new class extends Component {
             <x-ui.textarea wire:model="description" label="Description" id="description" description="description" />
 
             <div>
-                <x-ui.input wire:model="image" label="Image" id="image" name="image" type="file" />
+                <x-ui.app.fileupload wire:model="image" :image />
 
                 <div class="mt-3 flex items-center space-x-4">
                     @if ($image)
