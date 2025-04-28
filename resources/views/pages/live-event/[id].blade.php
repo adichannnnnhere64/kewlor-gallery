@@ -69,6 +69,7 @@ new class extends Component {
         // Validate the input
         $this->validate([
             'name' => 'required|string|max:255',
+            'description' => 'nullable',
             'date' => 'required|date',
             'slug' => 'nullable|min:1|max:100',
         ]);
