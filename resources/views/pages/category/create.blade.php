@@ -82,7 +82,7 @@ new class extends Component {
 <x-layouts.app>
     <x-slot name="header">
         <h2 class="text-lg font-semibold leading-tight text-gray-800 dark:text-gray-200">
-            {{ __('Create Category') }}
+            {{ __('Create Concept') }}
         </h2>
     </x-slot>
     @volt('category.create')
@@ -104,15 +104,12 @@ new class extends Component {
             <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" />
             <x-ui.textarea wire:model="description" label="Description" id="description" description="description" />
 
-
-            <div>
-                <x-ui.input wire:model="image" label="Image" id="image" name="image" type="file" />
-                @if ($image)
-                    <div class="mt-2">
-                        <img src="{{ $image->temporaryUrl() }}" class="w-32 h-32 object-cover rounded" alt="Preview">
-                    </div>
-                @endif
-            </div>
+            <x-ui.app.fileupload wire:model="image" :image />
+            @if ($image)
+                <div class="mt-2">
+                    <img src="{{ $image->temporaryUrl() }}" class="w-32 h-32 object-cover rounded" alt="Preview">
+                </div>
+            @endif
 
             <div class="my-4">
                 <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded">
