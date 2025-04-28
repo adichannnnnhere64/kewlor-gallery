@@ -10,7 +10,7 @@ use App\Models\LiveEventGallery;
 
 state([
     'category_list'  => [],
-    'categoryId' => '',
+    'liveEvent' => null,
     'categories' => [],
     'name' => '',
     'modelId' => null,
@@ -21,8 +21,9 @@ state([
 
 
 mount(function () {
-    $this->category = Category::find($this->categoryId)->name;
     $this->category_list = Category::pluck('name', 'id')->toArray();
+    $this->description = $this->liveEvent->description;
+    $this->name = $this->liveEvent->name;
 });
 
 rules([
@@ -31,40 +32,30 @@ rules([
     'categories' => 'required',
 ]);
 
-$save = function () {
-
-    $liveEventGallery = LiveEventGallery::create($this->only(['name', 'description', 'date']));
-    $liveEventGallery->categories()->sync([$this->categoryId]);
-    if ($liveEventGallery) {
-        $this->modelId = $liveEventGallery->id;
-    }
-
-
-
-//$data = $this->only(['name', 'description', 'date']);
-//dd($data);
-
+$update = function () {
+    $this->liveEvent->update($this->only(['name', 'description']));
+    $this->dispatch('idea-updated', id: $this->liveEvent->id);
 };
 
 ?>
 
 <div>
-@volt('create-idea')
+@volt('edit-idea')
 
 
 
 <div class="">
     <div class="bg-white w-full p-4">
         <div class="flex items-center justify-between border-b pb-4 mb-4">
-            <h2 class="text-xl font-bold">Create Idea for {{ $this->category }}</h2>
-            <button wire:click="$dispatch('closeModal')" class="text-gray-500 hover:text-gray-700">&times;</button>
+            <h2 class="text-xl font-bold">Edit Idea for {{ $this->liveEvent->name ?? '' }}</h2>
+            <button wire:click="$dispatch('closeModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
         </div>
 
         <div class="mb-6">
 
 
 
-    <form wire:submit.prevent="save">
+    <form wire:submit.prevent="update">
         <div class="mb-4">
             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
             <input type="text" id="name" wire:model="name" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -95,11 +86,13 @@ $save = function () {
             </button>
         </div>
 
-        @if ($this->modelId)
+        @if ($this->liveEvent->id)
             <div wire:ignore>
-                <x-ui.app.uppy :endpoint="route('upload', $this->modelId)">
+                <x-ui.app.uppy :endpoint="route('upload', $this->liveEvent->id)">
                 </x-ui.app.uppy>
             </div>
+
+            <x-gallery-thumbnail :thumbnails="$this->liveEvent->gallery" :liveEventId="$this->liveEvent->id" />
         @endif
 
     </form>

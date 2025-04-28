@@ -38,4 +38,9 @@ class LiveEventGallery extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+
+    public function getGalleryAttribute()
+    {
+        return $this->getMedia('default');
+    }
 }

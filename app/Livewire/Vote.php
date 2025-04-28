@@ -31,7 +31,6 @@ class Vote extends Component
     {
         $this->isLiked = $this->currentVote === 'liked';
         $this->isDisliked = $this->currentVote === 'disliked';
-        /* $this->fetchVotes(); */
     }
 
     public function dislike(VoteToggle $action)
@@ -46,44 +45,12 @@ class Vote extends Component
         $action->handle($model, 'dislike');
 
 
-
         $this->likesCount = $model->likes_count;
         $this->dislikesCount = $model->dislikes_count;
-
-        /* $this->fetchVotes(); */
-        /* $this->dispatch('refresh'); */
     }
-
-    /* private function fetchVotes() */
-    /* { */
-
-    /*     if ($this->id) { */
-    /*         $user = auth()->user(); */
-    /*         $model = Media::find($this->id); */
-
-    /*         if ($model) { */
-    /*             $reactantFacade = $model->viaLoveReactant(); */
-    /*             /1* $likeTypeId = ReactionType::where('name', 'Like')->first()->id; *1/ */
-
-    /*             $this->isLiked = $reactantFacade->isReactedBy($user, 'Like'); */
-    /*             $this->likesCount = $reactantFacade->getReactions()->where('reaction_type_id', 1)->count(); */
-    /*             /1* $dislikeTypeId = ReactionType::where('name', 'Dislike')->first()->id; *1/ */
-
-    /*             $this->isDisliked = $reactantFacade->isReactedBy($user, 'Dislike'); */
-    /*             $this->dislikesCount = $reactantFacade->getReactions()->where('reaction_type_id', 2)->count(); */
-
-    /*         } */
-    /*     } */
-
-    /* } */
 
     public function like(VoteToggle $action)
     {
-
-        /* $user = auth()->user(); */
-        /* if (! $user) { */
-        /*     return redirect()->route('login'); */
-        /* } */
 
         $model = $this->model;
 
@@ -91,22 +58,12 @@ class Vote extends Component
             return;
         }
 
-
         $action->handle($model, 'like');
 
-/*         if ($this->currentVote === 'liked') { */
-/*             $this->currentVote = null; */
-/*         } */
-
-
-/*         $this->isLiked = true; */
-/*         $this->isDisliked = false; */
 
         $this->likesCount = $model->likes_count;
         $this->dislikesCount = $model->dislikes_count;
 
-        /* $this->fetchVotes(); */
-        /* $this->dispatch('refresh'); */
     }
 
     public function render()

@@ -15,7 +15,10 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-
+   <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <link href="https://releases.transloadit.com/uppy/v4.13.3/uppy.min.css" rel="stylesheet" />
+    <script src="https://releases.transloadit.com/uppy/v4.13.3/uppy.min.js"></script>
 
 
         <title>{{ $title ?? 'Kewlor' }}</title>
