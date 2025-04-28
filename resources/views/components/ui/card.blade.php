@@ -32,7 +32,7 @@ new class extends Component {
 ?>
 
 
-<div wire:key="img-{{ json_encode($this->categoryFilter) }}-{{$liveEventId}}">
+<div wire:key="img--{{$liveEventId}}">
     <div>
         <div class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
             <a href="{{ $detailsUrl }}?event={{ $liveEventId }}">
