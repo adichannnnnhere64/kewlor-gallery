@@ -16,7 +16,7 @@
         x-on:dragover.prevent="isDragging = true"
         x-on:dragleave.prevent="isDragging = false"
         x-on:drop="handleDrop($event)"
-        class="h-40 border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200"
+        class="h-60 border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200"
         :class="isDragging ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-gray-400'"
     >
         <div class="space-y-2">

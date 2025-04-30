@@ -21,7 +21,7 @@ class Media extends BaseMedia implements Sortable
     use SortableTrait;
 
     public $sortable = [
-        'order_column_name' => 'order',
+        'order_column_name' => 'order_column',
         'sort_when_creating' => true,
     ];
 

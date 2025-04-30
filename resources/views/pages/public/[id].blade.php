@@ -49,43 +49,25 @@ new class extends Component {
     }
 
     public function fetchImages()
-{
-
+    {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
-    $this->images = $liveEvent
-        ->media()
-        ->withLikeCounts()
-        ->withPivot('tag')
-        ->withCount('comments')
-        ->where('tag', 'default')
-        ->orderBy('order')
-        ->paginate(20);
-}
+        $this->images = $liveEvent->media()->withLikeCounts()->withPivot('tag')->withCount('comments')->where('tag', 'default')->reorder()->orderBy('order_column')->paginate(20);
+    }
 
     #[Computed]
     public function images()
     {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
 
-        $bargo = $liveEvent
-            ->media()
-            ->withLikeCounts()
-            ->withPivot('tag')
-            ->withCount('comments')
-            ->where('tag', 'default')
-            ->orderBy('order')
-            ->paginate(20);
+        $bargo = $liveEvent->media()->withLikeCounts()->withPivot('tag')->withCount('comments')->where('tag', 'default')->reorder()->orderBy('order_column')->paginate(20);
 
         return $bargo;
     }
 
-
     #[On('refresh')]
     public function refresh()
     {
-
         $this->dispatch('$refresh');
-
     }
 
     public function deleteImage(int $id)
@@ -96,7 +78,7 @@ new class extends Component {
     public function updateOrder(Media $media, $item)
     {
         $originalIds = collect($this->images->items())->pluck('id');
-        $updated = $originalIds->reject(fn ($id) => $id == $media->id);
+        $updated = $originalIds->reject(fn($id) => $id == $media->id);
         $updated->splice($item, 0, [$media->id]);
         Media::setNewOrder($updated->toArray());
         $this->fetchImages();
@@ -143,9 +125,7 @@ new class extends Component {
             </div>
 
 
-            <div
-                    x-data="{ handle: (item, position ) => $wire.updateOrder(item, position ) }"
-                    class="mx-auto max-w-6xl">
+            <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }" class="mx-auto max-w-6xl">
 
                 <div class="flex justify-between items-center">
                     <div>
@@ -158,8 +138,7 @@ new class extends Component {
                         + Add Image
                     </button>
                 </div>
-                <div x-sort="handle"
-                    x-on:sorted="$wire.updateOrder($event)"
+                <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
                     class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
                     @foreach ($this->images ?? [] as $key => $image)
@@ -167,21 +146,21 @@ new class extends Component {
                             <div class="relative group"">
                                 <div
                                     class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
-                                        <button x-data
-                                            @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
-                                            class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 7l16 0" />
-                                                <path d="M10 11l0 6" />
-                                                <path d="M14 11l0 6" />
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                            </svg>
-                                        </button>
+                                    <button x-data
+                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
+                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 7l16 0" />
+                                            <path d="M10 11l0 6" />
+                                            <path d="M14 11l0 6" />
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                        </svg>
+                                    </button>
                                 </div>
 
                                 <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$sortBy" :likesCount="$image->likes_count"
