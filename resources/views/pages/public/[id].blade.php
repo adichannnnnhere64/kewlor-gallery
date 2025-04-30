@@ -138,7 +138,7 @@ new class extends Component {
                         wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
                         + Add Image
                     </button>
-                    <a href="{{ route('live-event.edit', ['id' => $id]) }}" >Edit </a>
+                    <a target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}" >Edit </a>
                     </div>
                 </div>
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
