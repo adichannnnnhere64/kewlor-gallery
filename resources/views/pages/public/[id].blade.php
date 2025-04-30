@@ -48,6 +48,20 @@ new class extends Component {
         $this->dispatch('$refresh');
     }
 
+    public function fetchImages()
+{
+
+        $liveEvent = LiveEventGallery::findOrFail($this->id);
+    $this->images = $liveEvent
+        ->media()
+        ->withLikeCounts()
+        ->withPivot('tag')
+        ->withCount('comments')
+        ->where('tag', 'default')
+        ->orderBy('order')
+        ->paginate(20);
+}
+
     #[Computed]
     public function images()
     {
@@ -59,26 +73,33 @@ new class extends Component {
             ->withPivot('tag')
             ->withCount('comments')
             ->where('tag', 'default')
-            ->when($this->sortBy === 'newest', function ($query) {
-                return $query->reorder()->orderBy('created_at', 'desc');
-            })
-            ->when($this->sortBy === 'likes', function ($query) {
-                return $query->reorder()->orderByDesc('likes_count');
-            })
-            ->when($this->sortBy === 'oldest', function ($query) {
-                return $query->reorder()->orderBy('created_at', 'asc');
-            })
-            ->when($this->sortBy === 'comments', function ($query) {
-                return $query->reorder()->orderBy('comments_count', 'desc');
-            })
+            ->orderBy('order')
             ->paginate(20);
 
         return $bargo;
     }
 
+
+    #[On('refresh')]
+    public function refresh()
+    {
+
+        $this->dispatch('$refresh');
+
+    }
+
     public function deleteImage(int $id)
     {
         Media::find($id)->delete();
+    }
+
+    public function updateOrder(Media $media, $item)
+    {
+        $originalIds = collect($this->images->items())->pluck('id');
+        $updated = $originalIds->reject(fn ($id) => $id == $media->id);
+        $updated->splice($item, 0, [$media->id]);
+        Media::setNewOrder($updated->toArray());
+        $this->fetchImages();
     }
 };
 ?>
@@ -128,7 +149,9 @@ new class extends Component {
             </div>
 
 
-            <div class="mx-auto max-w-6xl">
+            <div
+                    x-data="{ handle: (item, position ) => $wire.updateOrder(item, position ) }"
+                    class="mx-auto max-w-6xl">
 
                 <div class="flex justify-between items-center">
                     <div>
@@ -141,14 +164,15 @@ new class extends Component {
                         + Add Image
                     </button>
                 </div>
-                <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
+                <div x-sort="handle"
+                    x-on:sorted="$wire.updateOrder($event)"
+                    class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
                     @foreach ($this->images ?? [] as $key => $image)
-                        <div wire:key="{{ $image->id }}">
+                        <div x-sort:item="{{ $image->id }}" class="" wire:key="{{ $image->id }}">
                             <div class="relative group"">
                                 <div
                                     class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
-                                    <div>
                                         <button x-data
                                             @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
                                             class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
@@ -164,13 +188,13 @@ new class extends Component {
                                                 <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                                             </svg>
                                         </button>
-                                    </div>
                                 </div>
 
                                 <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$sortBy" :likesCount="$image->likes_count"
                                     :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
                                     :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image->video_thumbnail" :showComment="true" :description="$date"
                                     :detailsUrl="route('public.image.show', ['id' => $image->id])" />
+
                             </div>
                         </div>
                     @endforeach
