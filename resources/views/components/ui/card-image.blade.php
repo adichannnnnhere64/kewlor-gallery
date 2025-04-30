@@ -35,7 +35,7 @@ new class extends Component {
                 <img src="{{ $image }}" class="object-cover w-full bg-white lg:h-[250px] border p-2 rounded-md" />
 
                 @if ($model->aggregate_type === 'video')
-                    <svg class="absolute border-4 border-white rounded-full inset-0 m-auto w-20 h-20 z-10"
+                    <svg class="absolute border-4 border-white rounded-full inset-0 z-[0] m-auto w-20 h-20 z-10"
                         xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
                         <circle cx="32" cy="32" r="32" fill="#00000080" />
                         <polygon points="26,20 26,44 46,32" fill="#FFFFFF" />
