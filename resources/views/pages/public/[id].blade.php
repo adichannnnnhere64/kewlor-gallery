@@ -133,10 +133,13 @@ new class extends Component {
                         <p class="text-gray-400">{{ $description }}</p>
                     </div>
 
+                    <div class="fle space-x-2">
                     <button
                         wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
                         + Add Image
                     </button>
+                    <a href="{{ route('live-event.edit', ['id' => $id]) }}" >Edit </a>
+                    </div>
                 </div>
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
                     class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
