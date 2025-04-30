@@ -10,6 +10,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Reactive;
+use Livewire\Attributes\On;
 
 name('live-event.show');
 middleware(['auth', 'verified', 'can:access-admin-panel']);
@@ -32,6 +33,19 @@ new class extends Component {
 
         $this->name = $this->liveEvent->name;
         $this->description = $this->liveEvent->description;
+    }
+
+    #[On('idea-updated')]
+    public function updatePostList($liveEvent)
+    {
+        $this->name = $liveEvent['liveEvent']['name'];
+        $this->description = $liveEvent['liveEvent']['description'];
+    }
+
+    #[On('upload-complete')]
+    public function uploadComplete($liveEvent)
+    {
+        $this->dispatch('$refresh');
     }
 
     #[Computed]
@@ -60,8 +74,6 @@ new class extends Component {
             ->paginate(20);
 
         return $bargo;
-
-        //   $this->dispatch('$refresh');
     }
 
     public function deleteImage(int $id)
@@ -84,6 +96,8 @@ new class extends Component {
 <x-layouts.app>
     @volt('live-event.show')
         <div>
+
+            @livewire('wire-elements-modal')
             <div class="flex max-w-6xl mx-auto justify-between items-center  py-4">
                 <div class="w-20">
                     <x-ui.button tag="a" type="secondary" href="{{ route('gallery-index') }}" class="mb-8 inline">
@@ -122,7 +136,10 @@ new class extends Component {
                         <p class="text-gray-400">{{ $description }}</p>
                     </div>
 
-                    <button>+ Add image</button>
+                    <button
+                        wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
+                        + Add Image
+                    </button>
                 </div>
                 <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
