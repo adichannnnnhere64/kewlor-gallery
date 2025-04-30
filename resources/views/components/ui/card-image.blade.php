@@ -31,7 +31,7 @@ new class extends Component {
 ?>
 
 
-<div wire:key="img-{{ $image }}">
+<div >
     <div>
         <div class="p-2 transition-transform duration-300  cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
             <a href="{{ $detailsUrl }}?event={{ $liveEventId }}">
@@ -56,7 +56,7 @@ new class extends Component {
 
 <livewire:vote
 :model="$model"
-@refresh="refresh"  :id="$id" :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount" :sortBy="$sortBy" wire:key="img-{{ $id }}-{{ $sortBy }}" />
+@refresh="refresh"  :id="$id" :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount" :sortBy="$sortBy" :key="$id" />
 
             </div>
             @endif

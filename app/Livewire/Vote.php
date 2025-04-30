@@ -69,7 +69,7 @@ class Vote extends Component
     public function render()
     {
         return <<<'HTML'
-            <div wire:key="vax-{{ $id }}-{{ $sortBy }}-{{ json_encode($categoryFilter) }}" class="flex">
+            <div class="flex">
                     @if ($id)
                         <div class="flex space-x-1" x-data="{ isLiked: @entangle('isLiked'), likesCount: @entangle('likesCount') }">
                             <div x-text="likesCount" class="dark:text-white"></div>
