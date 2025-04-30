@@ -31,35 +31,33 @@ final class UploadImage
     $largeImageThreshold = 1300;
     $maxImageSize = 1200;
 
-    if ($originalWidth > $largeImageThreshold || $originalHeight > $largeImageThreshold) {
-        $ratio = min(
-            $maxImageSize / $originalWidth,
-            $maxImageSize / $originalHeight
-        );
-        $image->resize(
-            (int) ($originalWidth * $ratio),
-            (int) ($originalHeight * $ratio),
-            function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            }
-        );
-        $image->sharpen(5);
-    }
+    // THIS IS USEFUL
+    /* if ($originalWidth > $largeImageThreshold || $originalHeight > $largeImageThreshold) { */
+    /*     $ratio = min( */
+    /*         $maxImageSize / $originalWidth, */
+    /*         $maxImageSize / $originalHeight */
+    /*     ); */
+    /*     $image->resize( */
+    /*         (int) ($originalWidth * $ratio), */
+    /*         (int) ($originalHeight * $ratio), */
+    /*         function ($constraint) { */
+    /*             $constraint->aspectRatio(); */
+    /*             $constraint->upsize(); */
+    /*         } */
+    /*     ); */
+    /*     $image->sharpen(5); */
+    /* } */
+    // THIS IS USEFUL WHEN YOU WANT TO CHANGE THE SHIT
 
     $text = setting('watermark') ?? config('app.name');
 
-    // Watermark configuration
-    $watermarkColor = 'rgba(255, 255, 255, 0.5)'; // White with 70% opacity
-    /* $shadowColor = 'rgba(0, 0, 0, 0.4)'; // Black with 50% opacity */
-    /* $shadowOffset = 1; // Shadow offset in pixels */
+    $watermarkColor = 'rgba(255, 255, 255, 0.5)';
 
-    // Calculate font size (3% of image width, with min/max bounds)
     $fontSize = min(
-        100, // Maximum font size
+        100,
         max(
-            20, // Minimum font size
-            $image->width() * 0.03 // 3% of image width
+            20,
+            $image->width() * 0.03
         )
     );
 
@@ -71,27 +69,16 @@ final class UploadImage
     $x = $image->width() - $paddingX;
     $y = $image->height() - $paddingY;
 
-    // First draw shadow (slightly offset)
-    /* $image->text($text, $x + $shadowOffset, $y + $shadowOffset, function (FontFactory $font) use ($fontSize, $shadowColor) { */
-    /*     $font->size($fontSize); */
-    /*     $font->color($shadowColor); // Uses RGBA for opacity */
-    /*     $font->file(public_path('roboto.ttf')); */
-    /*     $font->align('right'); */
-    /*     $font->valign('bottom'); */
-    /*     $font->angle(0); */
-    /* }); */
-
-    // Then draw the main watermark text
     $image->text($text, $x, $y, function (FontFactory $font) use ($fontSize, $watermarkColor) {
         $font->size($fontSize);
-        $font->color($watermarkColor); // Uses RGBA for opacity
+        $font->color($watermarkColor);
         $font->file(public_path('roboto.ttf'));
         $font->align('right');
         $font->valign('bottom');
         $font->angle(0);
     });
 
-})->setOutputQuality(75)->outputWebpFormat();
+});
 
 
 
@@ -103,6 +90,7 @@ final class UploadImage
                 ->upload();
 
             $model->attachMedia($media, ['default']);
+
             ImageManipulator::createImageVariant($media, 'thumbnail');
             $model->attachMedia($media, ['thumbnail']);
 
