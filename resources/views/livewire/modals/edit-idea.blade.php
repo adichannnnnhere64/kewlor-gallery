@@ -53,6 +53,8 @@ $update = function () {
 
         <div class="mb-6">
 
+                <a href="/live-event/{{ $this->liveEvent->id }}" class="text-blue-500 hover:text-blue-700"> Edit </a>
+
 
 
     <form wire:submit.prevent="update">

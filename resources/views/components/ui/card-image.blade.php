@@ -27,7 +27,7 @@ new class extends Component {
 ?>
 
 
-<div>
+<div wire:key="{{ $liveEventId }}">
     <div>
         <div
             class="p-2 transition-transform duration-300  cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
