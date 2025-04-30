@@ -62,8 +62,8 @@ final class UploadImage
     );
 
     // Calculate padding (2% of image width)
-    $paddingX = $image->width() * setting('xaxis') ?? 0.02;
-    $paddingY = $image->width() * setting('yaxis') ?? 0.02;
+    $paddingX = $image->width() * (float) setting('xaxis') ?? 0.02;
+    $paddingY = $image->width() * (float) setting('yaxis') ?? 0.02;
 
     // Position at bottom right
     $x = $image->width() - $paddingX;
