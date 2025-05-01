@@ -11,61 +11,50 @@ use Livewire\Attributes\Url;
 name('gallery-index');
 middleware(['auth', 'verified', 'can:access-admin-panel']);
 
-new class extends Component
-{
+new class extends Component {
     use WithPagination;
 
     #[Url]
     public $sortBy = 'newest';
 
-
     #[Url]
     public $categoryFilter = null;
 
-
     public $currentFilters = [];
 
-public function mount()
+    public function mount()
     {
-                $this->dispatch('$refresh'); // Refresh the component
+        $this->dispatch('$refresh');
     }
 
     public function filt($id)
     {
-
         if (in_array($id, $this->currentFilters)) {
             unset($this->currentFilters[array_search($id, $this->currentFilters)]);
         } else {
             $this->currentFilters[] = $id;
         }
-
-
-//        $this->resetPage();
-
     }
 
-   #[Computed]
+    #[Computed]
     public function categoryFilters()
     {
         return Category::query()->get()->pluck('name', 'id')->toArray();
     }
 
     public function deleteLiveEvent(int $id)
-{
-    $liveEvent = LiveEventGallery::find($id);
-    if ($liveEvent) {
-        $liveEvent->delete();
+    {
+        $liveEvent = LiveEventGallery::find($id);
+        if ($liveEvent) {
+            $liveEvent->delete();
+        }
+
+        return redirect()->route('gallery-index');
     }
 
-    return redirect()->route('gallery-index');
-}
-
-   #[Computed]
+    #[Computed]
     public function liveEvents()
     {
-
-//        $liveEvent = LiveEventGallery::findOrFail($this->id);
-
         $bargo = LiveEventGallery::with('media')
             ->withLikeCounts()
             ->withCount('comments')
@@ -80,14 +69,10 @@ public function mount()
             ->when($this->sortBy === 'oldest', function ($query) {
                 return $query->reorder()->orderBy('created_at', 'asc');
             })
-                          ->paginate(20);
-
+            ->paginate(20);
 
         return $bargo;
-
     }
-
-
 };
 
 ?>
@@ -98,134 +83,117 @@ public function mount()
 
     @volt('gallery-index')
 
-    <div
-
-    >
-    <div class="flex justify-between items-center max-w-6xl mx-auto ">
-            <div>
-        <h1 class="  mt-8 pb-4 font-bold text-primary-700 text-2xl">Gallery</h1>
+        <div>
+            <div class="flex justify-between items-center max-w-6xl mx-auto ">
                 <div>
-                <div>
+                    <h1 class="  mt-8 pb-4 font-bold text-primary-700 text-2xl">Gallery</h1>
+                    <div>
+                        <div>
 
-            Category:
-            <select wire:model="categoryFilter"
-                wire:change="resetPage"
-            class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            Category:
+                            <select wire:model="categoryFilter" wire:change="resetPage"
+                                class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
 
-                <option value="0">All</option>
-                @foreach($this->categoryFilters as $key => $category)
-                    <option value="{{ $key }}">{{ $category }}</option>
-                @endforeach
-            </select>
+                                <option value="0">All</option>
+                                @foreach ($this->categoryFilters as $key => $category)
+                                    <option value="{{ $key }}">{{ $category }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
-</div>
-</div>
 
 
 
-            <select wire:model.live="sortBy"
-
-                wire:change="resetPage"
-            class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <select wire:model.live="sortBy" wire:change="resetPage"
+                    class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                 </select>
             </div>
 
 
-    @livewire('wire-elements-modal')
-    <div class="max-w-6xl mx-auto mb-10">
-@if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
-    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
-    @foreach ($this->liveEvents as $key => $liveEvent)
-                    <div>
-                    <div class="relative group" wire:key="key-{{ $liveEvent->id }}">
-    <div class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+            @livewire('wire-elements-modal')
+            <div class="max-w-6xl mx-auto mb-10">
+                @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
+                    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
+                        @foreach ($this->liveEvents as $key => $liveEvent)
+                            <div>
+                                <div class="relative group" wire:key="key-{{ $liveEvent->id }}">
+                                    <div
+                                        class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
 
 
-    <button
-  wire:key="edit-btn-{{ $liveEvent->id }}"
-    x-data="{ showAlert: false }"
-    @idea-updated.window="$wire.$refresh()"
-                        class="px-1 py-1 rounded-md text-white bg-primary-700  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity" wire:click="$dispatch('openModal', { component: 'modals.edit-idea', arguments: { liveEvent: {{ $liveEvent }} } })">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                <path d="M16 5l3 3" />
-            </svg>
-        </button>
-        <div>
-                        <button
-  wire:key="delete-btn-{{ $liveEvent->id }}"
-  x-data
-  @click="confirm('Are you sure you want to delete this item?') && $wire.deleteLiveEvent({{ $liveEvent->id }})"
-  class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M4 7l16 0" />
-                <path d="M10 11l0 6" />
-                <path d="M14 11l0 6" />
-                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-            </svg>
-        </button>
-                        </div>
-    </div>
-            <x-ui.card
-                  :sortBy="$sortBy"
-                :categoryFilter="$categoryFilter"
-                 :model="$liveEvent"
-                :categories="$liveEvent->categories->pluck('name', 'id')"
-                :currentVote="$liveEvent->current_vote"
-                :likesCount="$liveEvent->likes_count"
-                :dislikesCount="$liveEvent->dislikes_count"
-                :commentsCount="$liveEvent->comments_count"
-
-                            :id="$liveEvent->id"
-               :liveEventId="$liveEvent->id"
-                 wire:key="img-{{ $liveEvent->id }}"
-                :showComment="true"  :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->media()->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
-</div>
-</div>
-    @endforeach
+                                        <button wire:key="edit-btn-{{ $liveEvent->id }}" x-data="{ showAlert: false }"
+                                            @idea-updated.window="$wire.$refresh()"
+                                            class="px-1 py-1 rounded-md text-white bg-primary-700  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity"
+                                            wire:click="$dispatch('openModal', { component: 'modals.edit-idea', arguments: { liveEvent: {{ $liveEvent }} } })">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                <path
+                                                    d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                <path d="M16 5l3 3" />
+                                            </svg>
+                                        </button>
+                                        <div>
+                                            <button wire:key="delete-btn-{{ $liveEvent->id }}" x-data
+                                                @click="confirm('Are you sure you want to delete this item?') && $wire.deleteLiveEvent({{ $liveEvent->id }})"
+                                                class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M4 7l16 0" />
+                                                    <path d="M10 11l0 6" />
+                                                    <path d="M14 11l0 6" />
+                                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <x-ui.card :sortBy="$sortBy" :categoryFilter="$categoryFilter" :model="$liveEvent" :categories="$liveEvent->categories->pluck('name', 'id')"
+                                        :currentVote="$liveEvent->current_vote" :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count"
+                                        :id="$liveEvent->id" :liveEventId="$liveEvent->id" wire:key="img-{{ $liveEvent->id }}"
+                                        :showComment="true" :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->sortBy('order_column')->first()->findVariant('thumbnail')?->getUrl() ?? $liveEvent->getMedia('default')->sortBy('order_column')->first()->video_thumbnail"
+                                        :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                                </div>
+                            </div>
+                        @endforeach
 
 
 
-</div>
+                    </div>
+                @else
+                    <div class="flex justify-center items-center h-64">
+                        <h2 class="font-bold text-primary-700 text-2xl">No gallery found</h2>
+                @endif
 
-@else
-<div class="flex justify-center items-center h-64">
-    <h2 class="font-bold text-primary-700 text-2xl">No gallery found</h2>
+                @if ($this?->liveEvents?->hasPages())
+                    <div class="mt-4" wire:key="pagination-{{ $this->sortBy }}-{{ implode('-', $this->currentFilters) }}">
+                        {{ $this->liveEvents->links() }}
+                    </div>
+                @endif
 
+            </div>
+        </div>
 
-@endif
-
-                                @if($this?->liveEvents?->hasPages())
-<div class="mt-4" wire:key="pagination-{{ $this->sortBy }}-{{ implode('-', $this->currentFilters) }}">
-    {{ $this->liveEvents->links() }}
-</div>
-@endif
-
-</div>
-</div>
-
-@script
-
-        <script>
-    document.addEventListener('livewire:initialized', () => {
-        Livewire.on('refresh-gallery', () => {
-            Livewire.dispatch('$refresh');
-        });
-    });
-</script>
-
+        @script
+            <script>
+                document.addEventListener('livewire:initialized', () => {
+                    Livewire.on('refresh-gallery', () => {
+                        Livewire.dispatch('$refresh');
+                    });
+                });
+            </script>
         @endscript
 
     @endvolt
 
 
 </x-layouts.app>
-
-
-

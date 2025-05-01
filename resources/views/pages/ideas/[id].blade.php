@@ -146,7 +146,7 @@ new class extends Component {
                                     <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                         wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
                                         :showComment="false" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
-                                        :image="$liveEvent->getMedia('default')->first()?->getUrl()" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                                        :image="$liveEvent->getMedia('default')->sortBy('order_column')->first()->findVariant('thumbnail')?->getUrl() ?? $liveEvent->getMedia('default')->sortBy('order_column')->first()->video_thumbnail" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
                                 </div>
                             </div>
                         @endforeach
