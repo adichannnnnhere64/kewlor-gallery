@@ -94,5 +94,38 @@ class AppServiceProvider extends ServiceProvider
 
             })->setOutputQuality(80)->outputWebpFormat());
 
+
+        ImageManipulator::defineVariant(
+            'preview',
+            ImageManipulation::make(function (Image $image, Media $originalMedia) {
+                $text = setting('watermark') ?? config('app.name');
+
+                $watermarkColor = 'rgba(255, 255, 255, 0.5)';
+
+                $fontSize = min(
+                    100,
+                    max(
+                        20,
+                        $image->width() * 0.03
+                    )
+                );
+
+                $paddingX = $image->width() * (float) setting('xaxis') ?? 0.02;
+                $paddingY = $image->width() * (float) setting('yaxis') ?? 0.02;
+
+                $x = $image->width() - $paddingX;
+                $y = $image->height() - $paddingY;
+
+                $image->text($text, $x, $y, function (FontFactory $font) use ($fontSize, $watermarkColor) {
+                    $font->size($fontSize);
+                    $font->color($watermarkColor);
+                    $font->file(public_path('roboto.ttf'));
+                    $font->align('right');
+                    $font->valign('bottom');
+                    $font->angle(0);
+                });
+
+            })->outputWebpFormat());
+
     }
 }

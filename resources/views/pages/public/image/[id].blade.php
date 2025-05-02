@@ -67,10 +67,10 @@ new class extends Component {
 
 
     @if(Str::startsWith($media->mime_type, 'image/'))
-    <img src="{{ $media->getUrl() }}" alt="Image" class="max-w-full max-h-screen object-contain">
+    <img src="{{ $media->findVariant('preview')?->getUrl() ?? $media->getUrl() }}" alt="Image" class="max-w-full max-h-screen object-contain">
 @elseif(Str::startsWith($media->mime_type, 'video/'))
     <video controls class="w-full max-h-[60vh] object-contain">
-        <source src="{{ $media->getUrl() }}" type="{{ $media->mime_type }}">
+        <source src="{{ $media->findVariant('preview')?->getUrl() ?? $media->getUrl() }}" type="{{ $media->mime_type }}">
         Your browser does not support the video tag.
     </video>
 @else

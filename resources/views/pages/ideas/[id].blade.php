@@ -80,7 +80,7 @@ new class extends Component {
             @livewire('wire-elements-modal')
 
 
-            <div class="flex justify-between items-center ">
+            <div class="flex md:flex-row flex-col space-y-2  justify-between items-center ">
                 <div class="">
                     <h2>{{ $category->name }}</h2>
 
@@ -89,6 +89,7 @@ new class extends Component {
 
                 </div>
                 <button
+                    class="w-80 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
                     wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
                     + Add concept
                 </button>

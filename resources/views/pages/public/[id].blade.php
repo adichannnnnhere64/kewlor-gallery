@@ -127,18 +127,21 @@ new class extends Component {
 
             <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }" class="mx-auto max-w-6xl">
 
-                <div class="flex justify-between items-center">
+                <div class="flex md:flex-row flex-col space-y-2 justify-between items-center">
                     <div>
                         <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
                         <p class="text-gray-400">{{ $description }}</p>
                     </div>
 
-                    <div class="fle space-x-2">
+                    <div class="flex  space-x-2">
                         <button
+                    class="w-34 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
                             wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
                             + Add Image
                         </button>
-                        <a target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
+                        <a
+                    class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded"
+                    target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
                     </div>
                 </div>
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"

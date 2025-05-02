@@ -87,6 +87,9 @@ final class UploadImage
             ImageManipulator::createImageVariant($media, 'thumbnail');
             $model->attachMedia($media, ['thumbnail']);
 
+            ImageManipulator::createImageVariant($media, 'preview');
+            $model->attachMedia($media, ['preview']);
+
         });
     }
 }
