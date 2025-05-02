@@ -28,8 +28,11 @@ new class extends Component {
 ?>
 
 
-<div>
-    <div>
+@volt('card')
+<div
+
+
+>
         <div
             class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
             <a href="{{ $detailsUrl }}?event={{ $liveEventId }}">
@@ -45,7 +48,7 @@ new class extends Component {
                 @if (isset($categories) && count($categories))
                     <div class="flex space-x-1 mb-2 relative w-full flex-wrap space-y-1">
                         @foreach ($categories as $key => $category)
-                            <span wire:key="{{ $key }}">
+                            <span wire:key="{{ $key }}" class="max-w-[100px] inline-block">
                                 <x-ui.badge background="bg-gray-400" color="text-white">{{ $category }}</x-ui.badge>
                             </span>
                         @endforeach
@@ -63,8 +66,7 @@ new class extends Component {
 
 
             @if ($showComment)
-                <div
-                    class="flex items-center justify-end text-lg space-x-2 lg:text-sm  lg:items-end px-2 text-gray-500">
+                <div class="flex items-center justify-end text-lg space-x-2 lg:text-sm  lg:items-end px-2 text-gray-500">
 
                     <span class="flex items-center space-x-1">
                         <span>{{ $commentsCount }}</span> <svg xmlns="http://www.w3.org/2000/svg"
@@ -79,9 +81,10 @@ new class extends Component {
                         </svg>
                     </span>
                     <div>
-
-                        <x-like-dislike :categoryFilter="$categoryFilter" :model="$model" :id="$liveEventId" :liveEventId="$liveEventId"
-                            :likesCount="$likesCount" :dislikesCount="$dislikesCount" />
+                        <x-like-dislike
+                            wire:key="like-dislike-{{ $liveEventId }}-{{ $sortBy }}-{{ $categoryFilter }}"
+                            :categoryFilter="$categoryFilter" :model="$model" :id="$liveEventId" :liveEventId="$liveEventId" :likesCount="$likesCount"
+                            :dislikesCount="$dislikesCount" />
                     </div>
                 </div>
             @endif
@@ -89,4 +92,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</div>
+@endvolt
