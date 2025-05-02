@@ -88,11 +88,12 @@ new class extends Component {
                         {{ $category->description }}</p>
 
                 </div>
-                <button
-                    class="w-80 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
-                    wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
-                    + Add concept
-                </button>
+                <div class="w-full flex justify-end">
+                    <button  class="bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
+                        wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
+                        + Add concept
+                    </button>
+                </div>
             </div>
 
 
@@ -147,7 +148,14 @@ new class extends Component {
                                     <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                         wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
                                         :showComment="false" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
-                                        :image="$liveEvent->getMedia('default')->sortBy('order_column')->first()?->findVariant('thumbnail')?->getUrl() ?? $liveEvent->getMedia('default')->sortBy('order_column')->first()?->video_thumbnail" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                                        :image="$liveEvent
+                                            ->getMedia('default')
+                                            ->sortBy('order_column')
+                                            ->first()
+                                            ?->findVariant('thumbnail')
+                                            ?->getUrl() ??
+                                            $liveEvent->getMedia('default')->sortBy('order_column')->first()
+                                                ?->video_thumbnail" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
                                 </div>
                             </div>
                         @endforeach
