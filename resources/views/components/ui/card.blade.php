@@ -28,7 +28,7 @@ new class extends Component {
 ?>
 
 
-<div >
+<div>
     <div>
         <div
             class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
@@ -43,12 +43,11 @@ new class extends Component {
                     {{ $description }}
                 </p>
                 @if (isset($categories) && count($categories))
-                    <div class="flex space-x-1 mb-2">
-
+                    <div class="flex space-x-1 mb-2 relative w-full flex-wrap space-y-1">
                         @foreach ($categories as $key => $category)
-                            <div wire:key="{{ $key }}">
+                            <span wire:key="{{ $key }}">
                                 <x-ui.badge background="bg-gray-400" color="text-white">{{ $category }}</x-ui.badge>
-                            </div>
+                            </span>
                         @endforeach
 
                     </div>
@@ -79,9 +78,9 @@ new class extends Component {
                                 d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
                         </svg>
                     </span>
-                    <div >
+                    <div>
 
-                        <x-like-dislike  :categoryFilter="$categoryFilter" :model="$model" :id="$liveEventId" :liveEventId="$liveEventId"
+                        <x-like-dislike :categoryFilter="$categoryFilter" :model="$model" :id="$liveEventId" :liveEventId="$liveEventId"
                             :likesCount="$likesCount" :dislikesCount="$dislikesCount" />
                     </div>
                 </div>
