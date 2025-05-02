@@ -134,11 +134,11 @@ new class extends Component {
                     </div>
 
                     <div class="fle space-x-2">
-                    <button
-                        wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
-                        + Add Image
-                    </button>
-                    <a target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}" >Edit </a>
+                        <button
+                            wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
+                            + Add Image
+                        </button>
+                        <a target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
                     </div>
                 </div>
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
@@ -168,7 +168,7 @@ new class extends Component {
 
                                 <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$sortBy" :likesCount="$image->likes_count"
                                     :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
-                                    :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image->video_thumbnail" :showComment="true" :description="$date"
+                                    :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date"
                                     :detailsUrl="route('public.image.show', ['id' => $image->id])" />
 
                             </div>

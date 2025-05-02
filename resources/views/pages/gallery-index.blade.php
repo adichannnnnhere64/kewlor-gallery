@@ -118,13 +118,12 @@ new class extends Component {
                 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
                     <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
                         @foreach ($this->liveEvents as $key => $liveEvent)
-                            <div>
-                                <div class="relative group" wire:key="key-{{ $liveEvent->id }}">
+                                <div class="relative group" wire:key="{{ $liveEvent->id }}">
                                     <div
                                         class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
 
 
-                                        <button wire:key="edit-btn-{{ $liveEvent->id }}" x-data="{ showAlert: false }"
+                                        <button  x-data="{ showAlert: false }"
                                             @idea-updated.window="$wire.$refresh()"
                                             class="px-1 py-1 rounded-md text-white bg-primary-700  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity"
                                             wire:click="$dispatch('openModal', { component: 'modals.edit-idea', arguments: { liveEvent: {{ $liveEvent }} } })">
@@ -140,7 +139,7 @@ new class extends Component {
                                             </svg>
                                         </button>
                                         <div>
-                                            <button wire:key="delete-btn-{{ $liveEvent->id }}" x-data
+                                            <button  x-data
                                                 @click="confirm('Are you sure you want to delete this item?') && $wire.deleteLiveEvent({{ $liveEvent->id }})"
                                                 class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -159,15 +158,11 @@ new class extends Component {
                                     </div>
                                     <x-ui.card :sortBy="$sortBy" :categoryFilter="$categoryFilter" :model="$liveEvent" :categories="$liveEvent->categories->pluck('name', 'id')"
                                         :currentVote="$liveEvent->current_vote" :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count"
-                                        :id="$liveEvent->id" :liveEventId="$liveEvent->id" wire:key="img-{{ $liveEvent->id }}"
-                                        :showComment="true" :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->sortBy('order_column')->first()->findVariant('thumbnail')?->getUrl() ?? $liveEvent->getMedia('default')->sortBy('order_column')->first()->video_thumbnail"
+                                        :id="$liveEvent->id" :liveEventId="$liveEvent->id"
+                                        :showComment="true" :title="$liveEvent->name" :description="$liveEvent->date" :image="$liveEvent->getMedia('default')->sortBy('order_column')->first()?->findVariant('thumbnail')?->getUrl() ?? $liveEvent->getMedia('default')->sortBy('order_column')->first()?->video_thumbnail"
                                         :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
                                 </div>
-                            </div>
                         @endforeach
-
-
-
                     </div>
                 @else
                     <div class="flex justify-center items-center h-64">

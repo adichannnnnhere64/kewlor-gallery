@@ -2,13 +2,14 @@
 
 namespace App\Providers;
 
-use Opcodes\LogViewer\Facades\LogViewer;
 use App\Models\Media;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\Image;
+use Intervention\Image\Typography\FontFactory;
+use Opcodes\LogViewer\Facades\LogViewer;
 use Plank\Mediable\Facades\ImageManipulator;
 use Plank\Mediable\ImageManipulation;
 
@@ -29,17 +30,13 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
 
-       LogViewer::auth(function ($request) {        return $request->user()            && in_array($request->user()->email, [                'mobistyle35@gmail.com',            ]);    });
+        LogViewer::auth(function ($request) {
+            return $request->user() && in_array($request->user()->email, ['mobistyle35@gmail.com']);
+        });
 
         Gate::define('access-admin-panel', function (User $user) {
             return $user->role === 'admin';
         });
-
-        /*                 ImageManipulator::defineVariant('default', */
-        /*                 ImageManipulation::make(function($image) { */
-        /*                     $image->sharpen(5); */
-        /*                 })->setOutputQuality(75)->outputWebpFormat() */
-        /*             ); */
 
         ImageManipulator::defineVariant(
             'thumbnail',
@@ -65,6 +62,36 @@ class AppServiceProvider extends ServiceProvider
                     );
                     $image->sharpen(5);
                 }
+
+                $text = setting('watermark') ?? config('app.name');
+
+                $watermarkColor = 'rgba(255, 255, 255, 0.5)';
+
+                $fontSize = min(
+                    100,
+                    max(
+                        20,
+                        $image->width() * 0.03
+                    )
+                );
+
+                // Calculate padding (2% of image width)
+                $paddingX = $image->width() * (float) setting('xaxis') ?? 0.02;
+                $paddingY = $image->width() * (float) setting('yaxis') ?? 0.02;
+
+                // Position at bottom right
+                $x = $image->width() - $paddingX;
+                $y = $image->height() - $paddingY;
+
+                $image->text($text, $x, $y, function (FontFactory $font) use ($fontSize, $watermarkColor) {
+                    $font->size($fontSize);
+                    $font->color($watermarkColor);
+                    $font->file(public_path('roboto.ttf'));
+                    $font->align('right');
+                    $font->valign('bottom');
+                    $font->angle(0);
+                });
+
             })->setOutputQuality(80)->outputWebpFormat());
 
     }
