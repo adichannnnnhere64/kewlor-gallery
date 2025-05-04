@@ -28,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        LogViewer::auth(function ($request) {
+            return $request->user() && in_array($request->user()->email, ['mobistyle35@gmail.com', 'admin@gallery.com']);
+        });
+
         Model::unguard();
 
         LogViewer::auth(function ($request) {
@@ -93,7 +98,6 @@ class AppServiceProvider extends ServiceProvider
                 });
 
             })->setOutputQuality(80)->outputWebpFormat());
-
 
         ImageManipulator::defineVariant(
             'preview',

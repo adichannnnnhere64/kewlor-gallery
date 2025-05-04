@@ -25,7 +25,7 @@ new class extends Component {
 
     public $liveEvent;
     #[Url]
-    public $sortBy = 'newest';
+    public $type = 'all';
 
     public function mount()
     {
@@ -59,7 +59,17 @@ new class extends Component {
     {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
 
-        $bargo = $liveEvent->media()->withLikeCounts()->withPivot('tag')->withCount('comments')->where('tag', 'default')->reorder()->orderBy('order_column')->paginate(20);
+        $bargo = $liveEvent->media()
+            ->withLikeCounts()
+            ->withPivot('tag')
+            ->withCount('comments')
+            ->where('tag', 'default')
+            ->reorder()
+            ->when($this->type && $this->type != 'all', function ($query) {
+                    $query->where('aggregate_type', $this->type);
+            })
+            ->orderBy('order_column')
+            ->paginate(20);
 
         return $bargo;
     }
@@ -128,6 +138,7 @@ new class extends Component {
             <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }" class="mx-auto max-w-6xl">
 
                 <div class="flex md:flex-row flex-col space-y-2 justify-between items-center">
+
                     <div class="mr-8">
                         <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
                         <p class="text-gray-400">{{ $description }}</p>
@@ -141,7 +152,17 @@ new class extends Component {
                         <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
                             href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
                     </div>
+
+
                 </div>
+                <select wire:model.live="type"
+                    class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="all">All</option>
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                </select>
+
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
                     class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
@@ -167,7 +188,7 @@ new class extends Component {
                                     </button>
                                 </div>
 
-                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$sortBy" :likesCount="$image->likes_count"
+                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
                                     :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
                                     :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date"
                                     :detailsUrl="route('public.image.show', ['id' => $image->id])" />

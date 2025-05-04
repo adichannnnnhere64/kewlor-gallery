@@ -1,4 +1,3 @@
-
 <div>
     <div
         class="p-2 transition-transform duration-300 bg-white border shadow-sm cursor-pointer group dark:bg-gray-900 rounded-xl hover:-translate-y-1 hover:shadow-xl border-slate-100 dark:border-white/10">
@@ -14,11 +13,23 @@
             </p>
             @if (isset($categories) && count($categories))
                 <div class="flex space-x-1 mb-2 relative w-full flex-wrap space-y-1">
-                    @foreach ($categories as $key => $category)
-                        <span wire:key="category-{{ $key }}" class="max-w-[100px] inline-block">
-                            <x-ui.badge background="bg-gray-400" color="text-white">{{ $category }}</x-ui.badge>
-                        </span>
-                    @endforeach
+                    @if (count($categories) <= 1)
+                        @foreach ($categories as $key => $category)
+                            <span wire:key="category-{{ $key }}" class="max-w-full inline-block mb-2 mr-2">
+                                <x-ui.badge background="bg-gray-400" color="text-white">{{ $category }}</x-ui.badge>
+                            </span>
+                        @endforeach
+                    @else
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach ($categories as $key => $category)
+                                <div wire:key="category-{{ $key }}" class="max-w-full">
+                                    <x-ui.badge background="bg-gray-400"
+                                        color="text-white">{{ $category }}</x-ui.badge>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
 
                 </div>
             @endif
@@ -52,8 +63,8 @@
                 </div>
                 <div class="flex">
                     @if ($id)
-                        <div class="flex space-x-1" >
-                            <div  class="dark:text-white">{{ $likesCount }}</div>
+                        <div class="flex space-x-1">
+                            <div class="dark:text-white">{{ $likesCount }}</div>
                             <button wire:click="like({{ $id }})">
                                 <span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-4 lg:w-4"
@@ -72,8 +83,8 @@
                         <div class="px-1">|</div>
 
 
-                        <div class="flex space-x-1" >
-                            <div  class="dark:text-white">{{ $dislikesCount }}</div>
+                        <div class="flex space-x-1">
+                            <div class="dark:text-white">{{ $dislikesCount }}</div>
                             <button wire:click="dislike({{ $id }})">
                                 <span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-4 lg:w-4"
