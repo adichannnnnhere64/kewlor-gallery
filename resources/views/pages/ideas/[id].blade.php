@@ -43,7 +43,7 @@ new class extends Component {
         $this->category = Category::find($this->id);
 
         $bargo = LiveEventGallery::query()
-           ->withCount('comments')
+            ->withCount('comments')
             ->whereHas('categories', function ($query) {
                 $query->where('id', $this->id);
             })
@@ -59,16 +59,15 @@ new class extends Component {
         return $bargo;
     }
 
-    public function like(LiveEventGallery $model,  VoteToggle $action)
+    public function like(LiveEventGallery $model, VoteToggle $action)
     {
         $action->handle($model, 'like');
     }
 
-    public function dislike(LiveEventGallery $model,  VoteToggle $action)
+    public function dislike(LiveEventGallery $model, VoteToggle $action)
     {
         $action->handle($model, 'dislike');
     }
-
 };
 
 ?>
@@ -101,7 +100,9 @@ new class extends Component {
                         {{ $category->description }}</p>
 
                 </div>
-                <div class="w-full flex justify-end">
+                <div class="w-full flex justify-end space-x-2">
+                    <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
+                        href="{{ route('category.edit', ['id' => $id]) }}">Edit </a>
                     <button class="bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
                         wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
                         + Add concept
@@ -161,8 +162,8 @@ new class extends Component {
                                     <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                         wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
                                         :showComment="true" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
-:likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count"
-                                        :commentsCount="$liveEvent->comments_count" :id="$liveEvent->id" :image="$liveEvent
+                                        :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count" :commentsCount="$liveEvent->comments_count"
+                                        :id="$liveEvent->id" :image="$liveEvent
                                             ->getMedia('default')
                                             ->sortBy('order_column')
                                             ->first()
