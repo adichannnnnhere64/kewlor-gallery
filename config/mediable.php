@@ -93,12 +93,14 @@ return [
             'mime_types' => [
                 'image/jpeg',
                 'image/png',
+                'image/webp',
                 'image/gif',
                 'image/heic',
             ],
             'extensions' => [
                 'jpg',
                 'jpeg',
+                'webp',
                 'png',
                 'gif',
                 'heic',

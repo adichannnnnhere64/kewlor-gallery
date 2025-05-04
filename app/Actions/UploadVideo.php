@@ -37,13 +37,11 @@ final class UploadVideo
 
             shell_exec($ffmpegWatermarkCommand);
 
-            // Upload watermarked video
             $videoMedia = MediaUploader::fromSource($watermarkedPath)
                 ->useHashForFilename('sha1')
                 ->toDestination('public', 'videos')
                 ->upload();
 
-            // Create thumbnail
             $thumbnailPath = storage_path('app/tmp/' . uniqid('thumb_') . '.jpg');
             $ffmpegThumbnailCommand = sprintf(
                 'ffmpeg -i %s -ss 00:00:01.000 -vframes 1 -vf "scale=500:500:force_original_aspect_ratio=increase,crop=500:500" -q:v 5 %s',
