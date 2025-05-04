@@ -125,9 +125,12 @@ new class extends Component {
 </style>
 <x-layouts.app>
     <x-slot name="header">
+        <div class="flex justify-between items-center">
         <h2 class="text-lg font-semibold leading-tight text-gray-800 dark:text-gray-200">
             {{ __('Edit Category') }}
         </h2>
+            <a href="/ideas/{{ $id }}" class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded">View</a>
+</div>
     </x-slot>
     @volt('category.edit')
     <div>

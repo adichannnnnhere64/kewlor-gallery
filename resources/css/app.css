@@ -32,8 +32,11 @@
   --color-primary-950: oklch(0.129 0.042 264.695);
 }
 
-.comments article {
+.comments {
     margin-top: 2rem;
+}
+
+.comments article {
 
       p {
     @apply text-base text-gray-800 leading-relaxed mb-4;

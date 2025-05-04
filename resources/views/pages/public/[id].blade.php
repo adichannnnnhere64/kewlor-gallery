@@ -144,25 +144,30 @@ new class extends Component {
                         <p class="text-gray-400">{{ $description }}</p>
                     </div>
 
-                    <div class="flex  space-x-2">
-                        <button class="w-34 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
-                            wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
-                            + Add Image
-                        </button>
-                        <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
-                            href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
-                    </div>
-
-
-                </div>
+                    <div class="flex flex-col  space-x-2 space-y-4">
                 <select wire:model.live="type"
-                    class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    class="border border-gray-300 dark:text-white -mt-10  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                     <option value="all">All</option>
                     <option value="image">Image</option>
                     <option value="video">Video</option>
                     <option value="audio">Audio</option>
                 </select>
 
+
+
+                    <div class="flex space-x-2 items-center">
+                        <button class="w-34 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
+                            wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
+                            + Add Image
+                        </button>
+                        <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
+                            href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
+
+                    </div>
+                    </div>
+
+
+                </div>
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
                     class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
