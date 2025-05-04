@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\UploadAudio;
 use App\Actions\UploadImage;
 use App\Actions\UploadVideo;
 use App\Http\Requests\UploadRequest;
@@ -14,7 +15,8 @@ class UploadController extends Controller
         UploadRequest $request,
         LiveEventGallery $model,
         UploadImage $uploadImage,
-        UploadVideo $uploadVideo
+        UploadVideo $uploadVideo,
+        UploadAudio $uploadAudio
     ) {
         $file = $request->file('file');
 
@@ -22,7 +24,10 @@ class UploadController extends Controller
             $uploadImage->handle($model, $file);
         } elseif (str_starts_with($file->getMimeType(), 'video/')) {
             $uploadVideo->handle($model, $file);
-        } else {
+        } elseif (str_starts_with($file->getMimeType(), 'audio/')) {
+            $uploadAudio->handle($model, $file);
+        }
+        else {
             return response()->json([
                 'message' => 'Unsupported file type',
             ], 422);

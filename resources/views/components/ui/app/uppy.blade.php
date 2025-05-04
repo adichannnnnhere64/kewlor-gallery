@@ -19,7 +19,15 @@
                 'image/svg+xml',
                 'video/mp4',
                 'video/webm',
-                'video/quicktime'
+                'video/quicktime',
+                'audio/mpeg',
+                'audio/wav',
+                'audio/x-wav',
+                'audio/mp4',
+                'audio/x-m4a',
+                'audio/aac',
+                'audio/ogg',
+                'audio/webm'
             ],
         },
     })
@@ -62,7 +70,15 @@ uppy.on('file-added', (file) => {
         'image/svg+xml',
         'video/mp4',
         'video/webm',
-        'video/quicktime' // for .mov files
+        'video/quicktime',
+        'audio/mpeg',
+        'audio/wav',
+        'audio/x-wav',
+        'audio/mp4',
+        'audio/x-m4a',
+        'audio/aac',
+        'audio/ogg',
+        'audio/webm'
     ];
 
     if (!allowedTypes.includes(file.type)) {

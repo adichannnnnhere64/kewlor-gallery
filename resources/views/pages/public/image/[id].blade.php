@@ -73,6 +73,12 @@ new class extends Component {
         <source src="{{ $media->findVariant('preview')?->getUrl() ?? $media->getUrl() }}" type="{{ $media->mime_type }}">
         Your browser does not support the video tag.
     </video>
+@elseif(Str::startsWith($media->mime_type, 'audio/'))
+    <audio controls class="w-full max-h-[60vh] object-contain">
+        <source src="{{ $media->findVariant('preview')?->getUrl() ?? $media->getUrl() }}" type="{{ $media->mime_type }}">
+        Your browser does not support the video tag.
+    </audio>
+
 @else
     <p>Unsupported media type</p>
 @endif
@@ -89,9 +95,7 @@ new class extends Component {
                 </div>  </x-ui.button>
 
 </div>
-            <livewire:vote
-                :currentVote="$currentVote" :likesCount="$likesCount" :dislikesCount="$dislikesCount"
-                :id="$id"/>
+              <x-like-dislike  :model="$media" :id="$liveEventId" :liveEventId="$liveEventId" :likesCount="$likesCount" :dislikesCount="$dislikesCount" />
 
         </div>
 

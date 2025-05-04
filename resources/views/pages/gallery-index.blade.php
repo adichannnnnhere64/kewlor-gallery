@@ -7,6 +7,7 @@ use App\Models\Category;
 use Livewire\Attributes\Computed;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use App\Actions\VoteToggle;
 
 name('gallery-index');
 middleware(['auth', 'verified', 'can:access-admin-panel']);
@@ -72,6 +73,16 @@ new class extends Component {
 
         return $bargo;
     }
+
+    public function like(LiveEventGallery $model,  VoteToggle $action)
+    {
+        $action->handle($model, 'like');
+    }
+
+    public function dislike(LiveEventGallery $model,  VoteToggle $action)
+    {
+        $action->handle($model, 'dislike');
+    }
 };
 
 ?>
@@ -83,7 +94,7 @@ new class extends Component {
     @volt('gallery-index')
 
         <div>
-            <div wire:key="gallery-container-{{ $sortBy }}-{{ $categoryFilter }}"
+            <div
                 class="flex justify-between items-center max-w-6xl mx-auto ">
                 <div>
                     <h1 class="  mt-8 pb-4 font-bold text-primary-700 text-2xl">Gallery</h1>
@@ -118,7 +129,7 @@ new class extends Component {
                 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
                     <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
                         @foreach ($this->liveEvents as $key => $liveEvent)
-                            <div class="relative group" wire:key="mcard-{{ $liveEvent->id }}-{{ $this->sortBy }}-{{ $this->categoryFilter }}">
+                            <div class="relative group" wire:key="mcard-{{ $liveEvent->id }}-{{ $this->sortBy }}-{{ $this->categoryFilter }}-{{ now()->timestamp }}">
                                 <div
                                     class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
 
@@ -156,7 +167,6 @@ new class extends Component {
                                     </div>
                                 </div>
                                 <x-ui.card
-                                    wire:key="card-{{ $liveEvent->id }}-{{ $this->sortBy }}-{{ $this->categoryFilter }}"
                                     :sortBy="$sortBy" :categoryFilter="$categoryFilter" :model="$liveEvent" :categories="$liveEvent->categories->pluck('name', 'id')"
                                     :currentVote="$liveEvent->current_vote" :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count"
                                     :id="$liveEvent->id" :liveEventId="$liveEvent->id" :showComment="true" :title="$liveEvent->name"
@@ -188,19 +198,16 @@ new class extends Component {
         @script
             <script>
         document.addEventListener('livewire:initialized', () => {
-    // Clean up any existing listeners
     if (window.galleryRefreshHandler) {
         Livewire.off('refresh-gallery', window.galleryRefreshHandler);
     }
 
-    // Create a new handler
     window.galleryRefreshHandler = () => {
         setTimeout(() => {
             Livewire.dispatch('$refresh');
         }, 200);
     };
 
-    // Register the new handler
     Livewire.on('refresh-gallery', window.galleryRefreshHandler);
 });
 
