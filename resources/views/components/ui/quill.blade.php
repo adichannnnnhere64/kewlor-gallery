@@ -10,7 +10,7 @@
 @php
     $wireModel = $attributes->get('wire:model');
     $id = $id ?? 'quill-' . uniqid();
-    $height = $rows * 24; // Base height calculation
+    $height = 150; // Base height calculation
 @endphp
 
 <div x-data="{

@@ -14,9 +14,8 @@ name('live-event.edit');
 middleware(['auth', 'verified', 'can:access-admin-panel']);
 
 new class extends Component {
-
-        use WithPagination;
-       public $id;
+    use WithPagination;
+    public $id;
     public $name;
     public $slug;
     public $categories;
@@ -25,7 +24,7 @@ new class extends Component {
     public $date;
     public $images;
 
-        public function mount($id): void
+    public function mount($id): void
     {
         $this->id = $id;
         $this->categoryForm = Category::get()->pluck('name', 'id')->toArray();
@@ -41,7 +40,7 @@ new class extends Component {
         }
     }
 
-        public function with(): array
+    public function with(): array
     {
         return [
             'live_event' => LiveEventGallery::query()->find($this->id),
@@ -63,9 +62,9 @@ new class extends Component {
     {
         $liveEvent = LiveEventGallery::find($this->id);
         $this->images = $liveEvent->getMedia('default');
-}
+    }
 
-       public function submit(): void
+    public function submit(): void
     {
         // Validate the input
         $this->validate([
@@ -81,7 +80,7 @@ new class extends Component {
                 'name' => $this->name,
                 'date' => $this->date,
                 'description' => $this->description,
-                'slug' => $this->slug
+                'slug' => $this->slug,
             ]);
 
             $liveEvent->categories()->sync($this->categories);
@@ -90,9 +89,7 @@ new class extends Component {
             #$this->dispatch('eventUpdated');
         }
     }
-
 };
-
 
 #with(fn () => ['posts' => 'adicchans']);
 
@@ -115,72 +112,57 @@ new class extends Component {
 
     @volt('live-event.edit')
 
-    <div>
-        <form wire:submit.prevent="submit">
+        <div>
+            <form wire:submit.prevent="submit">
 
-            @if (session()->has('message'))
-    <div class="p-4 mb-4 text-green-700 bg-green-100 rounded">
-        {{ session('message') }}
-    </div>
-@endif
+                @if (session()->has('message'))
+                    <div class="p-4 mb-4 text-green-700 bg-green-100 rounded">
+                        {{ session('message') }}
+                    </div>
+                @endif
 
-        <x-ui.input wire:model="name" label="name" id="name" name="name" />
-        <x-ui.input wire:model="date" label="Date" id="date" name="date" type="date" />
-            <x-ui.textarea
-    label="Description"
-    id="description"
-    name="description"
-    wire:model="description"
-    rows="5"
-    placeholder="Enter your description here..."
-/>
-            <x-ui.select  :options="$categoryForm" :selected="$categories" wireModel="categories" label="Categories" id="tags" name="tags"/>
-        <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" type="slug" />
-            <div class="my-4 ">
-        <button  type="submit" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded" >
-                Update
-        </button>
-</div>
+                <x-ui.input wire:model="name" label="name" id="name" name="name" />
+                <x-ui.input wire:model="date" label="Date" id="date" name="date" type="date" />
+                <x-ui.textarea label="Description" id="description" name="description" wire:model="description"
+                    rows="5" placeholder="Enter your description here..." />
+                <x-ui.select :options="$categoryForm" :selected="$categories" wireModel="categories" label="Categories" id="tags"
+                    name="tags" />
+                <x-ui.input wire:model="slug" label="Slug" id="slug" name="slug" type="slug" />
+                <div class="my-4 ">
+                    <button type="submit" class="mt-2 px-4 py-2 bg-primary-600 text-white rounded">
+                        Update
+                    </button>
+                </div>
 
-            <h1>Add images</h1>
+                <h1>Add images</h1>
 
-            <div  @upload-complete.window="$wire.reload()">
+                <div @upload-complete.window="$wire.reload()">
 
 
-               <div wire:ignore>
-            <x-ui.app.uppy :endpoint="route('upload', $id)">
-            </x-ui.app.uppy>
+                    <div wire:ignore>
+                        <x-ui.app.uppy :endpoint="route('upload', $id)">
+                        </x-ui.app.uppy>
                     </div>
 
-            <div>
-@if (isset($images) && $images->isNotEmpty())
+                    <div>
+                        @if (isset($images) && $images->isNotEmpty())
+                            <div class="flex my-4 flex-row flex-wrap gap-4">
+                                @foreach ($images as $image)
+                                    <div class="flex justify-center flex-col items-center">
+                                        <img src="{{ $image->getUrl() ?? $image?->video_thumbnail }}"
+                                            alt="{{ $image->name }}" class="w-34 h-34 rounded-lg object-cover" />
+                                        <button wire:confirm="Are you sure you want to delete this image?"
+                                            wire:click="deleteImage({{ $image->id }})"
+                                            class="cursor-pointer text-red-600 bg-red-200 p-1 rounded-lg mt-2 ">delete</button>
+                                    </div>
+                                @endforeach
 
+                            </div>
+                        @endif
 
-<div class="flex my-4 flex-row flex-wrap gap-4" >
-    @foreach ($images as $image)
-
-
-            <div class="flex justify-center flex-col items-center">
-        <img
-            src="{{ $image->getUrl() ?? $image?->video_thumbnail  }}"
-            alt="{{ $image->name }}"
-            class="w-34 h-34 rounded-lg object-cover"
-        />
-                    <button
-
-                wire:confirm="Are you sure you want to delete this image?"
-            wire:click="deleteImage({{ $image->id }})" class="cursor-pointer text-red-600 bg-red-200 p-1 rounded-lg mt-2 ">delete</button>
-                        </div>
-
-    @endforeach
-
-</div>
-
-@endif
-
-            </div>
-    </form>
-    </div>
+                    </div>
+            </form>
+        </div>
 
     @endvolt
 

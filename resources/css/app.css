@@ -84,7 +84,7 @@
 .ql-container {
     border: none !important;
     font-family: inherit !important;
-    height: auto !important;
+    height: 200px !important;
 }
 
 .ql-snow .ql-stroke {

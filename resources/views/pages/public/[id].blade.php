@@ -59,13 +59,14 @@ new class extends Component {
     {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
 
-        $bargo = $liveEvent->media()
+        $bargo = $liveEvent
+            ->media()
             ->withLikeCounts()
             ->withPivot('tag')
             ->where('tag', 'default')
             ->reorder()
             ->when($this->type && $this->type != 'all', function ($query) {
-                    $query->where('aggregate_type', $this->type);
+                $query->where('aggregate_type', $this->type);
             })
             ->orderBy('order_column')
             ->paginate(20);
@@ -140,33 +141,43 @@ new class extends Component {
 
                     <div class="mr-8">
                         <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
-                        <p class="text-gray-400">{{ $description }}</p>
+                        <p class="block pt-1.5 pb-3 text-xs text-left line-clamp-2 text-slate-800/60 dark:text-white/50">
+                            {{ $description }}</p>
                     </div>
 
                     <div class="flex flex-col  space-x-2 space-y-4">
-                <select wire:model.live="type"
-                    class="border border-gray-300 dark:text-white -mt-10  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    <option value="all">All</option>
-                    <option value="image">Image</option>
-                    <option value="video">Video</option>
-                    <option value="audio">Audio</option>
-                </select>
 
+                        <div class="flex space-x-2 items-center">
+                            <button class="w-34 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
+                                wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
+                                + Add Image
+                            </button>
+                            <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded"
+                                target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
 
-
-                    <div class="flex space-x-2 items-center">
-                        <button class="w-34 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
-                            wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
-                            + Add Image
-                        </button>
-                        <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
-                            href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
-
+                        </div>
                     </div>
-                    </div>
+
+
 
 
                 </div>
+
+                <div class="flex justify-end mt-2">
+                    <div class="h-4">
+                        Filter by:
+                        <select wire:model.live="type"
+                            class="border border-gray-300 dark:text-white -mt-10  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="all">All</option>
+                            <option value="image">Image</option>
+                            <option value="video">Video</option>
+                            <option value="audio">Audio</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
                 <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
                     class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
 
@@ -194,8 +205,7 @@ new class extends Component {
 
                                 <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
                                     :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
-                                     :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date"
-                                    :detailsUrl="route('public.image.show', ['id' => $image->id])" />
+                                    :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
 
                             </div>
                         </div>
@@ -212,9 +222,7 @@ new class extends Component {
 
 
                 <div class="comments">
-            <x-notes.note
-                    :model="$this->liveEvent"
-                />
+                    <x-notes.note :model="$this->liveEvent" />
                 </div>
             </div>
 

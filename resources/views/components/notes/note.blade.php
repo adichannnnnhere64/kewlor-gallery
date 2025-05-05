@@ -34,7 +34,7 @@ $delete = function (Note $model) {
     <div>
 
         <form wire:submit.prevent="save">
-        <x-ui.quill wire:model="content" toolbar="basic"/>
+        <x-ui.quill rows="6" wire:model="content" toolbar="basic"/>
 
         <div class="flex justify-end">
             <button type="submit" class="my-2 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"

@@ -62,7 +62,6 @@ new class extends Component {
 
     public function fetchEvents()
     {
-
         $this->category = Category::find($this->id);
 
         $bargo = LiveEventGallery::query()
@@ -81,10 +80,7 @@ new class extends Component {
 
             ->paginate(20);
 
-
         $this->liveEvents = $bargo;
-
-
     }
 
     public function like(LiveEventGallery $model, VoteToggle $action)
@@ -116,34 +112,51 @@ new class extends Component {
     @volt('ideas.show')
 
         <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }">
-            <div class="flex justify-between items-center max-w-6xl mx-auto ">
-                <h1 class="  mt-8 font-bold text-primary-700 text-2xl">Gallery</h1>
+            <div class="flex max-w-6xl mx-auto justify-between items-center  py-4">
+                <div class="w-20">
+                    <x-ui.button tag="a" type="secondary" href="{{ route('gallery-index') }}" class="mb-8 inline">
+                        <div class="flex items-center space-x-1 ">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M5 12l14 0" />
+                                <path d="M5 12l6 6" />
+                                <path d="M5 12l6 -6" />
+                            </svg>
 
-                <select wire:model.live="sortBy" wire:change="resetPage"
-                    class="border border-gray-300 dark:text-white  rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                </select>
+                            <span>Back</span>
+                        </div>
+                    </x-ui.button>
+                </div>
+
+                <div class="">
+
+                </div>
+            </div>
+
+
+
+            <div class="flex justify-between items-center max-w-6xl mx-auto ">
+                <h1 class="font-bold text-primary-700 text-2xl">{{ $category->name }}</h1>
+
             </div>
 
             @livewire('wire-elements-modal')
 
-
-            <div class="flex md:flex-row space-x-4 flex-col space-y-2  justify-between items-center ">
+            <div class="flex md:flex-row space-x-4 flex-col space-y-2  justify-between items-start ">
                 <div class="w-full">
-                    <h2>{{ $category->name }}</h2>
-
                     <p class="block pt-1.5 pb-3 text-xs text-left line-clamp-2 text-slate-800/60 dark:text-white/50">
                         {{ $category->description }}</p>
-
                 </div>
                 <div class=" flex justify-end space-x-2 h-10 w-[300px]">
-                    <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
-                        href="{{ route('category.edit', ['id' => $id]) }}">Edit </a>
                     <button class="bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
                         wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
                         + Add Concept
                     </button>
+                    <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
+                        href="{{ route('category.edit', ['id' => $id]) }}">Edit </a>
+
                 </div>
             </div>
 
@@ -225,9 +238,7 @@ new class extends Component {
 
 
                 <div class="comments">
-
                     <x-notes.note :model="$this->category" />
-
                 </div>
             </div>
         </div>
