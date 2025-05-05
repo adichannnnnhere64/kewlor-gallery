@@ -39,7 +39,6 @@ new class extends Component {
     #[Computed]
     public function liveEvents()
     {
-        //        $liveEvent = LiveEventGallery::findOrFail($this->id);
         $this->category = Category::find($this->id);
 
         $bargo = LiveEventGallery::query()
@@ -53,9 +52,39 @@ new class extends Component {
             ->when($this->sortBy === 'oldest', function ($query) {
                 return $query->reorder()->orderBy('created_at', 'asc');
             })
+            ->reorder()
+            ->orderBy('order_column')
+
             ->paginate(20);
 
         return $bargo;
+    }
+
+    public function fetchEvents()
+    {
+
+        $this->category = Category::find($this->id);
+
+        $bargo = LiveEventGallery::query()
+            ->whereHas('categories', function ($query) {
+                $query->where('id', $this->id);
+            })
+            ->with('media')
+            ->when($this->sortBy === 'newest', function ($query) {
+                return $query->reorder()->orderBy('created_at', 'desc');
+            })
+            ->when($this->sortBy === 'oldest', function ($query) {
+                return $query->reorder()->orderBy('created_at', 'asc');
+            })
+            ->reorder()
+            ->orderBy('order_column')
+
+            ->paginate(20);
+
+
+        $this->liveEvents = $bargo;
+
+
     }
 
     public function like(LiveEventGallery $model, VoteToggle $action)
@@ -67,6 +96,15 @@ new class extends Component {
     {
         $action->handle($model, 'dislike');
     }
+
+    public function updateOrder(LiveEventGallery $model, $item)
+    {
+        $originalIds = collect($this->liveEvents->items())->pluck('id');
+        $updated = $originalIds->reject(fn($id) => $id == $model->id);
+        $updated->splice($item, 0, [$model->id]);
+        LiveEventGallery::setNewOrder($updated->toArray());
+        $this->fetchEvents();
+    }
 };
 
 ?>
@@ -77,7 +115,7 @@ new class extends Component {
 
     @volt('ideas.show')
 
-        <div>
+        <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }">
             <div class="flex justify-between items-center max-w-6xl mx-auto ">
                 <h1 class="  mt-8 font-bold text-primary-700 text-2xl">Gallery</h1>
 
@@ -91,7 +129,7 @@ new class extends Component {
             @livewire('wire-elements-modal')
 
 
-            <div class="flex md:flex-row flex-col space-y-2  justify-between items-center ">
+            <div class="flex md:flex-row space-x-4 flex-col space-y-2  justify-between items-center ">
                 <div class="w-full">
                     <h2>{{ $category->name }}</h2>
 
@@ -99,7 +137,7 @@ new class extends Component {
                         {{ $category->description }}</p>
 
                 </div>
-                <div class="w-full flex justify-end space-x-2">
+                <div class=" flex justify-end space-x-2 h-10 w-[300px]">
                     <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded" target="_blank"
                         href="{{ route('category.edit', ['id' => $id]) }}">Edit </a>
                     <button class="bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
@@ -116,11 +154,12 @@ new class extends Component {
 
 
                 @if (isset($this->liveEvents) && $this->liveEvents->isNotEmpty())
-                    <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
+                    <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
+                        class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8 max-w-6xl ">
 
                         @foreach ($this->liveEvents as $key => $liveEvent)
-                            <div>
-                                <div class="relative group" wire:key="key-{{ $liveEvent->id }}">
+                            <div x-sort:item="{{ $liveEvent->id }}" wire:key="key-{{ $liveEvent->id }}">
+                                <div class="relative group">
                                     <div
                                         class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
 
@@ -161,8 +200,8 @@ new class extends Component {
                                     <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                         wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
                                         :showComment="true" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
-                                        :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count"  :commentsCount="$liveEvent->comments_count"
-                                        :id="$liveEvent->id" :image="$liveEvent
+                                        :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count" :id="$liveEvent->id"
+                                        :image="$liveEvent
                                             ->getMedia('default')
                                             ->sortBy('order_column')
                                             ->first()
@@ -187,9 +226,7 @@ new class extends Component {
 
                 <div class="comments">
 
-            <x-notes.note
-                    :model="$this->category"
-                />
+                    <x-notes.note :model="$this->category" />
 
                 </div>
             </div>
