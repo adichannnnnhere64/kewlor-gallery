@@ -17,7 +17,7 @@ new class extends Component {
     public function with(): array
     {
         return [
-            'data' => LiveEventGallery::query()->orderBy('order_column')->paginate(10),
+            'data' => LiveEventGallery::query()->orderBy('order_column')->paginate(1000),
         ];
     }
 
