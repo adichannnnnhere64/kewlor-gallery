@@ -97,7 +97,7 @@ new class extends Component {
                     <h2>{{ $category->name }}</h2>
 
                     <p class="block pt-1.5 pb-3 text-xs text-left line-clamp-2 text-slate-800/60 dark:text-white/50">
-                        {{ $category->description }}barnak</p>
+                        {{ $category->description }}</p>
 
                 </div>
                 <div class="w-full flex justify-end space-x-2">
