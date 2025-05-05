@@ -139,15 +139,15 @@ new class extends Component {
 
             <div class="flex justify-between items-center max-w-6xl mx-auto ">
                 <h1 class="font-bold text-primary-700 text-2xl">{{ $category->name }}</h1>
-
             </div>
 
             @livewire('wire-elements-modal')
 
             <div class="flex md:flex-row space-x-4 flex-col space-y-2  justify-between items-start ">
                 <div class="w-full">
-                    <p class="block pt-1.5 pb-3 text-xs text-left line-clamp-2 text-slate-800/60 dark:text-white/50">
-                        {{ $category->description }}</p>
+                    <x-ui.description>
+                        {{ $category->description }}
+                    </x-ui.description>
                 </div>
                 <div class=" flex justify-end space-x-2 h-10 w-[300px]">
                     <button class="bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"

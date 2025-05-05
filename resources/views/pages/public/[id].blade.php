@@ -141,8 +141,9 @@ new class extends Component {
 
                     <div class="mr-8">
                         <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
-                        <p class="block pt-1.5 pb-3 text-xs text-left line-clamp-2 text-slate-800/60 dark:text-white/50">
-                            {{ $description }}</p>
+                    <x-ui.description>
+                        {{ $description }}
+                    </x-ui.description>
                     </div>
 
                     <div class="flex flex-col  space-x-2 space-y-4">
