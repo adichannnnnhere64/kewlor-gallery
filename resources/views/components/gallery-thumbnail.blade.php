@@ -39,7 +39,7 @@ wire:key="delete-{{ $image->id }}"
                 class="flex justify-center flex-col items-center" >
 
         <img
-            src="{{ $image->getUrl() ?? $image?->video_thumbnail }}"
+            src="{{ $image->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail }}"
             alt="{{ $image->name }}"
             class="w-34 h-34 rounded-lg object-cover"
         />
