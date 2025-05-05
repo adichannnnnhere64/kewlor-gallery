@@ -68,6 +68,8 @@ new class extends Component {
             ->when($this->sortBy === 'oldest', function ($query) {
                 return $query->reorder()->orderBy('created_at', 'asc');
             })
+            ->reorder()
+            ->orderBy('order_column')
             ->paginate(20);
 
         return $bargo;
