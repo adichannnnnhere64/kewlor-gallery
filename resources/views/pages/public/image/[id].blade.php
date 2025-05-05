@@ -101,7 +101,10 @@ new class extends Component {
 
 
         <div class="comments">
-        <livewire:comments :model="$media" />
+            <x-notes.note
+                    :model="$this->media"
+                />
+
 </div>
 
 

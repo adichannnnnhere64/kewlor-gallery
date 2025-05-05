@@ -74,3 +74,94 @@
 .comments .bg-white {
 }
 
+
+
+@import 'quill/dist/quill.snow.css';
+
+/* resources/css/app.css */
+
+/* Quill container sizing */
+.ql-container {
+    border: none !important;
+    font-family: inherit !important;
+    height: auto !important;
+}
+
+.ql-snow .ql-stroke {
+    @apply stroke-gray-700 dark:stroke-gray-300;
+}
+
+.ql-snow .ql-fill {
+    @apply fill-gray-700 dark:fill-gray-300;
+}
+
+.ql-snow .ql-picker {
+    @apply text-gray-700 dark:text-gray-300;
+}
+
+/* Hover states */
+.ql-snow .ql-picker-label:hover,
+.ql-snow .ql-picker-label.ql-active,
+.ql-snow .ql-picker-item:hover,
+.ql-snow .ql-picker-item.ql-selected {
+    @apply text-blue-600 dark:text-blue-400;
+}
+
+.ql-snow .ql-toolbar button:hover,
+.ql-snow .ql-toolbar button:focus,
+.ql-snow .ql-toolbar button.ql-active {
+    @apply text-blue-600 dark:text-blue-400;
+}
+
+.ql-snow .ql-toolbar button:hover .ql-stroke,
+.ql-snow .ql-toolbar button:focus .ql-stroke,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke {
+    @apply stroke-blue-600 dark:stroke-blue-400;
+}
+
+/* Editor content */
+.ql-editor {
+    @apply p-3 text-base leading-relaxed;
+    min-height: 100px;
+}
+
+.ql-editor.ql-blank::before {
+    @apply text-gray-400 dark:text-gray-500 not-italic;
+}
+
+/* Format-specific styles */
+.ql-snow .ql-editor h1 {
+    @apply text-2xl font-bold my-2;
+}
+
+.ql-snow .ql-editor h2 {
+    @apply text-xl font-bold my-2;
+}
+
+.ql-snow .ql-editor blockquote {
+    @apply border-l-4 border-gray-300 dark:border-gray-500 pl-4 my-2 text-gray-600 dark:text-gray-400;
+}
+
+.ql-snow .ql-editor pre {
+    @apply bg-gray-100 dark:bg-gray-700 rounded p-2 my-2 font-mono text-sm;
+}
+
+.ql-editor code {
+    @apply bg-gray-100 dark:bg-gray-700 rounded px-1 py-0.5 font-mono text-sm;
+}
+
+.ql-code-block-container {
+    @apply bg-gray-100 dark:bg-gray-700 rounded p-2 my-2 font-mono text-sm;
+}
+
+.ql-code-block
+{
+}
+
+ol {
+    @apply list-decimal list-inside;
+
+}
+
+
+

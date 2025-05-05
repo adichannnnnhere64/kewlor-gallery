@@ -3,32 +3,27 @@
 namespace App\Models;
 
 use App\Traits\HasLikes;
+use App\Traits\HasNotes;
 use Cog\Contracts\Love\Reactable\Models\Reactable as ReactableInterface;
 use Cog\Laravel\Love\Reactable\Models\Traits\Reactable;
 use Plank\Mediable\Media as BaseMedia;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 
-use Usamamuneerchaudhary\Commentify\Traits\Commentable;
 
 /**
  * @method static UserEloquentBuilder query()
  */
 class Media extends BaseMedia implements Sortable
 {
-    use Commentable;
     use HasLikes;
     use SortableTrait;
+    use HasNotes;
 
     public $sortable = [
         'order_column_name' => 'order_column',
         'sort_when_creating' => true,
     ];
-
-    public function getCustomCommentsCountAttribute()
-    {
-        return $this->comments()->count();
-    }
 
     public function getVideoThumbnailAttribute()
     {

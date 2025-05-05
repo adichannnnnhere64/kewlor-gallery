@@ -51,7 +51,7 @@ new class extends Component {
     public function fetchImages()
     {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
-        $this->images = $liveEvent->media()->withLikeCounts()->withPivot('tag')->withCount('comments')->where('tag', 'default')->reorder()->orderBy('order_column')->paginate(20);
+        $this->images = $liveEvent->media()->withLikeCounts()->withPivot('tag')->where('tag', 'default')->reorder()->orderBy('order_column')->paginate(20);
     }
 
     #[Computed]
@@ -62,7 +62,6 @@ new class extends Component {
         $bargo = $liveEvent->media()
             ->withLikeCounts()
             ->withPivot('tag')
-            ->withCount('comments')
             ->where('tag', 'default')
             ->reorder()
             ->when($this->type && $this->type != 'all', function ($query) {
@@ -195,7 +194,7 @@ new class extends Component {
 
                                 <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
                                     :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
-                                    :commentsCount="$image->comments_count" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date"
+                                     :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date"
                                     :detailsUrl="route('public.image.show', ['id' => $image->id])" />
 
                             </div>
@@ -213,7 +212,9 @@ new class extends Component {
 
 
                 <div class="comments">
-                    <livewire:comments :model="$this->liveEvent" />
+            <x-notes.note
+                    :model="$this->liveEvent"
+                />
                 </div>
             </div>
 

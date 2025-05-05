@@ -18,6 +18,7 @@
     },
     "dependencies": {
         "@alpinejs/sort": "^3.14.9",
-        "@tailwindcss/postcss": "^4.0.12"
+        "@tailwindcss/postcss": "^4.0.12",
+        "quill": "^2.0.3"
     }
 }

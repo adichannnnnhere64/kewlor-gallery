@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use App\Traits\HasLikes;
+use App\Traits\HasNotes;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-use Usamamuneerchaudhary\Commentify\Traits\Commentable;
 
 class LiveEventGallery extends Model
 {
     /** @use HasFactory<\Database\Factories\LiveEventGalleryFactory> */
     use HasFactory;
-    use Commentable;
+    use HasNotes;
 
     use Mediable;
     use Sluggable;
@@ -27,12 +27,6 @@ class LiveEventGallery extends Model
             ],
         ];
     }
-
-    public function getCustomCommentsCountAttribute()
-    {
-        return $this->comments()->count();
-    }
-
 
     public function categories()
     {

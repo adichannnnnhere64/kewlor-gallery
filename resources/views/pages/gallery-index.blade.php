@@ -57,7 +57,6 @@ new class extends Component {
     {
         $bargo = LiveEventGallery::with('media')
             ->withLikeCounts()
-            ->withCount('comments')
             ->when($this->categoryFilter && $this->categoryFilter != '0', function ($query) {
                 return $query->whereHas('categories', function ($query) {
                     $query->where('id', $this->categoryFilter);
@@ -168,7 +167,7 @@ new class extends Component {
                                 </div>
                                 <x-ui.card
                                     :sortBy="$sortBy" :categoryFilter="$categoryFilter" :model="$liveEvent" :categories="$liveEvent->categories->pluck('name', 'id')"
-                                    :currentVote="$liveEvent->current_vote" :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count"
+                                    :currentVote="$liveEvent->current_vote" :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count"
                                     :id="$liveEvent->id" :liveEventId="$liveEvent->id" :showComment="true" :title="$liveEvent->name"
                                     :description="$liveEvent->date" :image="$liveEvent
                                         ->getMedia('default')

@@ -43,7 +43,6 @@ new class extends Component {
         $this->category = Category::find($this->id);
 
         $bargo = LiveEventGallery::query()
-            ->withCount('comments')
             ->whereHas('categories', function ($query) {
                 $query->where('id', $this->id);
             })
@@ -105,7 +104,7 @@ new class extends Component {
                         href="{{ route('category.edit', ['id' => $id]) }}">Edit </a>
                     <button class="bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
                         wire:click="$dispatch('openModal', { component: 'modals.create-idea', arguments: { categoryId: {{ $id }} } })">
-                        + Add concept
+                        + Add Concept
                     </button>
                 </div>
             </div>
@@ -162,7 +161,7 @@ new class extends Component {
                                     <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                         wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
                                         :showComment="true" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
-                                        :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count" :commentsCount="$liveEvent->comments_count"
+                                        :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count"  :commentsCount="$liveEvent->comments_count"
                                         :id="$liveEvent->id" :image="$liveEvent
                                             ->getMedia('default')
                                             ->sortBy('order_column')
@@ -187,7 +186,10 @@ new class extends Component {
 
 
                 <div class="comments">
-                    <livewire:comments :model="$this->category" />
+
+            <x-notes.note
+                    :model="$this->category"
+                />
 
                 </div>
             </div>
