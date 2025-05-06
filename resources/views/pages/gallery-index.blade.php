@@ -178,7 +178,7 @@ new class extends Component {
                                         ?->findVariant('thumbnail')
                                         ?->getUrl() ??
                                         $liveEvent->getMedia('default')->sortBy('order_column')->first()
-                                            ?->video_thumbnail" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                                            ?->video_thumbnail ?? '/placeholder.jpg'" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
                             </div>
                         @endforeach
                     </div>

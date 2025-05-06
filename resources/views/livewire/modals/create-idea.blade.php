@@ -39,7 +39,7 @@ $save = function () {
         $this->modelId = $liveEventGallery->id;
     }
 
-
+    $this->dispatch('idea-refresh');
 
 //$data = $this->only(['name', 'description', 'date']);
 //dd($data);
@@ -89,11 +89,14 @@ $save = function () {
 
 
 
+
+        @if (!$this->modelId)
          <div>
             <button type="submit" class="w-full px-4 py-2 text-white transition duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700">
                 Save
             </button>
         </div>
+        @endif
 
         @if ($this->modelId)
             <div wire:ignore>

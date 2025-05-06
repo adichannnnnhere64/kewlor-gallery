@@ -28,14 +28,14 @@ class Media extends BaseMedia implements Sortable
     public function getVideoThumbnailAttribute()
     {
         if ($this->mime_type === 'video/mp4') {
-            return $this->video_thumbnail_id ? Media::find($this->video_thumbnail_id)?->getUrl() : '';
+            return $this->video_thumbnail_id ? Media::find($this->video_thumbnail_id)?->getUrl() : '/placeholder.jpg';
         }
 
         if (\Str::startsWith($this->mime_type, 'audio/')) {
             return '/audio.jpg';
         }
 
-        return '';
+        return '/placeholder.jpg';
     }
 
     public function categories()

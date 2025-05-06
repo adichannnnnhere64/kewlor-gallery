@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use App\Models\Category;
 use App\Actions\VoteToggle;
+use Livewire\Attributes\On;
 
 name('ideas.show');
 middleware(['auth', 'verified', 'can:access-admin-panel']);
@@ -34,6 +35,12 @@ new class extends Component {
         }
 
         return redirect()->route('ideas.show', ['id' => $this->id]);
+    }
+
+    #[On('idea-refresh')]
+    public function refresh()
+    {
+        $this->fetchEvents();
     }
 
     #[Computed]
@@ -221,7 +228,7 @@ new class extends Component {
                                             ?->findVariant('thumbnail')
                                             ?->getUrl() ??
                                             $liveEvent->getMedia('default')->sortBy('order_column')->first()
-                                                ?->video_thumbnail" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                                                ?->video_thumbnail ?? '/placeholder.jpg'" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
                                 </div>
                             </div>
                         @endforeach

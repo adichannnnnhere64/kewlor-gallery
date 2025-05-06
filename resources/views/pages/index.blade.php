@@ -63,7 +63,7 @@ new class extends Component {
                                 <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                     wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
                                     :showComment="false" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
-                                    :image="$liveEvent->image" :detailsUrl="route('ideas.show', ['id' => $liveEvent->id])" />
+                                    :image="$liveEvent->image ?? '/placeholder.jpg'" :detailsUrl="route('ideas.show', ['id' => $liveEvent->id])" />
                             </div>
                         @endforeach
 
