@@ -10,11 +10,11 @@
                 @endforeach
             </tr>
         </thead>
-                        <tbody x-bind:x-sort="$orderable ? 'handle' : null"
-       x-bind:x-on:sorted="$orderable ? '$wire.updateOrder($event)' : null">
-
-
-        <tbody x-sort="{{ $orderable ? 'handle' : null }}" x-on:sorted="$wire.updateOrder($event)">
+        <tbody
+                        @if ($orderable)
+                            x-sort="handle"
+                        @endif
+                        x-on:sorted="$wire.updateOrder($event)">
             @foreach ($data as $index => $item)
                 <tr x-data="{
                     showConfirm: false,
