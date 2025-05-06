@@ -40,7 +40,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('access-admin-panel', function (User $user) {
-            return $user->role === 'admin';
+            return $user->role === 'admin' || $user->role === 'super-admin';
+        });
+
+        Gate::define('access-super-admin-panel', function (User $user) {
+            return $user->role === 'super-admin';
         });
 
         ImageManipulator::defineVariant(

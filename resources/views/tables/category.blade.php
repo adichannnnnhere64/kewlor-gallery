@@ -34,6 +34,7 @@
         edit-id="id"
         delete-id="id"
         model="category"
+        :orderable="false"
         table-striped
     >
     </x-ui.base-datatable>

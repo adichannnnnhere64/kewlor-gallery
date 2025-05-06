@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LiveEventGalleryController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -97,4 +98,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('category', [CategoryController::class, 'index'])->name('category.index')->middleware(['can:access-admin-panel']);
     Route::post('/category/{model}', [CategoryController::class, 'delete'])->name('category.delete')->middleware(['can:access-admin-panel']);
+
+    Route::get('user', [UserController::class, 'index'])->name('user.index')->middleware(['can:access-super-admin-panel']);
+    Route::post('/user/{model}', [UserController::class, 'delete'])->name('user.delete')->middleware(['can:access-super-admin-panel']);
+
 });

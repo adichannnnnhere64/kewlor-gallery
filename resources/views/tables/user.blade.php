@@ -1,19 +1,21 @@
 @if (isset($data) && $data->isNotEmpty())
     <x-ui.base-datatable
-        :headings="['#', 'Name', 'Date', 'Edit', 'Delete']"
+        :headings="['#',  'Name',   'Email', 'Edit', 'Delete']"
         :values="[
             [
                 'key' => 'id',
                 'type' => 'data'
             ],
+
             [
                 'key' => 'name',
                 'type' => 'data'
             ],
             [
-                'key' => 'created_at',
+                'key' => 'email',
                 'type' => 'data'
             ],
+
             [
                 'key' => 'manage',
                 'type' => 'edit'
@@ -24,15 +26,15 @@
             ],
         ]"
         :data="$data"
-        edit-route="live-event.edit"
-        delete-route="live-event.delete"
+        edit-route="user.edit"
+        delete-route="user.delete"
         edit-id="id"
         delete-id="id"
-        model="live-event"
-        :orderable="true"
+        model="user"
         table-striped
+        :orderable="false"
     >
     </x-ui.base-datatable>
 @else
-    No items found.
+    No categories found.
 @endif
