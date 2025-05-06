@@ -1,6 +1,6 @@
 @if (isset($data) && $data->isNotEmpty())
     <x-ui.base-datatable
-        :headings="['#', 'Name', 'Date', 'Edit', 'Delete']"
+        :headings="['#', 'Name', 'Date', 'View',  'Edit', 'Delete']"
         :values="[
             [
                 'key' => 'id',
@@ -16,6 +16,10 @@
             ],
             [
                 'key' => 'manage',
+                'type' => 'view'
+            ],
+            [
+                'key' => 'manage',
                 'type' => 'edit'
             ],
             [
@@ -25,6 +29,8 @@
         ]"
         :data="$data"
         edit-route="live-event.edit"
+        view-route="live-event.show"
+        view-id="id"
         delete-route="live-event.delete"
         edit-id="id"
         delete-id="id"

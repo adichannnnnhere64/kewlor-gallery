@@ -10,11 +10,7 @@
                 @endforeach
             </tr>
         </thead>
-        <tbody
-                        @if ($orderable)
-                            x-sort="handle"
-                        @endif
-                        x-on:sorted="$wire.updateOrder($event)">
+        <tbody @if ($orderable) x-sort="handle" @endif x-on:sorted="$wire.updateOrder($event)">
             @foreach ($data as $index => $item)
                 <tr x-data="{
                     showConfirm: false,
@@ -105,7 +101,7 @@
 
                             @php $actions = collect($value['type']); @endphp
 
-                            @if ($actions->contains('edit') || $actions->contains('delete'))
+                            @if ($actions->contains('edit') || $actions->contains('delete') || $actions->contains('view'))
                                 <div class="text-gray-700 px-6 py-3 flex items-center justify-center">
                                     @if ($actions->contains('edit'))
                                         @if (!empty($editRoute) && !empty($editId))
@@ -121,6 +117,14 @@
                                                 href="#" x-on:click.prevent="showConfirm = true">Delete</a>
                                         @else
                                             <span class="text-xs">Delete route & id not provided</span>
+                                        @endif
+                                    @endif
+                                    @if ($actions->contains('view'))
+                                        @if (!empty($viewRoute) && !empty($viewId))
+                                            <a class="transition duration-500 ease-in-out underline underline-indigo-200 text-indigo-500 mr-2"
+                                                href="{{ route($viewRoute, ['id' => $item[$viewId]]) }}">View</a>
+                                        @else
+                                            <span class="text-xs">View route & id not provided</span>
                                         @endif
                                     @endif
                                 </div>
