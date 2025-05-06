@@ -6,17 +6,40 @@ import Quill from 'quill';
 window.Quill = Quill;
 
 
-document.addEventListener('DOMContentLoaded', function() {
+function fixQuillToolbar() {
     setTimeout(() => {
         const toolbars = document.querySelectorAll('.ql-toolbar.ql-snow');
         if (toolbars.length > 1) {
-            // Remove the first toolbar
-            toolbars[0].remove();
-
-            // Ensure the remaining toolbar is visible
-            if (toolbars[1]) {
-                toolbars[1].style.display = '';
-            }
+            // Remove all but the last toolbar
+            toolbars.forEach((toolbar, index) => {
+                if (index !== toolbars.length - 1) {
+                    toolbar.remove();
+                }
+            });
         }
     }, 100);
-});
+}
+
+
+
+document.addEventListener('DOMContentLoaded', fixQuillToolbar);
+
+
+window.addEventListener('edit-content', event => {
+    setTimeout(() => {
+        // Only target toolbars inside .edit blocks (edit mode)
+        document.querySelectorAll('.edit').forEach((editBlock) => {
+            const toolbars = editBlock.querySelectorAll('.ql-toolbar.ql-snow');
+            if (toolbars.length > 1) {
+                toolbars.forEach((toolbar, index) => {
+                    if (index !== toolbars.length - 1) {
+                        toolbar.remove();
+                    }
+                });
+            }
+        });
+    }, 50);
+
+})
+
+
