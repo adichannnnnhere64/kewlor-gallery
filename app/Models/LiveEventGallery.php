@@ -46,4 +46,24 @@ class LiveEventGallery extends Model implements Sortable
     {
         return $this->getMedia('default');
     }
+
+    public function getImageAttribute()
+    {
+
+        $media = $this->media()->reorder()->orderBy('order_column')->first();
+
+        if ($media?->aggregate_type === 'audio') {
+
+            return '/playholder.png';
+        }
+
+        if ($media?->aggregate_type === 'video') {
+
+            return $media->video_thumbnail ?? '/placeholder/jpg';
+
+        }
+
+
+        return $this->media()->reorder()->orderBy('order_column')->first()?->getUrl() ?? '/placeholder.jpg';
+    }
 }
