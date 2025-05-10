@@ -149,7 +149,11 @@ new class extends Component {
                             <div class="flex my-4 flex-row flex-wrap gap-4">
                                 @foreach ($images as $image)
                                     <div class="flex justify-center flex-col items-center">
-                                        <img src="{{ $image->getUrl() ?? $image?->video_thumbnail }}"
+                                        <img
+
+   src="{{ $image->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail }}"
+
+
                                             alt="{{ $image->name }}" class="w-34 h-34 rounded-lg object-cover" />
                                         <button wire:confirm="Are you sure you want to delete this image?"
                                             wire:click="deleteImage({{ $image->id }})"
