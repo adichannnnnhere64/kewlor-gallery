@@ -53,7 +53,7 @@ $save = function () {
 
 
 
-<div class="">
+<div class="z-50">
     <div class="bg-white w-full p-4">
         <div class="flex items-center justify-between border-b pb-4 mb-4">
             <h2 class="text-xl font-bold">Create Idea for {{ $this->category }}</h2>

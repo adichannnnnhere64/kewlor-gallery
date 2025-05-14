@@ -3,7 +3,7 @@
 ])
 
 
-<div x-cloak x-data x-init="uppy = new Uppy.Uppy({
+<div class="z-50" x-cloak x-data x-init="uppy = new Uppy.Uppy({
         autoProceed: false,
         allowMultipleUploads: true,
         debug: false,
@@ -18,6 +18,7 @@
                 'image/webp',
                 'image/svg+xml',
                 'video/mp4',
+                'video/x-matroska',
                 'video/webm',
                 'video/quicktime',
                 'audio/mpeg',
@@ -69,6 +70,7 @@ uppy.on('file-added', (file) => {
         'image/webp',
         'image/svg+xml',
         'video/mp4',
+        'video/x-matroska',
         'video/webm',
         'video/quicktime',
         'audio/mpeg',

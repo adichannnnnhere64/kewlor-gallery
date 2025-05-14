@@ -142,12 +142,14 @@ return [
         Plank\Mediable\Media::TYPE_VIDEO => [
             'mime_types' => [
                 'video/mp4',
+                'video/x-matroska',
                 'video/mpeg',
                 'video/ogg',
                 'video/webm',
             ],
             'extensions' => [
                 'mp4',
+                'mkv',
                 'm4v',
                 'mov',
                 'ogv',
