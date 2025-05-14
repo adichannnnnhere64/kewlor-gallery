@@ -43,6 +43,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->role === 'admin' || $user->role === 'super-admin';
         });
 
+        Gate::define('viewHorizon', function (User $user) {
+            return in_array($user->email, [
+                'test@yahoo.com',
+            ]);
+        });
+
         Gate::define('access-super-admin-panel', function (User $user) {
             return $user->role === 'super-admin';
         });
