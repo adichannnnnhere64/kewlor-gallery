@@ -17,6 +17,6 @@ final class UploadVideo
 
         // Dispatch the job with the temporary path
         ProcessVideoUpload::dispatch($model, $tempPath)
-            ->onQueue('default');
+            ->onQueue('media');
     }
 }
