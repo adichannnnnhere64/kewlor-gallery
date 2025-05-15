@@ -62,12 +62,14 @@ class ProcessVideoUpload implements ShouldQueue
                 if (!file_exists($convertedPath) || filesize($convertedPath) < 1024) {
                     Log::error("FFmpeg conversion failed for: " . $this->tempFilePath);
                     Log::error("FFmpeg output: " . $output);
-                    Storage::delete($this->tempFilePath);
                     throw new \RuntimeException('Video conversion failed or produced an invalid file');
                 }
 
                 $finalPath = $convertedPath;
-                Storage::delete($this->tempFilePath); // Remove original MKV
+                // Only delete the original MKV after successful conversion and only if we're not going to need it for retry
+                if ($this->attempts() >= $this->tries) {
+                    Storage::delete($this->tempFilePath);
+                }
                 Log::info("Conversion completed successfully");
             }
 
@@ -114,7 +116,7 @@ class ProcessVideoUpload implements ShouldQueue
             $this->model->attachMedia($videoMedia, ['default']);
             Log::info("Media attached to model successfully");
 
-            // Delete the temporary file if it still exists
+            // Delete the temporary file if it still exists and we're not going to need it for retry
             if (Storage::exists($this->tempFilePath)) {
                 Storage::delete($this->tempFilePath);
             }
@@ -123,15 +125,26 @@ class ProcessVideoUpload implements ShouldQueue
 
         } catch (\Exception $e) {
             Log::error("Error processing video: " . $e->getMessage());
-            // Clean up any temporary files that might be left
-            $this->cleanupTemporaryFiles();
+
+            // Only clean up temporary files if we've exhausted all retry attempts
+            if ($this->attempts() >= $this->tries) {
+                $this->cleanupTemporaryFiles();
+                Log::info("Cleaning up files after final attempt");
+            } else {
+                Log::info("Not cleaning up files as job will be retried. Current attempt: " . $this->attempts());
+                // Only clean up intermediate files, not the original
+                $this->cleanupIntermediateFiles();
+            }
+
             throw $e; // Rethrow to mark job as failed
         }
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::error("Video processing job failed: " . $exception->getMessage());
+        Log::error("Video processing job failed permanently: " . $exception->getMessage());
+
+        // This is only called after all retries are exhausted
         $this->cleanupTemporaryFiles();
     }
 
@@ -140,20 +153,28 @@ class ProcessVideoUpload implements ShouldQueue
         // Clean up the original temp file
         if (isset($this->tempFilePath) && Storage::exists($this->tempFilePath)) {
             Storage::delete($this->tempFilePath);
+            Log::info("Cleaned up original temp file: " . $this->tempFilePath);
         }
 
-        // Try to identify and clean up any other temporary files this job might have created
+        // Clean up intermediate files too
+        $this->cleanupIntermediateFiles();
+    }
+
+    private function cleanupIntermediateFiles(): void
+    {
+        // Try to identify and clean up any intermediate temporary files this job might have created
+        // but preserve the original file for potential retries
         $baseName = pathinfo($this->tempFilePath, PATHINFO_FILENAME);
         $potentialTempFiles = [
-            storage_path('app/tmp/converted_*' . $baseName . '*.mp4'),
-            storage_path('app/tmp/thumb_*' . $baseName . '*.jpg')
+            storage_path('app/tmp/converted_*.mp4'),
+            storage_path('app/tmp/thumb_*.jpg')
         ];
 
         foreach ($potentialTempFiles as $pattern) {
             foreach (glob($pattern) as $file) {
                 if (file_exists($file)) {
                     unlink($file);
-                    Log::info("Cleaned up temp file: " . $file);
+                    Log::info("Cleaned up intermediate temp file: " . $file);
                 }
             }
         }
