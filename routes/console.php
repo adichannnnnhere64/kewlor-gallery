@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
 
-Schedule::command('queue:work --queue=media --stop-when-empty --timeout=300')->name('inspire')
+Schedule::command('queue:work  --queue=media --stop-when-empty --timeout=300')->name('workit')
+    ->runInBackground()
+    ->everyMinute();
+
+Schedule::command('queue:retry  --queue=media')->name('retry')
     ->runInBackground()
     ->everyMinute();
