@@ -8,6 +8,5 @@ use Illuminate\Support\Facades\Schedule;
 
 
 Schedule::command('queue:work --queue=media --stop-when-empty --timeout=300')->name('inspire')
-    ->withoutOverlapping()
     ->runInBackground()
     ->everyMinute();
