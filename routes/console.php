@@ -7,4 +7,4 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
 
-Schedule::command('queue:process --timeout=600')->name('inspire')->withoutOverlapping()->everySecond();
+Schedule::command('queue:work --silent --timeout=600')->name('inspire')->withoutOverlapping()->everySecond();
