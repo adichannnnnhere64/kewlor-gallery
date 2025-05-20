@@ -108,7 +108,8 @@ new class extends Component {
         LiveEventGallery::setNewOrder($updated->toArray());
         $this->fetchEvents();
     }
-};
+
+ };
 
 ?>
 
@@ -118,7 +119,13 @@ new class extends Component {
 
     @volt('ideas.show')
 
+
+
         <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }">
+
+            <div className="z-50">
+                @livewire('wire-elements-modal')
+            </div>
             <div class="flex max-w-6xl mx-auto justify-between items-center  py-4">
                 <div class="w-20">
                     <x-ui.button tag="a" type="secondary" href="{{ route('gallery-index') }}" class="mb-8 inline">
@@ -148,7 +155,7 @@ new class extends Component {
                 <h1 class="font-bold text-primary-700 text-2xl">{{ $category->name }}</h1>
             </div>
 
-            @livewire('wire-elements-modal')
+
 
             <div class="flex md:flex-row space-x-4 flex-col space-y-2  justify-between items-start ">
                 <div class="w-full">
@@ -181,9 +188,7 @@ new class extends Component {
                             <div x-sort:item="{{ $liveEvent->id }}" wire:key="key-{{ $liveEvent->id }}">
                                 <div class="relative group">
                                     <div
-                                        class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
-
-
+                                        class="absolute z-5 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
                                         <button wire:key="edit-btn-{{ $liveEvent->id }}" x-data="{ showAlert: false }"
                                             @idea-updated.window="$wire.$refresh()"
                                             class="px-1 py-1 rounded-md text-white bg-primary-700  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity"
@@ -227,8 +232,9 @@ new class extends Component {
                                             ->first()
                                             ?->findVariant('thumbnail')
                                             ?->getUrl() ??
-                                            $liveEvent->getMedia('default')->sortBy('order_column')->first()
-                                                ?->video_thumbnail ?? '/placeholder.jpg'" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
+                                            ($liveEvent->getMedia('default')->sortBy('order_column')->first()
+                                                ?->video_thumbnail ??
+                                                '/placeholder.jpg')" :detailsUrl="route('live-event.show', ['id' => $liveEvent->id])" />
                                 </div>
                             </div>
                         @endforeach

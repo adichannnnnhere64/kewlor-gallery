@@ -124,7 +124,7 @@ new class extends Component {
                         @foreach ($this->liveEvents as $key => $liveEvent)
                             <div class="relative group" wire:key="mcard-{{ $liveEvent->id }}-{{ $this->sortBy }}-{{ $this->categoryFilter }}-{{ now()->timestamp }}">
                                 <div
-                                    class="absolute z-20 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+                                    class="absolute z-5 top-0  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
 
 
                                     <button x-data="{ showAlert: false }" @idea-updated.window="$wire.$refresh()"
