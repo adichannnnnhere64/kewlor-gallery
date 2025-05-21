@@ -6,6 +6,8 @@ use function Livewire\Volt\{state, with};
 use Livewire\Volt\Component;
 use App\Models\LiveEventGallery;
 use App\Models\Media;
+use App\Models\MediaGroup;
+use App\Models\LiveEventGalleryMediaGroup;
 use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -52,6 +54,8 @@ new class extends Component {
     {
         $liveEvent = LiveEventGallery::findOrFail($this->id);
         $this->images = $liveEvent->media()->withLikeCounts()->withPivot('tag')->where('is_approved', 0)->where('tag', 'default')->reorder()->orderBy('order_column')->paginate(20);
+
+        $this->media_groups = $this->media_groups();
     }
 
     #[Computed]
@@ -68,14 +72,32 @@ new class extends Component {
             ->when($this->type && $this->type != 'all', function ($query) {
                 $query->where('aggregate_type', $this->type);
             })
-            ->where('is_approved', 0)
             ->orderBy('order_column')
             ->paginate(20);
-
 
         return $bargo;
     }
 
+    #[Computed]
+    public function media_groups()
+    {
+        $liveEvent = LiveEventGallery::findOrFail($this->id);
+        $groups = MediaGroup::query()->get();
+
+        // Load media for each group
+        foreach ($groups as $group) {
+            $group->media = $group->media()
+                ->withLikeCounts()
+                ->when($this->type && $this->type != 'all', function ($query) {
+                    $query->where('aggregate_type', $this->type);
+                })
+                ->reorder()
+                ->orderBy('pivot_order_column')
+                ->get();
+        }
+
+        return $groups;
+    }
 
     #[Computed]
     public function approvedImages()
@@ -95,11 +117,8 @@ new class extends Component {
             ->orderBy('order_column')
             ->paginate(20);
 
-
         return $bargo;
     }
-
-
 
     #[On('refresh')]
     public function refresh()
@@ -112,16 +131,104 @@ new class extends Component {
         Media::find($id)->delete();
     }
 
-    public function updateOrder(Media $media, $item)
+    public function updateOrder($payload, $item, $groupId = null)
     {
-        $originalIds = collect($this->images->items())->pluck('id');
-        $updated = $originalIds->reject(fn($id) => $id == $media->id);
-        $updated->splice($item, 0, [$media->id]);
-        Media::setNewOrder($updated->toArray());
+        // Extract image ID and source group ID from payload
+        $imageId = $payload[0];
+        $sourceGroupId = $payload[1] ?? null;
+        $targetGroupId = $groupId ?? $sourceGroupId;
+
+        // Get the media item
+        $media = Media::find($imageId);
+
+        if (!$media) {
+            return;
+        }
+
+        // If moving between groups
+        if ($sourceGroupId != $targetGroupId && $targetGroupId) {
+            // Get the live event
+            $liveEvent = LiveEventGallery::findOrFail($this->id);
+
+            // Detach from old group if needed
+            if ($sourceGroupId) {
+                $media->media_groups()->detach($sourceGroupId);
+            }
+
+            // Get the target group
+            $targetGroup = MediaGroup::find($targetGroupId);
+
+            // Handle special case for adding to end of group
+            if ($item >= 999) {
+                // Get the count of media in the target group to add at the end
+                $mediaCount = $targetGroup->media()->count();
+                $media->media_groups()->attach($targetGroupId, ['order_column' => $mediaCount + 1]);
+            } else {
+                // Attach to new group with proper order at the specified position
+                $targetMedia = $targetGroup->media()->orderBy('pivot_order_column')->get();
+                $mediaIds = $targetMedia->pluck('id')->toArray();
+
+                // Insert the new media ID at the specified position
+                array_splice($mediaIds, $item, 0, [$imageId]);
+
+                // Attach with initial order
+                $media->media_groups()->attach($targetGroupId);
+
+                // Update the order of all items in the target group
+                foreach ($mediaIds as $index => $id) {
+                    \DB::table('media_group_media')
+                        ->where('media_group_id', $targetGroupId)
+                        ->where('media_id', $id)
+                        ->update(['order_column' => $index + 1]);
+                }
+            }
+        } else {
+            // Update order within the same group
+            $group = MediaGroup::find($sourceGroupId);
+
+            // Get all media in the current group with proper ordering
+            $allMedia = $group->media()->orderBy('pivot_order_column')->get();
+            $originalIds = $allMedia->pluck('id')->toArray();
+
+            // Remove the dragged item from the array
+            $updated = array_values(array_filter($originalIds, function($id) use ($imageId) {
+                return $id != $imageId;
+            }));
+
+            // Insert the dragged item at the new position
+            array_splice($updated, $item, 0, [$imageId]);
+
+            // Update the order of all items in the group
+            foreach ($updated as $index => $id) {
+                \DB::table('media_media_group')
+                    ->where('media_group_id', $sourceGroupId)
+                    ->where('media_id', $id)
+                    ->update(['order_column' => $index + 1]);
+            }
+        }
+
+        $this->fetchImages();
+        $this->dispatch('$refresh');
+    }
+
+    public function updateGroupOrder($payload, $item)
+    {
+        $originalIds = $this->media_groups->pluck('id');
+        $updated = $originalIds->reject(fn($id) => $id == $payload[0]);
+
+        $updated->splice($item, 0, [$payload[0]]);
+
+        foreach ($updated as $index => $groupId) {
+            \DB::table('live_event_gallery_media_group')
+                ->where('live_event_gallery_id', $this->id)
+                ->where('media_group_id', $groupId)
+                ->update(['order_column' => $index + 1]);
+        }
+
         $this->fetchImages();
     }
 
-   public function approveLiveEvent($id)
+    public function approveLiveEvent($id)
     {
         $media = Media::find($id);
         if ($media) {
@@ -131,7 +238,6 @@ new class extends Component {
 
         $this->dispatch('$refresh');
     }
-
 };
 ?>
 
@@ -174,19 +280,17 @@ new class extends Component {
             </div>
 
 
-            <div x-data="{ handle: (item, position) => $wire.updateOrder(item, position) }" class="mx-auto max-w-6xl">
+            <div class="mx-auto max-w-6xl">
 
                 <div class="flex md:flex-row flex-col space-y-2 justify-between items-center">
 
                     <div class="mr-8">
                         <h1 class=" font-bold text-primary-700 text-2xl">{{ $name }}</h1>
-                    <x-ui.description>
-                        {{ $description }}
-                    </x-ui.description>
+                        <x-ui.description>
+                            {{ $description }}
+                        </x-ui.description>
                     </div>
-
                     <div class="flex flex-col  space-x-2 space-y-4">
-
                         <div class="flex space-x-2 items-center">
                             <button class="w-34 bg-primary-700 hover:bg-primary-800 text-white font-bold py-2 px-4 rounded"
                                 wire:click="$dispatch('openModal', { component: 'modals.add-image-in-live-event', arguments: { liveEventId: {{ $id }} } })">
@@ -194,13 +298,8 @@ new class extends Component {
                             </button>
                             <a class="bg-orange-700 hover:bg-orange-800 text-white font-bold py-2 px-4 rounded"
                                 target="_blank" href="{{ route('live-event.edit', ['id' => $id]) }}">Edit </a>
-
                         </div>
                     </div>
-
-
-
-
                 </div>
 
                 <div class="flex justify-end mt-2">
@@ -216,122 +315,338 @@ new class extends Component {
                     </div>
                 </div>
 
+                <div x-data="{
+                    activeAccordions: [],
+                    draggedItem: null,
+                    draggedFromGroup: null
+                }" class="max-w-6xl mx-auto mb-8">
 
+                    <div class="overflow-hidden divide-y" x-data="{
+                        handle: (item, position, groupId) => $wire.updateOrder(item, position, groupId),
+                        initSort: function() {
+                            // Setup sortable for each group container
+                            document.querySelectorAll('[data-group-id]').forEach(container => {
+                                // Track positions within group
+                                let positions = [];
+                                let dragging = null;
+                                let targetIndex = -1;
+                                let sourceGroupId = null;
+                                let targetGroupId = null;
 
-                <div x-sort="handle" x-on:sorted="$wire.updateOrder($event)"
-                    class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
+                                // Make all image items draggable
+                                container.querySelectorAll('[x-sort\\:item]').forEach(item => {
+                                    item.setAttribute('draggable', 'true');
 
-                    @foreach ($this->images ?? [] as $key => $image)
-                        <div x-sort:item="{{ $image->id }}" class="" wire:key="{{ $image->id }}">
-                            <div class="relative group"">
-                                <div
-                                    class="absolute z-20 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+                                    // Store initial positions
+                                    const itemData = JSON.parse(item.getAttribute('x-sort:item'));
+                                    positions.push({
+                                        id: itemData[0],
+                                        groupId: itemData[1],
+                                        element: item
+                                    });
 
-                                        <button wire:click="approveLiveEvent({{ $image->id }})"
-                                            wire:key="approve-btn-{{ $liveEvent->id }}"
-                                            class="px-1 py-1 rounded-md text-white bg-green-400  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    // Drag start
+                                    item.addEventListener('dragstart', function(e) {
+                                        dragging = item;
+                                        const itemData = JSON.parse(this.getAttribute('x-sort:item'));
+                                        draggedItem = itemData;
+                                        sourceGroupId = itemData[1];
+                                        this.classList.add('opacity-50');
+                                        e.dataTransfer.effectAllowed = 'move';
+                                        e.dataTransfer.setData('text/plain', JSON.stringify(itemData));
+                                        e.stopPropagation();
+                                    });
+
+                                    // Drag end
+                                    item.addEventListener('dragend', function() {
+                                        this.classList.remove('opacity-50');
+                                        dragging = null;
+
+                                        // Reset all item styles
+                                        document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                            el.classList.remove('border-t-2', 'border-primary-500');
+                                        });
+                                    });
+
+                                    // Drag over
+                                    item.addEventListener('dragover', function(e) {
+                                        e.preventDefault();
+                                        if (dragging !== this) {
+                                            // Clear previous indicators
+                                            document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                el.classList.remove('border-t-2', 'border-primary-500');
+                                            });
+
+                                            // Show drop indicator
+                                            this.classList.add('border-t-2', 'border-primary-500');
+                                            targetIndex = Array.from(container.querySelectorAll('[x-sort\\:item]')).indexOf(this);
+                                        }
+                                    });
+
+                                    // Drop
+                                    item.addEventListener('drop', function(e) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+
+                                        if (dragging) {
+                                            const itemData = JSON.parse(this.getAttribute('x-sort:item'));
+                                            targetGroupId = itemData[1];
+                                            const draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+
+                                            // Get position in the target group
+                                            const position = Array.from(container.querySelectorAll('[x-sort\\:item]')).indexOf(this);
+
+                                            // Update order with the correct data
+                                            $wire.updateOrder(draggedData, position, targetGroupId);
+                                        }
+                                    });
+                                });
+
+                                // Prevent dragging on parent elements
+                                container.closest('.bg-white.dark\\:bg-gray-900').setAttribute('draggable', 'false');
+                            });
+
+                            // Prevent dragging on group headers
+                            document.querySelectorAll('.bg-white.dark\\:bg-gray-900').forEach(group => {
+                                group.setAttribute('draggable', 'false');
+
+                                group.addEventListener('dragstart', function(e) {
+                                    if (e.target.hasAttribute('x-sort:item')) return;
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                });
+                            });
+
+                            // Make empty group containers drop targets
+                            document.querySelectorAll('[data-group-id]').forEach(container => {
+                                // Only add drop handlers if the container is empty or for the container itself
+                                container.addEventListener('dragover', function(e) {
+                                    e.preventDefault();
+
+                                    // If we're dragging over the container itself (not an item)
+                                    if (e.target === this || !e.target.hasAttribute('x-sort:item')) {
+                                        e.dataTransfer.dropEffect = 'move';
+                                        this.classList.add('bg-gray-100', 'dark:bg-gray-800', 'border-2', 'border-dashed', 'border-primary-500');
+                                    }
+                                });
+
+                                container.addEventListener('dragleave', function(e) {
+                                    // Only remove styles if we're leaving the container itself
+                                    if (e.target === this) {
+                                        this.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'border-2', 'border-dashed', 'border-primary-500');
+                                    }
+                                });
+
+                                container.addEventListener('drop', function(e) {
+                                    // Only handle drop if we're dropping on the container itself (not an item)
+                                    if (e.target === this || !e.target.hasAttribute('x-sort:item')) {
+                                        e.preventDefault();
+                                        this.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'border-2', 'border-dashed', 'border-primary-500');
+
+                                        try {
+                                            const draggedData = e.dataTransfer.getData('text/plain');
+                                            if (draggedData) {
+                                                const parsedData = JSON.parse(draggedData);
+                                                const targetGroupId = parseInt(this.dataset.groupId);
+                                                const sourceGroupId = parsedData[1];
+                                                const imageId = parsedData[0];
+
+                                                // Add to the end of the group
+                                                $wire.updateOrder([imageId, sourceGroupId], 999, targetGroupId);
+                                            }
+                                        } catch (error) {
+                                            console.error('Error processing drop:', error);
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }" x-init="initSort()" wire:ignore>
+                        <div>
+                            @foreach ($this->media_groups as $index => $group)
+                            <div wire:key="group-{{ $group->id }}" x-data="{ id: {{ $index }} }"
+                                class="bg-white dark:bg-gray-900">
+
+                                <div class="flex justify-between items-center w-full py-3">
+                                    <button
+                                        @click.stop="activeAccordions.includes(id) ? activeAccordions = activeAccordions.filter(i => i !== id) : activeAccordions.push(id)"
+                                        class="flex justify-between items-center flex-grow text-left">
+                                        <span class="font-medium text-gray-900 dark:text-white">{{ $group->name }}</span>
+                                        <svg :class="activeAccordions.includes(id) ? 'rotate-180 transform' : ''"
+                                            class="w-5 h-5 transition-transform duration-200"
+                                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </button>
+
+                                    <div class="flex space-x-2 ml-2">
+                                        <button class="text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-check">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M5 12l5 5l10 -10" />
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                                <path
+                                                    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z">
+                                                </path>
+                                                <path d="M9 17h6"></path>
+                                                <path d="M9 13h6"></path>
                                             </svg>
-
                                         </button>
-
-
-
-                                    <button x-data
-                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
-                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round"
-                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
-                                    </button>
-
-
-
+                                        <button class="text-red-500 hover:text-red-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M4 7h16"></path>
+                                                <path d="M10 11v6"></path>
+                                                <path d="M14 11v6"></path>
+                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
-                                    :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
-                                    :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
+                                <div x-show="activeAccordions.includes(id)"
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 transform scale-95"
+                                    x-transition:enter-end="opacity-100 transform scale-100"
+                                    x-transition:leave="transition ease-in duration-100"
+                                    x-transition:leave-start="opacity-100 transform scale-100"
+                                    x-transition:leave-end="opacity-0 transform scale-95"
+                                    >
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 w-full p-4 min-h-[100px] transition-all duration-200" data-group-id="{{ $group->id }}">
+                                    @foreach ($group->media ?? [] as $key => $image)
+                                        <div x-sort:item="[{{ $image->id }}, {{ $group->id }}]" class="relative cursor-move border-transparent" wire:key="grid-{{ $image->id }}">
+                        {{ $image->id }}
+                                            <div class="relative group"">
+                                                <div
+                                                    class="absolute z-20 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
 
+                                                    <button wire:click="approveLiveEvent({{ $image->id }})"
+                                                        wire:key="approve-btn-{{ $liveEvent->id }}"
+                                                        class="px-1 py-1 rounded-md text-white bg-green-400  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M5 12l5 5l10 -10" />
+                                                        </svg>
+
+                                                    </button>
+
+
+
+                                                    <button x-data
+                                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
+                                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M4 7l16 0" />
+                                                            <path d="M10 11l0 6" />
+                                                            <path d="M14 11l0 6" />
+                                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                        </svg>
+                                                    </button>
+
+
+
+                                                </div>
+
+                                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type"
+                                                    :likesCount="$image->likes_count" :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id"
+                                                    :id="$image->id" :image="$image?->findVariant('thumbnail')?->getUrl() ??
+                                                        $image?->video_thumbnail" :showComment="true" :description="$date"
+                                                    :detailsUrl="route('public.image.show', ['id' => $image->id])" />
+
+                                            </div>
+                                     </div> @endforeach
+                            </div>
+                            <div class="mt-2 flex justify-end">
+                                <button
+                                    class="px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700 transition"
+                                    wire:click="$dispatch('openModal', { component: 'modals.edit-media-group', arguments: { groupId: {{ $group->id }} } })">
+                                    Edit Group
+                                </button>
                             </div>
                         </div>
-                    @endforeach
-                </div>
-
-
-                @if ($this?->images?->hasPages())
-                    <div class="mt-4 ">
-                        {{ $this->images->links() }}
                     </div>
-                @endif
-
-                    <br/>
-
-
-                    <hr/>
-
-                        <h1 class="my-8 font-bold text-primary-700 text-2xl">Approved Images</h1>
-
-
-                <div
-                    class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
-
-                    @foreach ($this->approvedImages ?? [] as $key => $image)
-                        <div wire:key="approved-{{ $image->id }}">
-                            <div class="relative group"">
-                                <div
-                                    class="absolute z-20 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
-                                    <button x-data
-                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
-                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round"
-                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
-                                    </button>
-
-
-
-                                </div>
-
-                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
-                                    :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
-                                    :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
-
-                            </div>
-                        </div>
                     @endforeach
-                </div>
-
-
-
-                <div class="my-4"></div>
-
-
-                <div class="comments">
-                    <x-notes.note :model="$this->liveEvent" />
                 </div>
             </div>
+        </div>
+
+
+
+
+        @if ($this?->images?->hasPages())
+            <div class="mt-4 ">
+                {{ $this->images->links() }}
+            </div>
+        @endif
+
+
+
+        <br />
+
+
+        <hr />
+
+        <h1 class="my-8 font-bold text-primary-700 text-2xl">Approved Images</h1>
+
+
+        <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
+
+            @foreach ($this->approvedImages ?? [] as $key => $image)
+                <div wire:key="approved-{{ $image->id }}">
+                    <div class="relative group"">
+                        <div
+                            class="absolute z-20 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+                            <button x-data
+                                @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
+                                class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M4 7l16 0" />
+                                    <path d="M10 11l0 6" />
+                                    <path d="M14 11l0 6" />
+                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                </svg>
+                            </button>
+
+
+
+                        </div>
+
+                        <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
+                            :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail"
+                            :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
+
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+
+
+        <div class="my-4"></div>
+
+
+        <div class="comments">
+            <x-notes.note :model="$this->liveEvent" />
+        </div>
+        </div>
 
         </div>
     @endvolt
