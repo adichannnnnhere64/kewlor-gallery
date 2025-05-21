@@ -87,6 +87,7 @@ new class extends Component {
         // Load media for each group
         foreach ($groups as $group) {
             $group->media = $group->media()
+                ->whereIn('id', $liveEvent->media()->pluck('id')->toArray())
                 ->withLikeCounts()
                 ->when($this->type && $this->type != 'all', function ($query) {
                     $query->where('aggregate_type', $this->type);
@@ -94,6 +95,7 @@ new class extends Component {
                 ->reorder()
                 ->orderBy('pivot_order_column')
                 ->get();
+
         }
 
         return $groups;
@@ -145,70 +147,89 @@ new class extends Component {
             return;
         }
 
-        // If moving between groups
-        if ($sourceGroupId != $targetGroupId && $targetGroupId) {
-            // Get the live event
-            $liveEvent = LiveEventGallery::findOrFail($this->id);
+        try {
+            // If moving between groups
+            if ($sourceGroupId != $targetGroupId && $targetGroupId) {
+                // Get the live event
+                $liveEvent = LiveEventGallery::findOrFail($this->id);
 
-            // Detach from old group if needed
-            if ($sourceGroupId) {
-                $media->media_groups()->detach($sourceGroupId);
-            }
+                // Detach from old group if needed
+                if ($sourceGroupId) {
+                    $media->media_groups()->detach($sourceGroupId);
+                }
 
-            // Get the target group
-            $targetGroup = MediaGroup::find($targetGroupId);
+                // Get the target group
+                $targetGroup = MediaGroup::find($targetGroupId);
 
-            // Handle special case for adding to end of group
-            if ($item >= 999) {
-                // Get the count of media in the target group to add at the end
-                $mediaCount = $targetGroup->media()->count();
-                $media->media_groups()->attach($targetGroupId, ['order_column' => $mediaCount + 1]);
+                // Handle special case for adding to end of group
+                if ($item >= 999) {
+                    // Get the count of media in the target group to add at the end
+                    $mediaCount = $targetGroup->media()->count();
+                    $media->media_groups()->attach($targetGroupId, ['order_column' => $mediaCount + 1]);
+                } else {
+                    // Attach to new group with proper order at the specified position
+                    $targetMedia = $targetGroup->media()->orderBy('pivot_order_column')->get();
+                    $mediaIds = $targetMedia->pluck('id')->toArray();
+
+                    // Insert the new media ID at the specified position
+                    array_splice($mediaIds, $item, 0, [$imageId]);
+
+                    // Attach with initial order
+                    $media->media_groups()->attach($targetGroupId);
+
+                    // Update the order of all items in the target group
+                    foreach ($mediaIds as $index => $id) {
+                        \DB::table('media_group_media')
+                            ->where('media_group_id', $targetGroupId)
+                            ->where('media_id', $id)
+                            ->update(['order_column' => $index + 1]);
+                    }
+                }
             } else {
-                // Attach to new group with proper order at the specified position
-                $targetMedia = $targetGroup->media()->orderBy('pivot_order_column')->get();
-                $mediaIds = $targetMedia->pluck('id')->toArray();
+                // Update order within the same group
+                $group = MediaGroup::find($sourceGroupId);
 
-                // Insert the new media ID at the specified position
-                array_splice($mediaIds, $item, 0, [$imageId]);
+                // Get all media in the current group with proper ordering
+                $allMedia = $group->media()->orderBy('pivot_order_column')->get();
+                $originalIds = $allMedia->pluck('id')->toArray();
 
-                // Attach with initial order
-                $media->media_groups()->attach($targetGroupId);
+                // Remove the dragged item from the array
+                $updated = array_values(array_filter($originalIds, function($id) use ($imageId) {
+                    return $id != $imageId;
+                }));
 
-                // Update the order of all items in the target group
-                foreach ($mediaIds as $index => $id) {
-                    \DB::table('media_group_media')
-                        ->where('media_group_id', $targetGroupId)
+                // Insert the dragged item at the new position
+                array_splice($updated, $item, 0, [$imageId]);
+
+                // Update the order of all items in the group
+                foreach ($updated as $index => $id) {
+                    \DB::table('media_media_group')
+                        ->where('media_group_id', $sourceGroupId)
                         ->where('media_id', $id)
                         ->update(['order_column' => $index + 1]);
                 }
             }
-        } else {
-            // Update order within the same group
-            $group = MediaGroup::find($sourceGroupId);
 
-            // Get all media in the current group with proper ordering
-            $allMedia = $group->media()->orderBy('pivot_order_column')->get();
-            $originalIds = $allMedia->pluck('id')->toArray();
+            // Update the media_groups property in the background
+            // We don't need to refresh the UI since we've already updated it optimistically
+            $this->media_groups = $this->media_groups();
 
-            // Remove the dragged item from the array
-            $updated = array_values(array_filter($originalIds, function($id) use ($imageId) {
-                return $id != $imageId;
-            }));
+            return [
+                'success' => true,
+                'sourceGroupId' => $sourceGroupId,
+                'targetGroupId' => $targetGroupId,
+                'mediaId' => $imageId
+            ];
+        } catch (\Exception $e) {
+            // If there's an error, we should refresh to get the correct state
+            $this->fetchImages();
+            $this->dispatch('$refresh');
 
-            // Insert the dragged item at the new position
-            array_splice($updated, $item, 0, [$imageId]);
-
-            // Update the order of all items in the group
-            foreach ($updated as $index => $id) {
-                \DB::table('media_media_group')
-                    ->where('media_group_id', $sourceGroupId)
-                    ->where('media_id', $id)
-                    ->update(['order_column' => $index + 1]);
-            }
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
         }
-
-        $this->fetchImages();
-        $this->dispatch('$refresh');
     }
 
     public function updateGroupOrder($payload, $item)
@@ -345,12 +366,17 @@ new class extends Component {
                                         element: item
                                     });
 
+                                    // Initialize global variables for drag and drop
+                                    window.dragging = null;
+                                    window.draggedItem = null;
+                                    window.sourceGroupId = null;
+
                                     // Drag start
                                     item.addEventListener('dragstart', function(e) {
-                                        dragging = item;
+                                        window.dragging = item;
                                         const itemData = JSON.parse(this.getAttribute('x-sort:item'));
-                                        draggedItem = itemData;
-                                        sourceGroupId = itemData[1];
+                                        window.draggedItem = itemData;
+                                        window.sourceGroupId = itemData[1];
                                         this.classList.add('opacity-50');
                                         e.dataTransfer.effectAllowed = 'move';
                                         e.dataTransfer.setData('text/plain', JSON.stringify(itemData));
@@ -360,7 +386,7 @@ new class extends Component {
                                     // Drag end
                                     item.addEventListener('dragend', function() {
                                         this.classList.remove('opacity-50');
-                                        dragging = null;
+                                        window.dragging = null;
 
                                         // Reset all item styles
                                         document.querySelectorAll('[x-sort\\:item]').forEach(el => {
@@ -371,7 +397,7 @@ new class extends Component {
                                     // Drag over
                                     item.addEventListener('dragover', function(e) {
                                         e.preventDefault();
-                                        if (dragging !== this) {
+                                        if (window.dragging !== this) {
                                             // Clear previous indicators
                                             document.querySelectorAll('[x-sort\\:item]').forEach(el => {
                                                 el.classList.remove('border-t-2', 'border-primary-500');
@@ -388,13 +414,97 @@ new class extends Component {
                                         e.preventDefault();
                                         e.stopPropagation();
 
-                                        if (dragging) {
+                                        if (window.dragging) {
                                             const itemData = JSON.parse(this.getAttribute('x-sort:item'));
                                             targetGroupId = itemData[1];
                                             const draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
 
                                             // Get position in the target group
                                             const position = Array.from(container.querySelectorAll('[x-sort\\:item]')).indexOf(this);
+
+                                            // Optimistic UI update - move the element immediately
+                                            if (sourceGroupId === targetGroupId) {
+                                                // Same group - reorder
+                                                const parent = dragging.parentNode;
+                                                if (position > Array.from(parent.children).indexOf(dragging)) {
+                                                    // Moving down
+                                                    parent.insertBefore(dragging, this.nextSibling);
+                                                } else {
+                                                    // Moving up
+                                                    parent.insertBefore(dragging, this);
+                                                }
+                                            } else {
+                                                // Different group - move between groups
+                                                const sourceContainer = dragging.parentNode;
+                                                const targetContainer = this.parentNode;
+
+                                                // Create a reference to the dragging variable for closures
+                                                let currentDragging = dragging;
+
+                                                // Clone the dragged element to avoid DOM issues when moving between groups
+                                                const clone = dragging.cloneNode(true);
+
+                                                // Update the data attribute for the new group
+                                                const itemData = JSON.parse(clone.getAttribute('x-sort:item'));
+                                                itemData[1] = targetGroupId; // Update the group ID
+                                                clone.setAttribute('x-sort:item', JSON.stringify(itemData));
+
+                                                // Remove from source
+                                                sourceContainer.removeChild(dragging);
+
+                                                // Add to target
+                                                if (position >= targetContainer.children.length) {
+                                                    targetContainer.appendChild(clone);
+                                                } else {
+                                                    targetContainer.insertBefore(clone, this);
+                                                }
+
+                                                // Make the clone draggable again
+                                                clone.setAttribute('draggable', 'true');
+
+                                                // Add event listeners to the clone
+                                                clone.addEventListener('dragstart', function(e) {
+                                                    // Use the global dragging variable
+                                                    window.dragging = clone;
+                                                    const cloneData = JSON.parse(this.getAttribute('x-sort:item'));
+                                                    window.draggedItem = cloneData;
+                                                    window.sourceGroupId = cloneData[1];
+                                                    this.classList.add('opacity-50');
+                                                    e.dataTransfer.effectAllowed = 'move';
+                                                    e.dataTransfer.setData('text/plain', JSON.stringify(cloneData));
+                                                    e.stopPropagation();
+                                                });
+
+                                                clone.addEventListener('dragend', function() {
+                                                    this.classList.remove('opacity-50');
+                                                    window.dragging = null;
+                                                    document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                        el.classList.remove('border-t-2', 'border-primary-500');
+                                                    });
+                                                });
+
+                                                clone.addEventListener('dragover', function(e) {
+                                                    e.preventDefault();
+                                                    if (window.dragging !== this) {
+                                                        document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                            el.classList.remove('border-t-2', 'border-primary-500');
+                                                        });
+                                                        this.classList.add('border-t-2', 'border-primary-500');
+                                                    }
+                                                });
+
+                                                clone.addEventListener('drop', function(e) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    if (window.dragging) {
+                                                        const dropData = JSON.parse(this.getAttribute('x-sort:item'));
+                                                        const dropGroupId = dropData[1];
+                                                        const dropDraggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                                                        const dropPosition = Array.from(this.parentNode.querySelectorAll('[x-sort\\:item]')).indexOf(this);
+                                                        $wire.updateOrder(dropDraggedData, dropPosition, dropGroupId);
+                                                    }
+                                                });
+                                            }
 
                                             // Update order with the correct data
                                             $wire.updateOrder(draggedData, position, targetGroupId);
@@ -445,11 +555,75 @@ new class extends Component {
 
                                         try {
                                             const draggedData = e.dataTransfer.getData('text/plain');
-                                            if (draggedData) {
+                                            if (draggedData && dragging) {
                                                 const parsedData = JSON.parse(draggedData);
                                                 const targetGroupId = parseInt(this.dataset.groupId);
                                                 const sourceGroupId = parsedData[1];
                                                 const imageId = parsedData[0];
+
+                                                // Optimistic UI update - move the element immediately
+                                                if (dragging) {
+                                                    const sourceContainer = dragging.parentNode;
+
+                                                    // Clone the dragged element to avoid DOM issues when moving between groups
+                                                    const clone = dragging.cloneNode(true);
+
+                                                    // Update the data attribute for the new group
+                                                    const itemData = JSON.parse(clone.getAttribute('x-sort:item'));
+                                                    itemData[1] = targetGroupId; // Update the group ID
+                                                    clone.setAttribute('x-sort:item', JSON.stringify(itemData));
+
+                                                    // Remove from source
+                                                    sourceContainer.removeChild(dragging);
+
+                                                    // Add to target (empty container)
+                                                    this.appendChild(clone);
+
+                                                    // Make the clone draggable again
+                                                    clone.setAttribute('draggable', 'true');
+
+                                                    // Add event listeners to the clone
+                                                    clone.addEventListener('dragstart', function(e) {
+                                                        window.dragging = clone;
+                                                        const cloneData = JSON.parse(this.getAttribute('x-sort:item'));
+                                                        window.draggedItem = cloneData;
+                                                        window.sourceGroupId = cloneData[1];
+                                                        this.classList.add('opacity-50');
+                                                        e.dataTransfer.effectAllowed = 'move';
+                                                        e.dataTransfer.setData('text/plain', JSON.stringify(cloneData));
+                                                        e.stopPropagation();
+                                                    });
+
+                                                    clone.addEventListener('dragend', function() {
+                                                        this.classList.remove('opacity-50');
+                                                        window.dragging = null;
+                                                        document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                            el.classList.remove('border-t-2', 'border-primary-500');
+                                                        });
+                                                    });
+
+                                                    clone.addEventListener('dragover', function(e) {
+                                                        e.preventDefault();
+                                                        if (window.dragging !== this) {
+                                                            document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                                el.classList.remove('border-t-2', 'border-primary-500');
+                                                            });
+                                                            this.classList.add('border-t-2', 'border-primary-500');
+                                                        }
+                                                    });
+
+                                                    clone.addEventListener('drop', function(e) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        if (window.dragging) {
+                                                            const dropData = JSON.parse(this.getAttribute('x-sort:item'));
+                                                            const dropGroupId = dropData[1];
+                                                            const dropDraggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                                                            const dropPosition = Array.from(this.parentNode.querySelectorAll('[x-sort\\:item]')).indexOf(this);
+                                                            $wire.updateOrder(dropDraggedData, dropPosition, dropGroupId);
+                                                        }
+                                                    });
+                                                }
 
                                                 // Add to the end of the group
                                                 $wire.updateOrder([imageId, sourceGroupId], 999, targetGroupId);
