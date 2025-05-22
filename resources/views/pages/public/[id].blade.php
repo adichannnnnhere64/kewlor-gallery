@@ -546,11 +546,11 @@ new class extends Component {
                                 });
 
                                 // Prevent dragging on parent elements
-                                container.closest('.bg-white.dark\\:bg-gray-900').setAttribute('draggable', 'false');
+                                container.closest('.bg-whitey.dark\\:bg-gray-900').setAttribute('draggable', 'false');
                             });
 
                             // Prevent dragging on group headers
-                            document.querySelectorAll('.bg-white.dark\\:bg-gray-900').forEach(group => {
+                            document.querySelectorAll('.bg-whitey.dark\\:bg-gray-900').forEach(group => {
                                 group.setAttribute('draggable', 'false');
 
                                 group.addEventListener('dragstart', function(e) {
@@ -684,7 +684,7 @@ new class extends Component {
                         <div className="">
                             @foreach ($this->media_groups as $index => $group)
                                 <div wire:key="group-{{ $group->id }}" x-data="{ id: {{ $index }} }"
-                                    class="bg-white dark:bg-gray-900">
+                                    class="bg-whitey dark:bg-gray-900">
 
                                     <div class="flex justify-between items-center w-full py-3">
                                         <button
@@ -713,7 +713,7 @@ new class extends Component {
                                                 drop here.</div>
                                         @endif
 
-                                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5  w-full min-h-[100px] transition-all duration-200"
+                                        <div class="grid grid-cols-5  w-full min-h-[100px] transition-all duration-200"
                                             data-group-id="{{ $group->id }}">
 
 
