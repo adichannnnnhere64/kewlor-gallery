@@ -95,7 +95,7 @@ new class extends Component {
                 })
                 ->reorder()
                 ->orderBy('pivot_order_column')
-                ->get();
+                ->get()->unique('id');
         }
 
         return $groups;
@@ -136,6 +136,7 @@ new class extends Component {
 
     public function updateOrder($payload, $item, $groupId = null)
     {
+
         // Extract image ID and source group ID from payload
         $imageId = $payload[0];
         $sourceGroupId = $payload[1] ?? null;
@@ -191,7 +192,7 @@ new class extends Component {
                 $group = MediaGroup::find($sourceGroupId);
 
                 // Get all media in the current group with proper ordering
-                $allMedia = $group->media()->orderBy('pivot_order_column')->get();
+                $allMedia = $group->media()->reorder()->orderBy('pivot_order_column')->get();
                 $originalIds = $allMedia->pluck('id')->toArray();
 
                 // Remove the dragged item from the array
@@ -235,33 +236,6 @@ new class extends Component {
         }
     }
 
-    public function updateGroupOrder($payload, $item)
-    {
-        $originalIds = $this->media_groups->pluck('id');
-        $updated = $originalIds->reject(fn($id) => $id == $payload[0]);
-
-        $updated->splice($item, 0, [$payload[0]]);
-
-        foreach ($updated as $index => $groupId) {
-            \DB::table('live_event_gallery_media_group')
-                ->where('live_event_gallery_id', $this->id)
-                ->where('media_group_id', $groupId)
-                ->update(['order_column' => $index + 1]);
-        }
-
-        $this->fetchImages();
-    }
-
-    public function approveLiveEvent($id)
-    {
-        $media = Media::find($id);
-        if ($media) {
-            $media->is_approved = true;
-            $media->save();
-        }
-
-        $this->dispatch('$refresh');
-    }
 };
 ?>
 
@@ -720,8 +694,10 @@ new class extends Component {
                                             @foreach ($group->media ?? [] as $key => $image)
                                                 <div x-sort:item="[{{ $image->id }}, {{ $group->id }}]"
                                                     class="relative cursor-move border-transparent"
-                                                    wire:key="grid-{{ $image->id }}">
+                                                    wire:key="grid-{{ $image->id }}-{{ $group->id }}">
                                                     <div class="relative group"">
+                        {{ $image->id }}
+
                                                         <div
                                                             class="absolute z-50 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
                                                             <button x-data
@@ -775,56 +751,10 @@ new class extends Component {
                     </div>
                 @endif
 
-
-
                 <br />
-
-
                 <hr />
 
-                <h1 class="my-8 font-bold text-primary-700 text-2xl">Approved Images</h1>
-
-
-                <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
-
-                    @foreach ($this->approvedImages ?? [] as $key => $image)
-                        <div wire:key="approved-{{ $image->id }}">
-                            <div class="relative group"">
-                                <div
-                                    class="absolute z-50 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
-                                    <button x-data
-                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
-                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round"
-                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
-                                    </button>
-
-
-
-                                </div>
-
-                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
-                                    :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
-                                    :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
-
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-
-
                 <div class="my-4"></div>
-
 
                 <div class="comments">
                     <x-notes.note :model="$this->liveEvent" />
