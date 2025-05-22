@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\Media;
+use App\Models\MediaGroup;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +21,7 @@ use Plank\Mediable\ImageManipulation;
 class ProcessImageUpload implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
 
     public function __construct(
         protected Model $model,
@@ -66,6 +69,10 @@ class ProcessImageUpload implements ShouldQueue
             ->upload();
 
         $this->model->attachMedia($media, ['default']);
+
+        $media->media_groups()->sync([
+            MediaGroup::first()->id
+        ]);
 
         // Create variants
         ImageManipulator::createImageVariant($media, 'thumbnail');

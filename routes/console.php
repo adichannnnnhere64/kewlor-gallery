@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('queue:work  --queue=media --stop-when-empty --timeout=300')->name('workit')
     ->runInBackground()
-    ->everyMinute();
+    ->everyFiveSeconds();
 
 Schedule::command('queue:retry  --queue=media')->name('retry')
     ->runInBackground()

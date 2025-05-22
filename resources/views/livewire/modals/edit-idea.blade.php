@@ -90,7 +90,7 @@ $update = function () {
 
         @if ($this->liveEvent->id)
             <div wire:ignore>
-                <x-ui.app.uppy :endpoint="route('upload', $this->liveEvent->id)">
+                <x-ui.app.uppy :model-id="$this->liveEvent->id" :endpoint="route('upload', $this->liveEvent->id)">
                 </x-ui.app.uppy>
             </div>
 

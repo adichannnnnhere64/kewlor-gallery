@@ -1,6 +1,8 @@
 <?php
 namespace App\Jobs;
 use App\Models\LiveEventGallery;
+use App\Models\MediaGroup;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,6 +15,7 @@ use Plank\Mediable\Facades\MediaUploader;
 class ProcessVideoUpload implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
 
     // Set reasonable limits to prevent runaway processes
     public $timeout = 600;     // 10 minutes max execution time
@@ -114,6 +117,11 @@ class ProcessVideoUpload implements ShouldQueue
             }
 
             $this->model->attachMedia($videoMedia, ['default']);
+
+            $videoMedia->media_groups()->sync([
+                MediaGroup::first()->id
+            ]);
+
             Log::info("Media attached to model successfully");
 
             // Delete the temporary file if it still exists and we're not going to need it for retry

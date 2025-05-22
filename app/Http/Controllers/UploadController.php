@@ -6,7 +6,9 @@ use App\Actions\UploadAudio;
 use App\Actions\UploadImage;
 use App\Actions\UploadVideo;
 use App\Http\Requests\UploadRequest;
+use App\Jobs\ProcessBatchUpload;
 use App\Models\LiveEventGallery;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class UploadController extends Controller
@@ -26,8 +28,7 @@ class UploadController extends Controller
             $uploadVideo->handle($model, $file);
         } elseif (str_starts_with($file->getMimeType(), 'audio/')) {
             $uploadAudio->handle($model, $file);
-        }
-        else {
+        } else {
             return response()->json([
                 'message' => 'Unsupported file type',
             ], 422);
@@ -37,5 +38,19 @@ class UploadController extends Controller
             'message' => 'Upload successful',
         ]);
     }
-}
 
+
+    public function complete(int $modelId, Request $request)
+    {
+        $model = LiveEventGallery::find($modelId);
+        $uploadId = $request->input('uploadId');
+
+        ProcessBatchUpload::dispatch($model, $uploadId)
+            ->onQueue('media');
+
+        return response()->json([
+            'message' => 'Batch processing started',
+            'uploadId' => $uploadId,
+        ]);
+    }
+}

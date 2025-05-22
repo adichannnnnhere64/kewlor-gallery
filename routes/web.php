@@ -87,6 +87,7 @@ Route::middleware('auth')->group(function (): void {
         ->name('logout');
 
     Route::post('upload/{model}', [UploadController::class, 'store'])->name('upload');
+    Route::post('complete/{model}', [UploadController::class, 'complete'])->name('complete');
     /* Route::post('live-event', [LiveEventGalleryController::class, 'store'])->name('live-event.create'); */
     Route::get('live-event', [LiveEventGalleryController::class, 'index'])->name('live-event.index')->middleware(['can:access-admin-panel']);
     Route::post('/live-event/{model}', [LiveEventGalleryController::class, 'delete'])->name('live-event.delete')->middleware(['can:access-admin-panel']);

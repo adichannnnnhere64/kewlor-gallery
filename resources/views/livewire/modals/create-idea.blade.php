@@ -100,7 +100,7 @@ $save = function () {
 
         @if ($this->modelId)
             <div wire:ignore>
-                <x-ui.app.uppy :endpoint="route('upload', $this->modelId)">
+                <x-ui.app.uppy :modelId="$this->modelId" :endpoint="route('upload', $this->modelId)">
                 </x-ui.app.uppy>
             </div>
         @endif

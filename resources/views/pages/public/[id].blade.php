@@ -86,7 +86,8 @@ new class extends Component {
 
         // Load media for each group
         foreach ($groups as $group) {
-            $group->media = $group->media()
+            $group->media = $group
+                ->media()
                 ->whereIn('id', $liveEvent->media()->pluck('id')->toArray())
                 ->withLikeCounts()
                 ->when($this->type && $this->type != 'all', function ($query) {
@@ -95,7 +96,6 @@ new class extends Component {
                 ->reorder()
                 ->orderBy('pivot_order_column')
                 ->get();
-
         }
 
         return $groups;
@@ -130,6 +130,7 @@ new class extends Component {
 
     public function deleteImage(int $id)
     {
+        Media::find($id)->media_groups()->detach();
         Media::find($id)->delete();
     }
 
@@ -194,9 +195,11 @@ new class extends Component {
                 $originalIds = $allMedia->pluck('id')->toArray();
 
                 // Remove the dragged item from the array
-                $updated = array_values(array_filter($originalIds, function($id) use ($imageId) {
-                    return $id != $imageId;
-                }));
+                $updated = array_values(
+                    array_filter($originalIds, function ($id) use ($imageId) {
+                        return $id != $imageId;
+                    }),
+                );
 
                 // Insert the dragged item at the new position
                 array_splice($updated, $item, 0, [$imageId]);
@@ -218,7 +221,7 @@ new class extends Component {
                 'success' => true,
                 'sourceGroupId' => $sourceGroupId,
                 'targetGroupId' => $targetGroupId,
-                'mediaId' => $imageId
+                'mediaId' => $imageId,
             ];
         } catch (\Exception $e) {
             // If there's an error, we should refresh to get the correct state
@@ -227,7 +230,7 @@ new class extends Component {
 
             return [
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ];
         }
     }
@@ -337,10 +340,12 @@ new class extends Component {
                 </div>
 
                 <div x-data="{
-                    activeAccordions: [],
+                    activeAccordions: [
+                        @foreach ($this->media_groups as $index => $group){{ $index }}{{ !$loop->last ? ',' : '' }} @endforeach
+                    ],
                     draggedItem: null,
                     draggedFromGroup: null
-                }" class="max-w-6xl mx-auto mb-8">
+                }" class="max-w-6xl mx-auto my-12">
 
                     <div class="overflow-hidden divide-y" x-data="{
                         handle: (item, position, groupId) => $wire.updateOrder(item, position, groupId),
@@ -367,12 +372,19 @@ new class extends Component {
                                     });
 
                                     // Initialize global variables for drag and drop
-                                    window.dragging = null;
-                                    window.draggedItem = null;
-                                    window.sourceGroupId = null;
+                                    if (typeof window.dragging === 'undefined') {
+                                        window.dragging = null;
+                                        window.draggedItem = null;
+                                        window.sourceGroupId = null;
+                                    }
 
                                     // Drag start
                                     item.addEventListener('dragstart', function(e) {
+                                        // Clear any previous dragging state
+                                        document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                            el.classList.remove('opacity-50');
+                                        });
+
                                         window.dragging = item;
                                         const itemData = JSON.parse(this.getAttribute('x-sort:item'));
                                         window.draggedItem = itemData;
@@ -386,17 +398,24 @@ new class extends Component {
                                     // Drag end
                                     item.addEventListener('dragend', function() {
                                         this.classList.remove('opacity-50');
-                                        window.dragging = null;
 
                                         // Reset all item styles
                                         document.querySelectorAll('[x-sort\\:item]').forEach(el => {
                                             el.classList.remove('border-t-2', 'border-primary-500');
                                         });
+
+                                        // Clear dragging state with a small delay to allow drop handlers to complete
+                                        setTimeout(() => {
+                                            window.dragging = null;
+                                            window.draggedItem = null;
+                                        }, 50);
                                     });
 
                                     // Drag over
                                     item.addEventListener('dragover', function(e) {
                                         e.preventDefault();
+                                        e.dataTransfer.dropEffect = 'move';
+
                                         if (window.dragging !== this) {
                                             // Clear previous indicators
                                             document.querySelectorAll('[x-sort\\:item]').forEach(el => {
@@ -423,26 +442,28 @@ new class extends Component {
                                             const position = Array.from(container.querySelectorAll('[x-sort\\:item]')).indexOf(this);
 
                                             // Optimistic UI update - move the element immediately
-                                            if (sourceGroupId === targetGroupId) {
+                                            if (window.sourceGroupId === targetGroupId) {
                                                 // Same group - reorder
-                                                const parent = dragging.parentNode;
-                                                if (position > Array.from(parent.children).indexOf(dragging)) {
+                                                const parent = window.dragging.parentNode;
+                                                const draggedIndex = Array.from(parent.children).indexOf(window.dragging);
+
+                                                if (position > draggedIndex) {
                                                     // Moving down
-                                                    parent.insertBefore(dragging, this.nextSibling);
+                                                    parent.insertBefore(window.dragging, this.nextSibling);
                                                 } else {
                                                     // Moving up
-                                                    parent.insertBefore(dragging, this);
+                                                    parent.insertBefore(window.dragging, this);
                                                 }
                                             } else {
                                                 // Different group - move between groups
-                                                const sourceContainer = dragging.parentNode;
+                                                const sourceContainer = window.dragging.parentNode;
                                                 const targetContainer = this.parentNode;
 
                                                 // Create a reference to the dragging variable for closures
-                                                let currentDragging = dragging;
+                                                let currentDragging = window.dragging;
 
                                                 // Clone the dragged element to avoid DOM issues when moving between groups
-                                                const clone = dragging.cloneNode(true);
+                                                const clone = window.dragging.cloneNode(true);
 
                                                 // Update the data attribute for the new group
                                                 const itemData = JSON.parse(clone.getAttribute('x-sort:item'));
@@ -450,7 +471,7 @@ new class extends Component {
                                                 clone.setAttribute('x-sort:item', JSON.stringify(itemData));
 
                                                 // Remove from source
-                                                sourceContainer.removeChild(dragging);
+                                                sourceContainer.removeChild(window.dragging);
 
                                                 // Add to target
                                                 if (position >= targetContainer.children.length) {
@@ -464,6 +485,11 @@ new class extends Component {
 
                                                 // Add event listeners to the clone
                                                 clone.addEventListener('dragstart', function(e) {
+                                                    // Clear any previous dragging state
+                                                    document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                        el.classList.remove('opacity-50');
+                                                    });
+
                                                     // Use the global dragging variable
                                                     window.dragging = clone;
                                                     const cloneData = JSON.parse(this.getAttribute('x-sort:item'));
@@ -477,14 +503,21 @@ new class extends Component {
 
                                                 clone.addEventListener('dragend', function() {
                                                     this.classList.remove('opacity-50');
-                                                    window.dragging = null;
                                                     document.querySelectorAll('[x-sort\\:item]').forEach(el => {
                                                         el.classList.remove('border-t-2', 'border-primary-500');
                                                     });
+
+                                                    // Clear dragging state with a small delay
+                                                    setTimeout(() => {
+                                                        window.dragging = null;
+                                                        window.draggedItem = null;
+                                                    }, 50);
                                                 });
 
                                                 clone.addEventListener('dragover', function(e) {
                                                     e.preventDefault();
+                                                    e.dataTransfer.dropEffect = 'move';
+
                                                     if (window.dragging !== this) {
                                                         document.querySelectorAll('[x-sort\\:item]').forEach(el => {
                                                             el.classList.remove('border-t-2', 'border-primary-500');
@@ -562,11 +595,11 @@ new class extends Component {
                                                 const imageId = parsedData[0];
 
                                                 // Optimistic UI update - move the element immediately
-                                                if (dragging) {
-                                                    const sourceContainer = dragging.parentNode;
+                                                if (window.dragging) {
+                                                    const sourceContainer = window.dragging.parentNode;
 
                                                     // Clone the dragged element to avoid DOM issues when moving between groups
-                                                    const clone = dragging.cloneNode(true);
+                                                    const clone = window.dragging.cloneNode(true);
 
                                                     // Update the data attribute for the new group
                                                     const itemData = JSON.parse(clone.getAttribute('x-sort:item'));
@@ -574,7 +607,7 @@ new class extends Component {
                                                     clone.setAttribute('x-sort:item', JSON.stringify(itemData));
 
                                                     // Remove from source
-                                                    sourceContainer.removeChild(dragging);
+                                                    sourceContainer.removeChild(window.dragging);
 
                                                     // Add to target (empty container)
                                                     this.appendChild(clone);
@@ -584,6 +617,11 @@ new class extends Component {
 
                                                     // Add event listeners to the clone
                                                     clone.addEventListener('dragstart', function(e) {
+                                                        // Clear any previous dragging state
+                                                        document.querySelectorAll('[x-sort\\:item]').forEach(el => {
+                                                            el.classList.remove('opacity-50');
+                                                        });
+
                                                         window.dragging = clone;
                                                         const cloneData = JSON.parse(this.getAttribute('x-sort:item'));
                                                         window.draggedItem = cloneData;
@@ -596,14 +634,21 @@ new class extends Component {
 
                                                     clone.addEventListener('dragend', function() {
                                                         this.classList.remove('opacity-50');
-                                                        window.dragging = null;
                                                         document.querySelectorAll('[x-sort\\:item]').forEach(el => {
                                                             el.classList.remove('border-t-2', 'border-primary-500');
                                                         });
+
+                                                        // Clear dragging state with a small delay
+                                                        setTimeout(() => {
+                                                            window.dragging = null;
+                                                            window.draggedItem = null;
+                                                        }, 50);
                                                     });
 
                                                     clone.addEventListener('dragover', function(e) {
                                                         e.preventDefault();
+                                                        e.dataTransfer.dropEffect = 'move';
+
                                                         if (window.dragging !== this) {
                                                             document.querySelectorAll('[x-sort\\:item]').forEach(el => {
                                                                 el.classList.remove('border-t-2', 'border-primary-500');
@@ -636,191 +681,155 @@ new class extends Component {
                             });
                         }
                     }" x-init="initSort()" wire:ignore>
-                        <div>
+                        <div className="">
                             @foreach ($this->media_groups as $index => $group)
-                            <div wire:key="group-{{ $group->id }}" x-data="{ id: {{ $index }} }"
-                                class="bg-white dark:bg-gray-900">
+                                <div wire:key="group-{{ $group->id }}" x-data="{ id: {{ $index }} }"
+                                    class="bg-white dark:bg-gray-900">
 
-                                <div class="flex justify-between items-center w-full py-3">
-                                    <button
-                                        @click.stop="activeAccordions.includes(id) ? activeAccordions = activeAccordions.filter(i => i !== id) : activeAccordions.push(id)"
-                                        class="flex justify-between items-center flex-grow text-left">
-                                        <span class="font-medium text-gray-900 dark:text-white">{{ $group->name }}</span>
-                                        <svg :class="activeAccordions.includes(id) ? 'rotate-180 transform' : ''"
-                                            class="w-5 h-5 transition-transform duration-200"
-                                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </button>
-
-                                    <div class="flex space-x-2 ml-2">
-                                        <button class="text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                                                <path
-                                                    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z">
-                                                </path>
-                                                <path d="M9 17h6"></path>
-                                                <path d="M9 13h6"></path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-red-500 hover:text-red-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M4 7h16"></path>
-                                                <path d="M10 11v6"></path>
-                                                <path d="M14 11v6"></path>
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                    <div class="flex justify-between items-center w-full py-3">
+                                        <button
+                                            @click.stop="activeAccordions.includes(id) ? activeAccordions = activeAccordions.filter(i => i !== id) : activeAccordions.push(id)"
+                                            class="flex justify-between items-center flex-grow text-left">
+                                            <span class=" font-bold text-primary-700 text-md">{{ $group->name }}</span>
+                                            <svg :class="activeAccordions.includes(id) ? 'rotate-180 transform' : ''"
+                                                class="w-5 h-5 transition-transform duration-200"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
                                             </svg>
                                         </button>
                                     </div>
+
+                                    <div x-show="activeAccordions.includes(id)"
+                                        x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 transform scale-95"
+                                        x-transition:enter-end="opacity-100 transform scale-100"
+                                        x-transition:leave="transition ease-in duration-100"
+                                        x-transition:leave-start="opacity-100 transform scale-100"
+                                        x-transition:leave-end="opacity-0 transform scale-95">
+                                        @if ($group->media->count() == 0)
+                                            <div class="text-center grid-cols-2 text-gray-500 text-sm">No images. Drag and
+                                                drop here.</div>
+                                        @endif
+
+                                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5  w-full min-h-[100px] transition-all duration-200"
+                                            data-group-id="{{ $group->id }}">
+
+
+                                            @foreach ($group->media ?? [] as $key => $image)
+                                                <div x-sort:item="[{{ $image->id }}, {{ $group->id }}]"
+                                                    class="relative cursor-move border-transparent"
+                                                    wire:key="grid-{{ $image->id }}">
+                                                    <div class="relative group"">
+                                                        <div
+                                                            class="absolute z-50 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+                                                            <button x-data
+                                                                @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
+                                                                class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                    height="24" viewBox="0 0 24 24" fill="none"
+                                                                    stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M4 7l16 0" />
+                                                                    <path d="M10 11l0 6" />
+                                                                    <path d="M14 11l0 6" />
+                                                                    <path
+                                                                        d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                </svg>
+                                                            </button>
+
+
+
+                                                        </div>
+
+                                                        <x-ui.card-image :model="$image" :liveEventId="$id"
+                                                            :sortBy="$type" :likesCount="$image->likes_count" :currentVote="$image->current_vote"
+                                                            :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
+                                                            :image="$image?->findVariant('thumbnail')?->getUrl() ??
+                                                                $image?->video_thumbnail" :showComment="true" :description="$date"
+                                                            :detailsUrl="route('public.image.show', ['id' => $image->id])" />
+
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="mt-2 flex justify-end">
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                @if ($this?->images?->hasPages())
+                    <div class="mt-4 ">
+                        {{ $this->images->links() }}
+                    </div>
+                @endif
+
+
+
+                <br />
+
+
+                <hr />
+
+                <h1 class="my-8 font-bold text-primary-700 text-2xl">Approved Images</h1>
+
+
+                <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
+
+                    @foreach ($this->approvedImages ?? [] as $key => $image)
+                        <div wire:key="approved-{{ $image->id }}">
+                            <div class="relative group"">
+                                <div
+                                    class="absolute z-50 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+                                    <button x-data
+                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
+                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 7l16 0" />
+                                            <path d="M10 11l0 6" />
+                                            <path d="M14 11l0 6" />
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                        </svg>
+                                    </button>
+
+
+
                                 </div>
 
-                                <div x-show="activeAccordions.includes(id)"
-                                    x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 transform scale-95"
-                                    x-transition:enter-end="opacity-100 transform scale-100"
-                                    x-transition:leave="transition ease-in duration-100"
-                                    x-transition:leave-start="opacity-100 transform scale-100"
-                                    x-transition:leave-end="opacity-0 transform scale-95"
-                                    >
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 w-full p-4 min-h-[100px] transition-all duration-200" data-group-id="{{ $group->id }}">
-                                    @foreach ($group->media ?? [] as $key => $image)
-                                        <div x-sort:item="[{{ $image->id }}, {{ $group->id }}]" class="relative cursor-move border-transparent" wire:key="grid-{{ $image->id }}">
-                        {{ $image->id }}
-                                            <div class="relative group"">
-                                                <div
-                                                    class="absolute z-20 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
+                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
+                                    :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id"
+                                    :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail" :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
 
-                                                    <button wire:click="approveLiveEvent({{ $image->id }})"
-                                                        wire:key="approve-btn-{{ $liveEvent->id }}"
-                                                        class="px-1 py-1 rounded-md text-white bg-green-400  group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                            height="24" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-check">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M5 12l5 5l10 -10" />
-                                                        </svg>
-
-                                                    </button>
-
-
-
-                                                    <button x-data
-                                                        @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
-                                                        class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                            height="24" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M4 7l16 0" />
-                                                            <path d="M10 11l0 6" />
-                                                            <path d="M14 11l0 6" />
-                                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                                        </svg>
-                                                    </button>
-
-
-
-                                                </div>
-
-                                                <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type"
-                                                    :likesCount="$image->likes_count" :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id"
-                                                    :id="$image->id" :image="$image?->findVariant('thumbnail')?->getUrl() ??
-                                                        $image?->video_thumbnail" :showComment="true" :description="$date"
-                                                    :detailsUrl="route('public.image.show', ['id' => $image->id])" />
-
-                                            </div>
-                                     </div> @endforeach
-                            </div>
-                            <div class="mt-2 flex justify-end">
-                                <button
-                                    class="px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700 transition"
-                                    wire:click="$dispatch('openModal', { component: 'modals.edit-media-group', arguments: { groupId: {{ $group->id }} } })">
-                                    Edit Group
-                                </button>
                             </div>
                         </div>
-                    </div>
                     @endforeach
                 </div>
-            </div>
-        </div>
 
 
 
-
-        @if ($this?->images?->hasPages())
-            <div class="mt-4 ">
-                {{ $this->images->links() }}
-            </div>
-        @endif
+                <div class="my-4"></div>
 
 
-
-        <br />
-
-
-        <hr />
-
-        <h1 class="my-8 font-bold text-primary-700 text-2xl">Approved Images</h1>
-
-
-        <div class="grid w-full lg:grid-cols-5 sm:grid-cols-2 gap-2 mt-8  ">
-
-            @foreach ($this->approvedImages ?? [] as $key => $image)
-                <div wire:key="approved-{{ $image->id }}">
-                    <div class="relative group"">
-                        <div
-                            class="absolute z-20 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
-                            <button x-data
-                                @click="confirm('Are you sure you want to delete this item?') && $wire.deleteImage({{ $image->id }})"
-                                class="px-1 py-1 rounded-md text-white bg-red-700 group-hover:opacity-30 hover:group-hover:opacity-100 transition-opacity">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M4 7l16 0" />
-                                    <path d="M10 11l0 6" />
-                                    <path d="M14 11l0 6" />
-                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                </svg>
-                            </button>
-
-
-
-                        </div>
-
-                        <x-ui.card-image :model="$image" :liveEventId="$id" :sortBy="$type" :likesCount="$image->likes_count"
-                            :currentVote="$image->current_vote" :dislikesCount="$image->dislikes_count" :key="$image->id" :id="$image->id" :image="$image?->findVariant('thumbnail')?->getUrl() ?? $image?->video_thumbnail"
-                            :showComment="true" :description="$date" :detailsUrl="route('public.image.show', ['id' => $image->id])" />
-
-                    </div>
+                <div class="comments">
+                    <x-notes.note :model="$this->liveEvent" />
                 </div>
-            @endforeach
-        </div>
-
-
-
-        <div class="my-4"></div>
-
-
-        <div class="comments">
-            <x-notes.note :model="$this->liveEvent" />
-        </div>
-        </div>
+            </div>
 
         </div>
     @endvolt

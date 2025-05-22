@@ -140,7 +140,7 @@ new class extends Component {
 
 
                     <div wire:ignore>
-                        <x-ui.app.uppy :endpoint="route('upload', $id)">
+                        <x-ui.app.uppy :modelId="$id" :endpoint="route('upload', $id)">
                         </x-ui.app.uppy>
                     </div>
 

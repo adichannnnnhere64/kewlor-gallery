@@ -17,7 +17,9 @@ use Spatie\EloquentSortable\SortableTrait;
 class Media extends BaseMedia implements Sortable
 {
     use HasLikes;
-    use SortableTrait;
+    use SortableTrait {
+        setNewOrder as traitSetNewOrder;
+    }
     use HasNotes;
 
     public $sortable = [
@@ -42,4 +44,10 @@ class Media extends BaseMedia implements Sortable
     {
         return $this->belongsToMany(Category::class);
     }
+
+    public function media_groups()
+    {
+        return $this->belongsToMany(MediaGroup::class);
+    }
+
 }

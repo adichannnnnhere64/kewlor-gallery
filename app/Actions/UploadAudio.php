@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Models\MediaGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,10 @@ final class UploadAudio
                 ->upload();
 
             $model->attachMedia($media, ['default']);
+
+            $media->media_groups()->sync([
+                MediaGroup::first()->id
+            ]);
 
         });
     }

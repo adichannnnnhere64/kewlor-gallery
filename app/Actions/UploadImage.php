@@ -16,6 +16,6 @@ final class UploadImage
         Storage::put($tempPath, file_get_contents($file->getRealPath()));
 
         ProcessImageUpload::dispatch($model, $tempPath)
-            ->onQueue('media'); // Optional: use a specific queue
+            ->onQueue('media');
     }
 }

@@ -66,4 +66,11 @@ class LiveEventGallery extends Model implements Sortable
 
         return $this->media()->reorder()->orderBy('order_column')->first()?->getUrl() ?? '/placeholder.jpg';
     }
+
+
+    /* public function media_groups() */
+    /* { */
+    /*     return $this->belongsToMany(MediaGroup::class)->withPivot('order_column')->using(LiveEventGalleryMediaGroup::class); */
+    /* } */
+
 }
