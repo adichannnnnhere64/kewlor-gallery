@@ -696,7 +696,6 @@ new class extends Component {
                                                     class="relative cursor-move border-transparent"
                                                     wire:key="grid-{{ $image->id }}-{{ $group->id }}">
                                                     <div class="relative group"">
-                        {{ $image->id }}
 
                                                         <div
                                                             class="absolute z-50 top-0 flex flex-col space-y-1  group-hover:opacity-50 opacity-0 right-0 transition-opacity">
