@@ -224,7 +224,7 @@ new class extends Component {
                                     </div>
                                     <x-ui.card :sortBy="$sortBy" :liveEventId="$liveEvent->id"
                                         wire:key="img-{{ $liveEvent->id }}-{{ $sortBy }}-{{ $key }}"
-                                        :showComment="true" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->date"
+                                        :showComment="true" :key="$liveEvent->id" :title="$liveEvent->name" :description="$liveEvent->created_at->toDateString()"
                                         :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count" :commentsCount="$liveEvent->comments_count" :id="$liveEvent->id"
                                         :image="$liveEvent
                                             ->getMedia('default')

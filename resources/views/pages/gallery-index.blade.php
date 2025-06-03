@@ -163,7 +163,7 @@ new class extends Component {
                                     :sortBy="$sortBy" :categoryFilter="$categoryFilter" :model="$liveEvent" :categories="$liveEvent->categories->pluck('name', 'id')"
                                     :currentVote="$liveEvent->current_vote" :likesCount="$liveEvent->likes_count" :dislikesCount="$liveEvent->dislikes_count"
                                     :id="$liveEvent->id" :liveEventId="$liveEvent->id" :showComment="true" :title="$liveEvent->name"
-                                    :description="$liveEvent->date" :image="$liveEvent
+                                    :description="$liveEvent->created_at->toDateString()" :image="$liveEvent
                                         ->getMedia('default')
                                         ->sortBy('order_column')
                                         ->first()
